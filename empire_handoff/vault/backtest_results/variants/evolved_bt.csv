@@ -1,0 +1,27 @@
+key,label,features,trades,win_rate,profit_factor,total_return_pct,max_drawdown_pct,sharpe_ratio,final_capital
+base_7x_fr,Base (7x FR filter),none,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify,+oi_classify,oi_classify,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_slip_filter,+slip_filter,slip_filter,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_weakshort_mix,+weakshort_mix,weakshort_mix,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_multi_confirm,+multi_confirm,multi_confirm,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_meta_variant,+meta_variant,meta_variant,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify+slip_filter,+oi_classify+slip_filter,"oi_classify,slip_filter",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify+weakshort_mix,+oi_classify+weakshort_mix,"oi_classify,weakshort_mix",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify+multi_confirm,+oi_classify+multi_confirm,"oi_classify,multi_confirm",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify+meta_variant,+oi_classify+meta_variant,"oi_classify,meta_variant",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_slip_filter+weakshort_mix,+slip_filter+weakshort_mix,"slip_filter,weakshort_mix",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_slip_filter+multi_confirm,+slip_filter+multi_confirm,"slip_filter,multi_confirm",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_slip_filter+meta_variant,+slip_filter+meta_variant,"slip_filter,meta_variant",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_weakshort_mix+multi_confirm,+weakshort_mix+multi_confirm,"weakshort_mix,multi_confirm",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_weakshort_mix+meta_variant,+weakshort_mix+meta_variant,"weakshort_mix,meta_variant",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_multi_confirm+meta_variant,+multi_confirm+meta_variant,"multi_confirm,meta_variant",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify+multi_confirm+slip_filter,+oi_classify+multi_confirm+slip_filter,"oi_classify,multi_confirm,slip_filter",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify+weakshort_mix+multi_confirm,+oi_classify+weakshort_mix+multi_confirm,"oi_classify,weakshort_mix,multi_confirm",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify+slip_filter+weakshort_mix,+oi_classify+slip_filter+weakshort_mix,"oi_classify,slip_filter,weakshort_mix",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_multi_confirm+slip_filter+weakshort_mix,+multi_confirm+slip_filter+weakshort_mix,"multi_confirm,slip_filter,weakshort_mix",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+add_oi_classify+multi_confirm+meta_variant,+oi_classify+multi_confirm+meta_variant,"oi_classify,multi_confirm,meta_variant",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+full_stack,Full Stack (all 5),"oi_classify,slip_filter,weakshort_mix,multi_confirm,meta_variant",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+oi_strict,+oi_classify (strict),oi_classify,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+multi_3conf,+multi_confirm (3確認),multi_confirm,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+oi_strict_multi3,+oi_strict+multi3,"oi_classify,multi_confirm",177,79.1,8.5,1183.0,-3.0,5.97,12830280.0
+slip_tight,+slip (tight 1.5),slip_filter,177,79.1,8.5,1183.0,-3.0,5.97,12830280.0

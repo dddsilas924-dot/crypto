@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Grid Search Report</title>
+<style>
+body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', monospace; margin: 20px; }
+h1 { color: #ff6b35; border-bottom: 2px solid #30363d; padding-bottom: 10px; }
+h2 { color: #58a6ff; margin-top: 30px; }
+h3 { color: #8b949e; }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+th { background: #161b22; color: #58a6ff; padding: 10px; text-align: left; border: 1px solid #30363d; }
+td { padding: 8px 10px; border: 1px solid #30363d; }
+tr:nth-child(even) { background: #161b22; }
+.summary { background: #161b22; padding: 15px; border-radius: 8px; margin: 15px 0; border: 1px solid #30363d; }
+.warn { color: #ff9800; font-size: 0.9em; margin: 10px 0; }
+</style></head><body>
+<h1>Grid Search Report</h1>
+<div class="summary">
+<b>期間:</b> 2020-01-01 ~ 2026-03-01 (6年間)<br>
+<b>対象:</b> 9 Bot × 150 combos = 1350 patterns<br>
+<b>コスト:</b> 0.22%/RT<br>
+</div>
+<h2>SURGE — Top 5 (PFソート)</h2>
+<p>現在設定: TP=5.0% SL=2.0% Lev=2x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.4</td><td>0.6</td><td>7.0</td><td>1.2</td><td>10</td><td style="color:#4caf50">3.31</td><td>+2568.3%</td><td>-52.0%</td><td>40.9%</td><td>1.09</td><td>279</td></tr>
+<tr><td>2</td><td>1.4</td><td>0.6</td><td>7.0</td><td>1.2</td><td>7</td><td style="color:#4caf50">3.30</td><td>+1774.8%</td><td>-41.8%</td><td>40.9%</td><td>1.10</td><td>279</td></tr>
+<tr><td>3</td><td>1.4</td><td>0.6</td><td>7.0</td><td>1.2</td><td>5</td><td style="color:#4caf50">3.30</td><td>+1245.5%</td><td>-32.7%</td><td>40.9%</td><td>1.11</td><td>279</td></tr>
+<tr><td>4</td><td>1.4</td><td>0.6</td><td>7.0</td><td>1.2</td><td>15</td><td style="color:#4caf50">3.30</td><td>+3888.1%</td><td>-54.5%</td><td>40.9%</td><td>1.08</td><td>279</td></tr>
+<tr><td>5</td><td>1.4</td><td>0.6</td><td>7.0</td><td>1.2</td><td>20</td><td style="color:#4caf50">3.30</td><td>+5214.1%</td><td>-62.3%</td><td>40.9%</td><td>1.06</td><td>279</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 3.31, TP: 5.0% → 7.0%, SL: 2.0% → 1.2%, Lev: 2x → 10x</p>
+<h2>MEANREVERT — Top 5 (PFソート)</h2>
+<p>現在設定: TP=6.0% SL=3.0% Lev=2x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>3</td><td style="color:#4caf50">4.14</td><td>+3603.7%</td><td>-31.2%</td><td>50.2%</td><td>1.53</td><td>814</td></tr>
+<tr><td>2</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>20</td><td style="color:#4caf50">4.13</td><td>+24951.7%</td><td>-70.4%</td><td>50.2%</td><td>0.99</td><td>814</td></tr>
+<tr><td>3</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>5</td><td style="color:#4caf50">4.12</td><td>+6117.3%</td><td>-36.8%</td><td>50.2%</td><td>1.45</td><td>814</td></tr>
+<tr><td>4</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>10</td><td style="color:#4caf50">4.12</td><td>+12401.3%</td><td>-40.0%</td><td>50.2%</td><td>1.35</td><td>814</td></tr>
+<tr><td>5</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>15</td><td style="color:#4caf50">4.12</td><td>+18680.8%</td><td>-56.4%</td><td>50.2%</td><td>1.20</td><td>814</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 4.14, TP: 6.0% → 8.4%, SL: 3.0% → 1.8%, Lev: 2x → 3x</p>
+<h2>MEANREVERT_TIGHT — Top 5 (PFソート)</h2>
+<p>現在設定: TP=6.0% SL=2.1% Lev=2x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.0</td><td>0.6</td><td>6.0</td><td>1.26</td><td>20</td><td style="color:#4caf50">5.74</td><td>+12200.9%</td><td>-52.4%</td><td>59.5%</td><td>0.95</td><td>437</td></tr>
+<tr><td>2</td><td>1.0</td><td>0.6</td><td>6.0</td><td>1.26</td><td>10</td><td style="color:#4caf50">5.72</td><td>+6015.4%</td><td>-31.9%</td><td>59.5%</td><td>1.25</td><td>437</td></tr>
+<tr><td>3</td><td>1.0</td><td>0.6</td><td>6.0</td><td>1.26</td><td>15</td><td style="color:#4caf50">5.72</td><td>+9107.3%</td><td>-38.7%</td><td>59.5%</td><td>1.12</td><td>437</td></tr>
+<tr><td>4</td><td>1.0</td><td>0.6</td><td>6.0</td><td>1.26</td><td>7</td><td style="color:#4caf50">5.69</td><td>+4161.1%</td><td>-33.3%</td><td>59.5%</td><td>1.26</td><td>437</td></tr>
+<tr><td>5</td><td>1.0</td><td>0.6</td><td>6.0</td><td>1.26</td><td>5</td><td style="color:#4caf50">5.66</td><td>+2924.3%</td><td>-33.3%</td><td>59.5%</td><td>1.24</td><td>437</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 5.74, TP: 6.0% → 6.0%, SL: 2.1% → 1.26%, Lev: 2x → 20x</p>
+<h2>MEANREVERT_HYBRID — Top 5 (PFソート)</h2>
+<p>現在設定: TP=6.0% SL=3.0% Lev=2x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.2</td><td>0.6</td><td>7.2</td><td>1.8</td><td>20</td><td style="color:#4caf50">4.01</td><td>+23599.0%</td><td>-57.9%</td><td>53.6%</td><td>1.00</td><td>851</td></tr>
+<tr><td>2</td><td>1.2</td><td>0.6</td><td>7.2</td><td>1.8</td><td>15</td><td style="color:#4caf50">4.01</td><td>+17661.4%</td><td>-46.7%</td><td>53.6%</td><td>1.21</td><td>851</td></tr>
+<tr><td>3</td><td>1.2</td><td>0.6</td><td>7.2</td><td>1.8</td><td>3</td><td style="color:#4caf50">4.01</td><td>+3397.4%</td><td>-31.5%</td><td>53.6%</td><td>1.50</td><td>851</td></tr>
+<tr><td>4</td><td>1.2</td><td>0.6</td><td>7.2</td><td>1.8</td><td>5</td><td style="color:#4caf50">4.00</td><td>+5774.7%</td><td>-31.8%</td><td>53.6%</td><td>1.48</td><td>851</td></tr>
+<tr><td>5</td><td>1.2</td><td>0.6</td><td>7.2</td><td>1.8</td><td>10</td><td style="color:#4caf50">4.00</td><td>+11718.8%</td><td>-33.5%</td><td>53.6%</td><td>1.37</td><td>851</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 4.01, TP: 6.0% → 7.2%, SL: 3.0% → 1.8%, Lev: 2x → 3x</p>
+<h2>MEANREVERT_ADAPTIVE — Top 5 (PFソート)</h2>
+<p>現在設定: TP=6.0% SL=3.0% Lev=2x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>3</td><td style="color:#4caf50">4.14</td><td>+3603.7%</td><td>-31.2%</td><td>50.2%</td><td>1.53</td><td>814</td></tr>
+<tr><td>2</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>20</td><td style="color:#4caf50">4.13</td><td>+24951.7%</td><td>-70.4%</td><td>50.2%</td><td>0.99</td><td>814</td></tr>
+<tr><td>3</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>5</td><td style="color:#4caf50">4.12</td><td>+6117.3%</td><td>-36.8%</td><td>50.2%</td><td>1.45</td><td>814</td></tr>
+<tr><td>4</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>10</td><td style="color:#4caf50">4.12</td><td>+12401.3%</td><td>-40.0%</td><td>50.2%</td><td>1.35</td><td>814</td></tr>
+<tr><td>5</td><td>1.4</td><td>0.6</td><td>8.4</td><td>1.8</td><td>15</td><td style="color:#4caf50">4.12</td><td>+18680.8%</td><td>-56.4%</td><td>50.2%</td><td>1.20</td><td>814</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 4.14, TP: 6.0% → 8.4%, SL: 3.0% → 1.8%, Lev: 2x → 3x</p>
+<h2>WEAKSHORT — Top 5 (PFソート)</h2>
+<p>現在設定: TP=5.0% SL=2.5% Lev=2x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.0</td><td>0.6</td><td>5.0</td><td>1.5</td><td>10</td><td style="color:#4caf50">4.14</td><td>+2516.6%</td><td>-54.8%</td><td>59.1%</td><td>1.06</td><td>257</td></tr>
+<tr><td>2</td><td>1.0</td><td>0.6</td><td>5.0</td><td>1.5</td><td>7</td><td style="color:#4caf50">4.14</td><td>+1712.4%</td><td>-42.1%</td><td>59.1%</td><td>1.10</td><td>257</td></tr>
+<tr><td>3</td><td>1.0</td><td>0.6</td><td>5.0</td><td>1.5</td><td>3</td><td style="color:#4caf50">4.14</td><td>+636.9%</td><td>-20.7%</td><td>59.1%</td><td>1.25</td><td>257</td></tr>
+<tr><td>4</td><td>1.0</td><td>0.6</td><td>5.0</td><td>1.5</td><td>5</td><td style="color:#4caf50">4.13</td><td>+1175.2%</td><td>-32.1%</td><td>59.1%</td><td>1.15</td><td>257</td></tr>
+<tr><td>5</td><td>1.0</td><td>0.6</td><td>5.0</td><td>1.5</td><td>15</td><td style="color:#4caf50">4.09</td><td>+3853.0%</td><td>-71.6%</td><td>59.1%</td><td>1.01</td><td>257</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 4.14, TP: 5.0% → 5.0%, SL: 2.5% → 1.5%, Lev: 2x → 3x</p>
+<h2>SNIPER — Top 5 (PFソート)</h2>
+<p>現在設定: TP=15.0% SL=5.0% Lev=10x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.4</td><td>0.6</td><td>21.0</td><td>3.0</td><td>3</td><td style="color:#4caf50">2.79</td><td>+15.9%</td><td>-15.5%</td><td>35.7%</td><td>0.30</td><td>28</td></tr>
+<tr><td>2</td><td>1.4</td><td>0.6</td><td>21.0</td><td>3.0</td><td>5</td><td style="color:#4caf50">2.79</td><td>+27.4%</td><td>-25.5%</td><td>35.7%</td><td>0.32</td><td>28</td></tr>
+<tr><td>3</td><td>1.4</td><td>0.6</td><td>21.0</td><td>3.0</td><td>7</td><td style="color:#4caf50">2.78</td><td>+39.6%</td><td>-35.3%</td><td>35.7%</td><td>0.34</td><td>28</td></tr>
+<tr><td>4</td><td>1.4</td><td>0.6</td><td>21.0</td><td>3.0</td><td>10</td><td style="color:#4caf50">2.76</td><td>+59.3%</td><td>-49.5%</td><td>35.7%</td><td>0.36</td><td>28</td></tr>
+<tr><td>5</td><td>1.4</td><td>0.6</td><td>21.0</td><td>3.0</td><td>15</td><td style="color:#4caf50">2.73</td><td>+95.8%</td><td>-72.3%</td><td>35.7%</td><td>0.40</td><td>28</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 2.79, TP: 15.0% → 21.0%, SL: 5.0% → 3.0%, Lev: 10x → 3x</p>
+<h2>SCALP — Top 5 (PFソート)</h2>
+<p>現在設定: TP=8.0% SL=3.0% Lev=10x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.0</td><td>0.6</td><td>8.0</td><td>1.8</td><td>3</td><td style="color:#4caf50">3.18</td><td>+2843.2%</td><td>-13.0%</td><td>44.4%</td><td>2.01</td><td>1268</td></tr>
+<tr><td>2</td><td>0.8</td><td>0.6</td><td>6.4</td><td>1.8</td><td>3</td><td style="color:#4caf50">3.18</td><td>+2544.3%</td><td>-13.2%</td><td>50.2%</td><td>1.91</td><td>1276</td></tr>
+<tr><td>3</td><td>0.8</td><td>0.6</td><td>6.4</td><td>1.8</td><td>20</td><td style="color:#4caf50">3.12</td><td>+24910.5%</td><td>-34.0%</td><td>50.2%</td><td>1.52</td><td>1276</td></tr>
+<tr><td>4</td><td>0.8</td><td>0.6</td><td>6.4</td><td>1.8</td><td>15</td><td style="color:#4caf50">3.11</td><td>+18341.1%</td><td>-26.2%</td><td>50.2%</td><td>1.61</td><td>1276</td></tr>
+<tr><td>5</td><td>0.8</td><td>0.6</td><td>6.4</td><td>1.8</td><td>5</td><td style="color:#4caf50">3.09</td><td>+5178.4%</td><td>-20.2%</td><td>50.2%</td><td>1.83</td><td>1276</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 3.18, TP: 8.0% → 6.4%, SL: 3.0% → 1.8%, Lev: 10x → 3x</p>
+<h2>ALPHA — Top 5 (PFソート)</h2>
+<p>現在設定: TP=8.0% SL=3.0% Lev=3x</p>
+<table><tr><th>#</th><th>TP×</th><th>SL×</th><th>TP%</th><th>SL%</th><th>Lev</th><th>PF</th><th>Return</th><th>MDD</th><th>WR</th><th>Sharpe</th><th>Trades</th></tr>
+<tr><td>1</td><td>1.4</td><td>0.6</td><td>11.2</td><td>1.8</td><td>15</td><td style="color:#4caf50">5.50</td><td>+351.7%</td><td>-54.7%</td><td>50.0%</td><td>0.67</td><td>12</td></tr>
+<tr><td>2</td><td>1.4</td><td>0.6</td><td>11.2</td><td>1.8</td><td>10</td><td style="color:#4caf50">5.49</td><td>+229.2%</td><td>-36.5%</td><td>50.0%</td><td>0.68</td><td>12</td></tr>
+<tr><td>3</td><td>1.4</td><td>0.6</td><td>11.2</td><td>1.8</td><td>7</td><td style="color:#4caf50">5.43</td><td>+155.5%</td><td>-31.6%</td><td>50.0%</td><td>0.67</td><td>12</td></tr>
+<tr><td>4</td><td>1.4</td><td>0.6</td><td>11.2</td><td>1.8</td><td>5</td><td style="color:#4caf50">5.41</td><td>+106.9%</td><td>-27.7%</td><td>50.0%</td><td>0.65</td><td>12</td></tr>
+<tr><td>5</td><td>1.4</td><td>0.6</td><td>11.2</td><td>1.8</td><td>20</td><td style="color:#4caf50">5.39</td><td>+465.3%</td><td>-72.9%</td><td>50.0%</td><td>0.61</td><td>12</td></tr>
+</table>
+<p><b>現在 vs 最適:</b> PF: ? → 5.50, TP: 8.0% → 11.2%, SL: 3.0% → 1.8%, Lev: 3x → 15x</p>
+<h2>ヒートマップ: TP倍率 × SL倍率 (Lev=3x, 全Bot平均PF)</h2>
+<table><tr><th>TP\SL</th>
+<th>SL×0.6</th>
+<th>SL×0.8</th>
+<th>SL×1.0</th>
+<th>SL×1.2</th>
+<th>SL×1.4</th>
+</tr>
+<tr><td>TP×0.6</td>
+<td style="background:#1b4332">3.28</td>
+<td style="background:#1b4332">2.54</td>
+<td style="background:#1b4332">2.12</td>
+<td style="background:#2d6a4f">1.81</td>
+<td style="background:#2d6a4f">1.58</td>
+</tr>
+<tr><td>TP×0.8</td>
+<td style="background:#1b4332">3.60</td>
+<td style="background:#1b4332">2.82</td>
+<td style="background:#1b4332">2.34</td>
+<td style="background:#1b4332">2.01</td>
+<td style="background:#2d6a4f">1.76</td>
+</tr>
+<tr><td>TP×1.0</td>
+<td style="background:#1b4332">3.77</td>
+<td style="background:#1b4332">2.96</td>
+<td style="background:#1b4332">2.46</td>
+<td style="background:#1b4332">2.12</td>
+<td style="background:#2d6a4f">1.86</td>
+</tr>
+<tr><td>TP×1.2</td>
+<td style="background:#1b4332">3.87</td>
+<td style="background:#1b4332">3.05</td>
+<td style="background:#1b4332">2.54</td>
+<td style="background:#1b4332">2.21</td>
+<td style="background:#2d6a4f">1.95</td>
+</tr>
+<tr><td>TP×1.4</td>
+<td style="background:#1b4332">4.00</td>
+<td style="background:#1b4332">3.15</td>
+<td style="background:#1b4332">2.65</td>
+<td style="background:#1b4332">2.30</td>
+<td style="background:#1b4332">2.04</td>
+</tr>
+</table>
+<h2>ヒートマップ: TP倍率 × SL倍率 (Lev=5x, 全Bot平均PF)</h2>
+<table><tr><th>TP\SL</th>
+<th>SL×0.6</th>
+<th>SL×0.8</th>
+<th>SL×1.0</th>
+<th>SL×1.2</th>
+<th>SL×1.4</th>
+</tr>
+<tr><td>TP×0.6</td>
+<td style="background:#1b4332">3.28</td>
+<td style="background:#1b4332">2.54</td>
+<td style="background:#1b4332">2.13</td>
+<td style="background:#2d6a4f">1.81</td>
+<td style="background:#2d6a4f">1.57</td>
+</tr>
+<tr><td>TP×0.8</td>
+<td style="background:#1b4332">3.59</td>
+<td style="background:#1b4332">2.81</td>
+<td style="background:#1b4332">2.33</td>
+<td style="background:#1b4332">2.02</td>
+<td style="background:#2d6a4f">1.76</td>
+</tr>
+<tr><td>TP×1.0</td>
+<td style="background:#1b4332">3.76</td>
+<td style="background:#1b4332">2.95</td>
+<td style="background:#1b4332">2.45</td>
+<td style="background:#1b4332">2.11</td>
+<td style="background:#2d6a4f">1.85</td>
+</tr>
+<tr><td>TP×1.2</td>
+<td style="background:#1b4332">3.86</td>
+<td style="background:#1b4332">3.04</td>
+<td style="background:#1b4332">2.53</td>
+<td style="background:#1b4332">2.19</td>
+<td style="background:#2d6a4f">1.94</td>
+</tr>
+<tr><td>TP×1.4</td>
+<td style="background:#1b4332">3.99</td>
+<td style="background:#1b4332">3.14</td>
+<td style="background:#1b4332">2.63</td>
+<td style="background:#1b4332">2.28</td>
+<td style="background:#1b4332">2.02</td>
+</tr>
+</table>
+<h2>ヒートマップ: TP倍率 × SL倍率 (Lev=7x, 全Bot平均PF)</h2>
+<table><tr><th>TP\SL</th>
+<th>SL×0.6</th>
+<th>SL×0.8</th>
+<th>SL×1.0</th>
+<th>SL×1.2</th>
+<th>SL×1.4</th>
+</tr>
+<tr><td>TP×0.6</td>
+<td style="background:#1b4332">3.28</td>
+<td style="background:#1b4332">2.53</td>
+<td style="background:#1b4332">2.12</td>
+<td style="background:#2d6a4f">1.81</td>
+<td style="background:#2d6a4f">1.57</td>
+</tr>
+<tr><td>TP×0.8</td>
+<td style="background:#1b4332">3.59</td>
+<td style="background:#1b4332">2.80</td>
+<td style="background:#1b4332">2.33</td>
+<td style="background:#1b4332">2.01</td>
+<td style="background:#2d6a4f">1.76</td>
+</tr>
+<tr><td>TP×1.0</td>
+<td style="background:#1b4332">3.76</td>
+<td style="background:#1b4332">2.94</td>
+<td style="background:#1b4332">2.44</td>
+<td style="background:#1b4332">2.10</td>
+<td style="background:#2d6a4f">1.85</td>
+</tr>
+<tr><td>TP×1.2</td>
+<td style="background:#1b4332">3.86</td>
+<td style="background:#1b4332">3.04</td>
+<td style="background:#1b4332">2.53</td>
+<td style="background:#1b4332">2.18</td>
+<td style="background:#2d6a4f">1.93</td>
+</tr>
+<tr><td>TP×1.4</td>
+<td style="background:#1b4332">3.99</td>
+<td style="background:#1b4332">3.15</td>
+<td style="background:#1b4332">2.64</td>
+<td style="background:#1b4332">2.28</td>
+<td style="background:#1b4332">2.02</td>
+</tr>
+</table>
+<h2>ヒートマップ: TP倍率 × SL倍率 (Lev=10x, 全Bot平均PF)</h2>
+<table><tr><th>TP\SL</th>
+<th>SL×0.6</th>
+<th>SL×0.8</th>
+<th>SL×1.0</th>
+<th>SL×1.2</th>
+<th>SL×1.4</th>
+</tr>
+<tr><td>TP×0.6</td>
+<td style="background:#1b4332">3.28</td>
+<td style="background:#1b4332">2.53</td>
+<td style="background:#1b4332">2.11</td>
+<td style="background:#2d6a4f">1.80</td>
+<td style="background:#2d6a4f">1.56</td>
+</tr>
+<tr><td>TP×0.8</td>
+<td style="background:#1b4332">3.59</td>
+<td style="background:#1b4332">2.80</td>
+<td style="background:#1b4332">2.32</td>
+<td style="background:#1b4332">2.00</td>
+<td style="background:#2d6a4f">1.75</td>
+</tr>
+<tr><td>TP×1.0</td>
+<td style="background:#1b4332">3.77</td>
+<td style="background:#1b4332">2.95</td>
+<td style="background:#1b4332">2.44</td>
+<td style="background:#1b4332">2.09</td>
+<td style="background:#2d6a4f">1.84</td>
+</tr>
+<tr><td>TP×1.2</td>
+<td style="background:#1b4332">3.87</td>
+<td style="background:#1b4332">3.04</td>
+<td style="background:#1b4332">2.53</td>
+<td style="background:#1b4332">2.18</td>
+<td style="background:#2d6a4f">1.92</td>
+</tr>
+<tr><td>TP×1.4</td>
+<td style="background:#1b4332">4.00</td>
+<td style="background:#1b4332">3.15</td>
+<td style="background:#1b4332">2.63</td>
+<td style="background:#1b4332">2.28</td>
+<td style="background:#1b4332">2.02</td>
+</tr>
+</table>
+<h2>ヒートマップ: TP倍率 × SL倍率 (Lev=15x, 全Bot平均PF)</h2>
+<table><tr><th>TP\SL</th>
+<th>SL×0.6</th>
+<th>SL×0.8</th>
+<th>SL×1.0</th>
+<th>SL×1.2</th>
+<th>SL×1.4</th>
+</tr>
+<tr><td>TP×0.6</td>
+<td style="background:#1b4332">3.29</td>
+<td style="background:#1b4332">2.53</td>
+<td style="background:#1b4332">2.11</td>
+<td style="background:#2d6a4f">1.79</td>
+<td style="background:#2d6a4f">1.55</td>
+</tr>
+<tr><td>TP×0.8</td>
+<td style="background:#1b4332">3.59</td>
+<td style="background:#1b4332">2.81</td>
+<td style="background:#1b4332">2.31</td>
+<td style="background:#2d6a4f">1.99</td>
+<td style="background:#2d6a4f">1.73</td>
+</tr>
+<tr><td>TP×1.0</td>
+<td style="background:#1b4332">3.77</td>
+<td style="background:#1b4332">2.94</td>
+<td style="background:#1b4332">2.44</td>
+<td style="background:#1b4332">2.09</td>
+<td style="background:#2d6a4f">1.82</td>
+</tr>
+<tr><td>TP×1.2</td>
+<td style="background:#1b4332">3.87</td>
+<td style="background:#1b4332">3.04</td>
+<td style="background:#1b4332">2.52</td>
+<td style="background:#1b4332">2.17</td>
+<td style="background:#2d6a4f">1.92</td>
+</tr>
+<tr><td>TP×1.4</td>
+<td style="background:#1b4332">4.00</td>
+<td style="background:#1b4332">3.15</td>
+<td style="background:#1b4332">2.63</td>
+<td style="background:#1b4332">2.27</td>
+<td style="background:#1b4332">2.00</td>
+</tr>
+</table>
+<h2>ヒートマップ: TP倍率 × SL倍率 (Lev=20x, 全Bot平均PF)</h2>
+<table><tr><th>TP\SL</th>
+<th>SL×0.6</th>
+<th>SL×0.8</th>
+<th>SL×1.0</th>
+<th>SL×1.2</th>
+<th>SL×1.4</th>
+</tr>
+<tr><td>TP×0.6</td>
+<td style="background:#1b4332">3.28</td>
+<td style="background:#1b4332">2.53</td>
+<td style="background:#1b4332">2.10</td>
+<td style="background:#2d6a4f">1.77</td>
+<td style="background:#2d6a4f">1.53</td>
+</tr>
+<tr><td>TP×0.8</td>
+<td style="background:#1b4332">3.59</td>
+<td style="background:#1b4332">2.80</td>
+<td style="background:#1b4332">2.31</td>
+<td style="background:#2d6a4f">1.98</td>
+<td style="background:#2d6a4f">1.72</td>
+</tr>
+<tr><td>TP×1.0</td>
+<td style="background:#1b4332">3.76</td>
+<td style="background:#1b4332">2.94</td>
+<td style="background:#1b4332">2.43</td>
+<td style="background:#1b4332">2.08</td>
+<td style="background:#2d6a4f">1.80</td>
+</tr>
+<tr><td>TP×1.2</td>
+<td style="background:#1b4332">3.86</td>
+<td style="background:#1b4332">3.04</td>
+<td style="background:#1b4332">2.52</td>
+<td style="background:#1b4332">2.17</td>
+<td style="background:#2d6a4f">1.90</td>
+</tr>
+<tr><td>TP×1.4</td>
+<td style="background:#1b4332">3.99</td>
+<td style="background:#1b4332">3.15</td>
+<td style="background:#1b4332">2.63</td>
+<td style="background:#1b4332">2.27</td>
+<td style="background:#2d6a4f">1.99</td>
+</tr>
+</table>
+<p class="warn">最適パラメータはオーバーフィットの可能性あり。WF検証を推奨。</p>
+<p style="color:#8b949e; font-size:0.8em;">Generated: 2026-03-13 01:29:41</p></body></html>

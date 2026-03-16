@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TP/SL深化シミュレーション — 40パターン結果</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--border:#1e293b;--accent:#3b82f6;--accent2:#8b5cf6;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;--gold:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b,#0f172a);border-bottom:1px solid var(--border);padding:32px 20px;text-align:center}
+.header h1{font-size:1.8rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{color:var(--muted);font-size:.85rem}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+.section{margin:30px 0}
+.section h2{font-size:1.1rem;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border);color:var(--text)}
+.section h3{font-size:.95rem;color:var(--muted);margin:16px 0 8px}
+table.g{width:100%;border-collapse:collapse;font-size:.82rem;margin-bottom:16px}
+table.g th{padding:8px 10px;background:rgba(59,130,246,.08);color:var(--accent);border-bottom:2px solid rgba(59,130,246,.2);font-weight:600;text-align:center;font-size:.72rem;text-transform:uppercase}
+table.g th:first-child{text-align:left}
+table.g td{padding:7px 10px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted)}
+table.g td:first-child{text-align:left;color:var(--text);font-weight:500}
+table.g tr:hover td{background:rgba(59,130,246,.04);color:var(--text)}
+.good{color:var(--green)!important;font-weight:600}.bad{color:var(--red)!important}.warn{color:var(--orange)!important}.best{color:var(--gold)!important;font-weight:700}
+.hl td{background:rgba(16,185,129,.06)!important}
+.note{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--orange)}
+.insight{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--green)}
+.alert{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--red)}
+.badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:.68rem;font-weight:600;margin-left:6px}
+.badge-best{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.badge-worst{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+.footer{text-align:center;padding:28px 20px;color:var(--dim);font-size:.72rem;border-top:1px solid var(--border);margin-top:40px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>TP/SL 深化シミュレーション</h1>
+  <div class="sub">2日間ペーパーデータ (2026-03-13~15) | 4 BOT x 5段階 x 2モード = 40パターン | 1h足ベース再シミュレーション</div>
+</div>
+
+<div class="container">
+
+<!-- ====== OVERVIEW ====== -->
+<div class="section">
+  <h2>シミュレーション条件</h2>
+  <div class="card">
+    <table class="g">
+      <thead><tr><th>Level</th><th>TP倍率</th><th>SL倍率</th><th>意味</th></tr></thead>
+      <tbody>
+        <tr><td>0.5x (浅い)</td><td>x0.5</td><td>x0.5</td><td>元の半分で利確/損切り → 高回転</td></tr>
+        <tr><td>1.0x (現状)</td><td>x1.0</td><td>x1.0</td><td>現在の設定そのまま</td></tr>
+        <tr><td>1.5x</td><td>x1.5</td><td>x1.5</td><td>少し深い</td></tr>
+        <tr><td>2.0x (深い)</td><td>x2.0</td><td>x2.0</td><td>2倍の深さ</td></tr>
+        <tr><td>3.0x (最深)</td><td>x3.0</td><td>x3.0</td><td>3倍 → 利益も損失も大きい</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== NORMAL MODE 4x5 ====== -->
+<div class="section">
+  <h2>通常モード（LONG + SHORT）— 4 BOT x 5 Level</h2>
+
+  <div class="card">
+    <h3>Total PnL 比較</h3>
+    <table class="g">
+      <thead>
+        <tr><th>Bot \ TP/SL Level</th><th>0.5x (浅い)</th><th>1.0x (現状)</th><th>1.5x</th><th>2.0x (深い)</th><th>3.0x (最深)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>aggressive (7x/15x)</td>
+          <td class="bad">-78.9%</td><td class="bad">-102.4%</td><td class="bad">-276.4%</td><td class="bad">-478.4%</td><td class="bad">-918.2%</td>
+        </tr>
+        <tr class="hl">
+          <td>aggressive_lev1 (1x) <span class="badge badge-best">BEST</span></td>
+          <td class="bad">-1.8%</td><td class="good">+7.7%</td><td class="good">+21.2%</td><td class="good">+30.7%</td><td class="best">+70.7%</td>
+        </tr>
+        <tr class="hl">
+          <td>aggressive_lev3 (3x)</td>
+          <td class="bad">-16.3%</td><td class="bad">-14.8%</td><td class="good">+4.7%</td><td class="good">+36.2%</td><td class="good">+52.1%</td>
+        </tr>
+        <tr>
+          <td>scalp_micro (20x) <span class="badge badge-worst">WORST</span></td>
+          <td class="bad">-151.0%</td><td class="bad">-126.0%</td><td class="bad">-146.0%</td><td class="bad">-166.0%</td><td class="bad">-164.0%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Win Rate 比較</h3>
+    <table class="g">
+      <thead>
+        <tr><th>Bot \ TP/SL Level</th><th>0.5x (浅い)</th><th>1.0x (現状)</th><th>1.5x</th><th>2.0x (深い)</th><th>3.0x (最深)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>aggressive (7x/15x)</td><td>34.4%</td><td>35.2%</td><td>36.1%</td><td>36.1%</td><td>36.9%</td></tr>
+        <tr class="hl"><td>aggressive_lev1 (1x)</td><td>33.3%</td><td>36.4%</td><td>39.4%</td><td>39.4%</td><td class="best">45.5%</td></tr>
+        <tr class="hl"><td>aggressive_lev3 (3x)</td><td>25.9%</td><td>25.9%</td><td>29.6%</td><td>33.3%</td><td>33.3%</td></tr>
+        <tr><td>scalp_micro (20x)</td><td>37.5%</td><td>37.5%</td><td>37.5%</td><td>37.5%</td><td>40.0%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Profit Factor 比較</h3>
+    <table class="g">
+      <thead>
+        <tr><th>Bot \ TP/SL Level</th><th>0.5x (浅い)</th><th>1.0x (現状)</th><th>1.5x</th><th>2.0x (深い)</th><th>3.0x (最深)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>aggressive (7x/15x)</td><td class="bad">0.83</td><td class="bad">0.87</td><td class="bad">0.74</td><td class="bad">0.65</td><td class="bad">0.53</td></tr>
+        <tr class="hl"><td>aggressive_lev1 (1x)</td><td class="bad">0.89</td><td class="good">1.30</td><td class="good">1.62</td><td class="good">1.69</td><td class="best">2.26</td></tr>
+        <tr class="hl"><td>aggressive_lev3 (3x)</td><td class="bad">0.62</td><td class="bad">0.80</td><td>1.05</td><td class="good">1.30</td><td class="good">1.31</td></tr>
+        <tr><td>scalp_micro (20x)</td><td class="bad">0.06</td><td class="bad">0.40</td><td class="bad">0.44</td><td class="bad">0.46</td><td class="bad">0.58</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>発見: aggressive_lev1 は TP/SLを深くするほど成績が良くなる。</strong><br>
+    3.0x: WR45.5%, PF2.26, +70.7% — 現状(1.0x: +7.7%)の9倍。<br>
+    lev3も1.5x以上でプラス転換。<strong>低レバ+深いTP/SLが最適解。</strong>
+  </div>
+  <div class="alert">
+    aggressive(7x/15x)とscalp_micro(20x)は全レベルで赤字。高レバではTP/SL調整だけでは救えない。
+  </div>
+</div>
+
+<!-- ====== SHORT ONLY MODE 4x5 ====== -->
+<div class="section">
+  <h2>SHORT ONLYモード（LONGを一切行わない）— 4 BOT x 5 Level</h2>
+  <div class="note">aggressive_lev1 / aggressive_lev3 はこの2日間全トレードがLONGだったため、SHORT ONLYでは0トレード。aggressive(7x/15x)とscalp_micro(20x)のみSHORTシグナルあり。</div>
+
+  <div class="card">
+    <h3>Total PnL 比較 — SHORT ONLY</h3>
+    <table class="g">
+      <thead>
+        <tr><th>Bot \ TP/SL Level</th><th>0.5x (浅い)</th><th>1.0x (現状)</th><th>1.5x</th><th>2.0x (深い)</th><th>3.0x (最深)</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl">
+          <td>aggressive (7x/15x) <span class="badge badge-best">BEST</span></td>
+          <td class="good">+98.2%</td><td class="best">+129.7%</td><td class="good">+45.7%</td><td class="bad">-38.3%</td><td class="bad">-206.3%</td>
+        </tr>
+        <tr>
+          <td>aggressive_lev1 (1x)</td>
+          <td colspan="5" style="text-align:center;color:var(--dim)">— SHORTシグナルなし（全33トレードがLONG）—</td>
+        </tr>
+        <tr>
+          <td>aggressive_lev3 (3x)</td>
+          <td colspan="5" style="text-align:center;color:var(--dim)">— SHORTシグナルなし（全27トレードがLONG）—</td>
+        </tr>
+        <tr>
+          <td>scalp_micro (20x)</td>
+          <td class="bad">-40.0%</td><td class="bad">-14.0%</td><td class="bad">-28.0%</td><td class="bad">-42.0%</td><td class="bad">-70.0%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Win Rate 比較 — SHORT ONLY</h3>
+    <table class="g">
+      <thead>
+        <tr><th>Bot \ TP/SL Level</th><th>0.5x (浅い)</th><th>1.0x (現状)</th><th>1.5x</th><th>2.0x (深い)</th><th>3.0x (最深)</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl">
+          <td>aggressive (7x/15x)</td>
+          <td class="good">50.0%</td><td class="good">50.0%</td><td class="good">50.0%</td><td class="good">50.0%</td><td class="good">50.0%</td>
+        </tr>
+        <tr><td>aggressive_lev1</td><td colspan="5" style="text-align:center;color:var(--dim)">—</td></tr>
+        <tr><td>aggressive_lev3</td><td colspan="5" style="text-align:center;color:var(--dim)">—</td></tr>
+        <tr>
+          <td>scalp_micro (20x)</td>
+          <td class="good">53.3%</td><td class="good">53.3%</td><td class="good">53.3%</td><td class="good">53.3%</td><td class="good">53.3%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Profit Factor 比較 — SHORT ONLY</h3>
+    <table class="g">
+      <thead>
+        <tr><th>Bot \ TP/SL Level</th><th>0.5x (浅い)</th><th>1.0x (現状)</th><th>1.5x</th><th>2.0x (深い)</th><th>3.0x (最深)</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl">
+          <td>aggressive (7x/15x)</td>
+          <td class="good">1.78</td><td class="best">1.62</td><td class="good">1.16</td><td class="bad">0.90</td><td class="bad">0.62</td>
+        </tr>
+        <tr><td>aggressive_lev1</td><td colspan="5" style="text-align:center;color:var(--dim)">—</td></tr>
+        <tr><td>aggressive_lev3</td><td colspan="5" style="text-align:center;color:var(--dim)">—</td></tr>
+        <tr>
+          <td>scalp_micro (20x)</td>
+          <td class="bad">0.11</td><td class="bad">0.76</td><td class="bad">0.62</td><td class="bad">0.52</td><td class="bad">0.39</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>aggressive SHORT ONLY (現状1.0x): +129.7%, WR50.0%, PF1.62</strong><br>
+    通常モードの-102.4%から+129.7%に反転。LONGを切るだけで+232%の改善。<br>
+    ただし深くしすぎると悪化（3.0x: -206.3%）。<strong>SHORT ONLY + 現状or0.5xが最適。</strong>
+  </div>
+</div>
+
+<!-- ====== COMPARISON ====== -->
+<div class="section">
+  <h2>通常 vs SHORT ONLY — 最適設定の比較</h2>
+  <div class="card">
+    <table class="g">
+      <thead><tr><th>構成</th><th>Mode</th><th>TP/SL</th><th>Trades</th><th>WR%</th><th>PF</th><th>Total PnL</th><th>Avg PnL</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td style="color:var(--gold)">aggressive_lev1</td><td>通常</td><td class="best">3.0x (最深)</td><td>33</td><td class="best">45.5%</td><td class="best">2.26</td><td class="best">+70.7%</td><td>+2.14%</td></tr>
+        <tr class="hl"><td style="color:var(--gold)">aggressive SHORT</td><td>SHORT ONLY</td><td>1.0x (現状)</td><td>52</td><td class="good">50.0%</td><td class="good">1.62</td><td class="good">+129.7%</td><td>+2.49%</td></tr>
+        <tr class="hl"><td>aggressive_lev3</td><td>通常</td><td>3.0x (最深)</td><td>27</td><td>33.3%</td><td class="good">1.31</td><td class="good">+52.1%</td><td>+1.93%</td></tr>
+        <tr class="hl"><td>aggressive SHORT</td><td>SHORT ONLY</td><td>0.5x (浅い)</td><td>52</td><td class="good">50.0%</td><td class="good">1.78</td><td class="good">+98.2%</td><td>+1.89%</td></tr>
+        <tr><td>aggressive (7x)</td><td>通常</td><td>0.5x (浅い)</td><td>122</td><td class="bad">34.4%</td><td class="bad">0.83</td><td class="bad">-78.9%</td><td>-0.65%</td></tr>
+        <tr><td class="bad">scalp_micro (20x)</td><td>通常</td><td>全て</td><td>40</td><td class="bad">37.5%</td><td class="bad">&lt;0.6</td><td class="bad">-126~-166%</td><td class="bad">赤字</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== KEY FINDINGS ====== -->
+<div class="section">
+  <h2>結論 — 実行可能な改善策</h2>
+  <div class="card">
+    <table class="g">
+      <thead><tr><th>#</th><th>発見</th><th>数値根拠</th><th>推奨アクション</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td style="color:var(--green);text-align:left"><strong>低レバ + 深TP/SL が最強</strong></td>
+          <td>lev1 3.0x: PF 2.26, +70.7%</td>
+          <td style="text-align:left">aggressive_lev1のTP/SLを3倍に変更 (TP9%/SL3%)</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td style="color:var(--green);text-align:left"><strong>SHORT ONLY で劇的改善</strong></td>
+          <td>aggressive: -102% → +130% (+232%改善)</td>
+          <td style="text-align:left">LONGフィルター実装（FR&gt;0のときのみエントリー）</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td style="color:var(--red);text-align:left"><strong>20xは全設定で赤字</strong></td>
+          <td>scalp_micro: PF 0.06~0.58</td>
+          <td style="text-align:left">scalp_micro無効化</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td style="color:var(--orange);text-align:left"><strong>7x/15xは通常モードで全赤字</strong></td>
+          <td>aggressive: PF 0.53~0.87</td>
+          <td style="text-align:left">7xをlev3(3x)に引き下げ or SHORT ONLYに切替</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td style="text-align:left"><strong>lev3は1.5x以上で黒字化</strong></td>
+          <td>lev3 2.0x: PF 1.30, +36.2%</td>
+          <td style="text-align:left">lev3のTP/SLを2倍に (TP6%/SL2%)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  TP/SL Grid Simulation | Data: 2026-03-13~15 Paper Signals | 4 BOTs x 5 Levels x 2 Modes = 40 Patterns | 1h OHLCV Re-simulation
+</div>
+
+</body>
+</html>

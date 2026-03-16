@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aggressive 全45コンフィグ バックテスト結果</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--border:#1e293b;--accent:#3b82f6;--accent2:#8b5cf6;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;--gold:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b,#0f172a);border-bottom:1px solid var(--border);padding:32px 20px;text-align:center}
+.header h1{font-size:1.9rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{color:var(--muted);font-size:.85rem}
+.container{max-width:1500px;margin:0 auto;padding:20px}
+.section{margin:28px 0}
+.section h2{font-size:1.1rem;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.section h3{font-size:.95rem;color:var(--muted);margin:14px 0 8px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px}
+table.t{width:100%;border-collapse:collapse;font-size:.8rem}
+table.t th{padding:7px 8px;background:rgba(59,130,246,.08);color:var(--accent);border-bottom:2px solid rgba(59,130,246,.2);font-weight:600;text-align:center;font-size:.7rem;text-transform:uppercase;white-space:nowrap}
+table.t th:first-child{text-align:left}
+table.t td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted);white-space:nowrap}
+table.t td:first-child{text-align:left;color:var(--text);font-weight:500}
+table.t tr:hover td{background:rgba(59,130,246,.04);color:var(--text)}
+.good{color:var(--green)!important;font-weight:600}.bad{color:var(--red)!important}.warn{color:var(--orange)!important}.best{color:var(--gold)!important;font-weight:700}
+.hl td{background:rgba(16,185,129,.05)!important}
+.note{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--orange)}
+.insight{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--green)}
+.mt{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.68rem;font-weight:600}
+.m-ls{background:#1e3a5f;color:#93c5fd}.m-so{background:#7f1d1d;color:#fca5a5}.m-fr{background:#065f46;color:#6ee7b7}
+.footer{text-align:center;padding:24px 20px;color:var(--dim);font-size:.72rem;border-top:1px solid var(--border);margin-top:40px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,14,23,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.nav a{color:var(--muted);text-decoration:none;padding:4px 12px;border-radius:14px;font-size:.78rem;border:1px solid transparent;white-space:nowrap}
+.nav a:hover{color:var(--text);background:var(--card);border-color:var(--border)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Aggressive LevBurn-Sec 全45コンフィグ</h1>
+  <div class="sub">3 Leverage (1x/3x/7x) × 5 Depth (1x~5x) × 3 Mode (L+S / SHORT_ONLY / FR_FILTER) | 2年間 BT (2024-03 ~ 2026-03)</div>
+</div>
+
+<div class="nav">
+  <a href="#all">全45 Sharpe順</a>
+  <a href="#lev1">Lev 1x</a>
+  <a href="#lev3">Lev 3x</a>
+  <a href="#lev7">Lev 7x</a>
+  <a href="#mode-cmp">Mode比較</a>
+  <a href="#depth-cmp">Depth比較</a>
+  <a href="#conclusion">結論</a>
+</div>
+
+<div class="container">
+
+<!-- ====== ALL 45 RANKING ====== -->
+<div class="section" id="all">
+  <h2>全45コンフィグ — Sharpe順ランキング</h2>
+  <div class="card" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>#</th><th>Key</th><th>Lev</th><th>Depth</th><th>TP</th><th>SL</th><th>Mode</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>Final Capital</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>1</td><td style="color:var(--gold)">agg_lev1_1x_ls</td><td>1x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-ls">L+S</span></td><td>429</td><td class="good">69.2</td><td>5.16</td><td class="good">312.9%</td><td class="good">-1.1%</td><td class="best">9.92</td><td>$4,129,276</td></tr>
+        <tr class="hl"><td>2</td><td>agg_lev1_1x_so</td><td>1x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-so">SO</span></td><td>290</td><td class="good">72.1</td><td>5.86</td><td class="good">221.8%</td><td class="good">-1.1%</td><td>8.60</td><td>$3,217,733</td></tr>
+        <tr class="hl"><td>3</td><td>agg_lev3_1x_ls</td><td>3x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-ls">L+S</span></td><td>429</td><td>69.2</td><td>5.12</td><td class="good">977.0%</td><td>-3.3%</td><td>8.23</td><td>$10,769,559</td></tr>
+        <tr class="hl"><td>4</td><td>agg_lev3_1x_so</td><td>3x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-so">SO</span></td><td>290</td><td>72.1</td><td>5.92</td><td class="good">703.3%</td><td>-3.3%</td><td>7.44</td><td>$8,033,022</td></tr>
+        <tr class="hl"><td>5</td><td style="color:var(--cyan)">agg_lev1_1x_fr</td><td>1x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-fr">FR</span></td><td>177</td><td class="best">79.1</td><td class="best">8.34</td><td>153.1%</td><td class="best">-0.7%</td><td>7.41</td><td>$2,531,489</td></tr>
+        <tr class="hl"><td>6</td><td>agg_lev3_1x_fr</td><td>3x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-fr">FR</span></td><td>177</td><td class="best">79.1</td><td class="best">8.49</td><td class="good">496.3%</td><td>-1.3%</td><td>6.82</td><td>$5,963,483</td></tr>
+        <tr><td>7</td><td>agg_7x_1x_ls</td><td>7x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-ls">L+S</span></td><td>429</td><td>69.2</td><td>5.10</td><td class="good">2,304.9%</td><td>-7.0%</td><td>6.79</td><td>$24,048,553</td></tr>
+        <tr><td>8</td><td>agg_7x_1x_so</td><td>7x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-so">SO</span></td><td>290</td><td>72.1</td><td>5.86</td><td class="good">1,665.5%</td><td>-7.5%</td><td>6.16</td><td>$17,654,571</td></tr>
+        <tr><td>9</td><td>agg_7x_1x_fr</td><td>7x</td><td>1x</td><td>3.0%</td><td>1.0%</td><td><span class="mt m-fr">FR</span></td><td>177</td><td class="best">79.1</td><td class="best">8.50</td><td class="good">1,183.0%</td><td>-3.0%</td><td>5.97</td><td>$12,830,280</td></tr>
+        <tr><td>10</td><td>agg_lev1_2x_ls</td><td>1x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-ls">L+S</span></td><td>426</td><td>50.0</td><td>2.67</td><td>353.9%</td><td>-6.7%</td><td>5.64</td><td>$4,538,672</td></tr>
+        <tr><td>11</td><td>agg_lev1_2x_so</td><td>1x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-so">SO</span></td><td>288</td><td>53.5</td><td>3.04</td><td>274.6%</td><td>-4.0%</td><td>5.48</td><td>$3,746,329</td></tr>
+        <tr><td>12</td><td>agg_lev1_2x_fr</td><td>1x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>61.4</td><td>4.24</td><td>217.1%</td><td>-4.6%</td><td>5.26</td><td>$3,170,535</td></tr>
+        <tr><td>13</td><td>agg_lev3_2x_so</td><td>3x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-so">SO</span></td><td>288</td><td>53.5</td><td>3.00</td><td>862.2%</td><td>-11.6%</td><td>4.73</td><td>$9,622,121</td></tr>
+        <tr><td>14</td><td>agg_lev3_2x_ls</td><td>3x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-ls">L+S</span></td><td>426</td><td>50.0</td><td>2.63</td><td>1,105.4%</td><td class="warn">-19.1%</td><td>4.59</td><td>$12,053,650</td></tr>
+        <tr><td>15</td><td>agg_lev3_2x_fr</td><td>3x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>61.4</td><td>4.17</td><td>687.2%</td><td>-13.3%</td><td>4.52</td><td>$7,871,758</td></tr>
+        <tr><td>16</td><td>agg_7x_2x_so</td><td>7x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-so">SO</span></td><td>288</td><td>53.5</td><td>2.98</td><td>2,043.9%</td><td class="warn">-23.1%</td><td>3.97</td><td>$21,438,950</td></tr>
+        <tr><td>17</td><td>agg_7x_2x_fr</td><td>7x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>61.4</td><td>4.12</td><td>1,627.6%</td><td class="warn">-21.2%</td><td>3.78</td><td>$17,275,854</td></tr>
+        <tr><td>18</td><td>agg_7x_2x_ls</td><td>7x</td><td>2x</td><td>6.0%</td><td>2.0%</td><td><span class="mt m-ls">L+S</span></td><td>426</td><td>50.0</td><td>2.59</td><td>2,604.7%</td><td class="bad">-37.0%</td><td>3.68</td><td>$27,046,529</td></tr>
+        <tr><td>19</td><td>agg_lev1_3x_so</td><td>1x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-so">SO</span></td><td>284</td><td>41.9</td><td>1.94</td><td>224.2%</td><td>-7.5%</td><td>3.38</td><td>$3,241,729</td></tr>
+        <tr><td>20</td><td>agg_lev1_3x_ls</td><td>1x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-ls">L+S</span></td><td>421</td><td>39.7</td><td>1.78</td><td>276.2%</td><td>-13.7%</td><td>3.27</td><td>$3,762,178</td></tr>
+        <tr><td>21</td><td>agg_lev1_3x_fr</td><td>1x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>44.3</td><td>2.16</td><td>162.4%</td><td>-5.8%</td><td>3.17</td><td>$2,623,726</td></tr>
+        <tr><td>22</td><td>agg_lev3_3x_so</td><td>3x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-so">SO</span></td><td>284</td><td>41.9</td><td>1.95</td><td>729.7%</td><td class="warn">-21.1%</td><td>3.16</td><td>$8,297,438</td></tr>
+        <tr><td>23</td><td>agg_lev3_3x_fr</td><td>3x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>44.3</td><td>2.16</td><td>529.1%</td><td>-13.0%</td><td>3.00</td><td>$6,290,601</td></tr>
+        <tr><td>24</td><td>agg_lev3_3x_ls</td><td>3x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-ls">L+S</span></td><td>421</td><td>39.7</td><td>1.78</td><td>892.7%</td><td class="bad">-36.1%</td><td>2.81</td><td>$9,926,846</td></tr>
+        <tr><td>25</td><td>agg_7x_3x_so</td><td>7x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-so">SO</span></td><td>284</td><td>41.9</td><td>1.95</td><td>1,731.5%</td><td class="bad">-41.2%</td><td>2.76</td><td>$18,314,973</td></tr>
+        <tr><td>26</td><td>agg_7x_3x_fr</td><td>7x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>44.3</td><td>2.16</td><td>1,256.4%</td><td class="warn">-28.1%</td><td>2.66</td><td>$13,563,670</td></tr>
+        <tr><td>27</td><td>agg_7x_3x_ls</td><td>7x</td><td>3x</td><td>9.0%</td><td>3.0%</td><td><span class="mt m-ls">L+S</span></td><td>421</td><td>39.7</td><td>1.78</td><td>2,151.6%</td><td class="bad">-63.8%</td><td>2.43</td><td>$22,515,502</td></tr>
+        <tr><td>28</td><td>agg_lev3_4x_ls</td><td>3x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-ls">L+S</span></td><td>413</td><td>35.6</td><td>1.50</td><td>810.2%</td><td class="warn">-25.2%</td><td>2.31</td><td>$9,102,471</td></tr>
+        <tr><td>29</td><td>agg_lev1_4x_ls</td><td>1x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-ls">L+S</span></td><td>413</td><td>35.6</td><td>1.49</td><td>222.3%</td><td class="warn">-15.8%</td><td>2.29</td><td>$3,223,419</td></tr>
+        <tr><td>30</td><td>agg_7x_4x_ls</td><td>7x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-ls">L+S</span></td><td>413</td><td>35.6</td><td>1.49</td><td>1,918.7%</td><td class="bad">-37.9%</td><td>2.23</td><td>$20,187,084</td></tr>
+        <tr><td>31</td><td>agg_7x_4x_so</td><td>7x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-so">SO</span></td><td>276</td><td>35.5</td><td>1.52</td><td>1,344.4%</td><td class="warn">-25.9%</td><td>2.21</td><td>$14,443,635</td></tr>
+        <tr><td>32</td><td>agg_lev3_4x_so</td><td>3x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-so">SO</span></td><td>276</td><td>35.5</td><td>1.50</td><td>551.5%</td><td class="warn">-21.0%</td><td>2.14</td><td>$6,515,210</td></tr>
+        <tr><td>33</td><td>agg_lev1_4x_so</td><td>1x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-so">SO</span></td><td>276</td><td>35.5</td><td>1.48</td><td>147.7%</td><td class="warn">-16.5%</td><td>1.93</td><td>$2,476,630</td></tr>
+        <tr><td>34</td><td>agg_7x_4x_fr</td><td>7x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>36.4</td><td>1.58</td><td>953.0%</td><td class="bad">-45.0%</td><td>1.93</td><td>$10,529,868</td></tr>
+        <tr><td>35</td><td>agg_lev1_4x_fr</td><td>1x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>36.4</td><td>1.60</td><td>115.7%</td><td>-14.4%</td><td>1.90</td><td>$2,157,002</td></tr>
+        <tr><td>36</td><td>agg_lev3_4x_fr</td><td>3x</td><td>4x</td><td>12.0%</td><td>4.0%</td><td><span class="mt m-fr">FR</span></td><td>176</td><td>36.4</td><td>1.57</td><td>395.5%</td><td class="bad">-35.4%</td><td>1.88</td><td>$4,954,767</td></tr>
+        <tr><td>37</td><td>agg_7x_5x_ls</td><td>7x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-ls">L+S</span></td><td>410</td><td>32.7</td><td>1.29</td><td>1,366.2%</td><td class="bad">-71.3%</td><td>1.71</td><td>$14,661,672</td></tr>
+        <tr><td>38</td><td>agg_lev3_5x_ls</td><td>3x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-ls">L+S</span></td><td>410</td><td>32.7</td><td>1.27</td><td>505.9%</td><td class="bad">-53.9%</td><td>1.53</td><td>$6,059,099</td></tr>
+        <tr><td>39</td><td>agg_lev1_5x_ls</td><td>1x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-ls">L+S</span></td><td>410</td><td>32.7</td><td>1.27</td><td>130.4%</td><td class="warn">-22.9%</td><td>1.47</td><td>$2,304,291</td></tr>
+        <tr><td>40</td><td>agg_7x_5x_fr</td><td>7x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-fr">FR</span></td><td>175</td><td>30.9</td><td>1.24</td><td>509.0%</td><td class="bad">-74.3%</td><td>1.37</td><td>$6,090,345</td></tr>
+        <tr><td>41</td><td>agg_7x_5x_so</td><td>7x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-so">SO</span></td><td>273</td><td>31.1</td><td>1.16</td><td>518.5%</td><td class="bad">-86.6%</td><td>1.34</td><td>$6,185,247</td></tr>
+        <tr><td>42</td><td>agg_lev3_5x_fr</td><td>3x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-fr">FR</span></td><td>175</td><td>30.9</td><td>1.23</td><td>203.4%</td><td class="bad">-54.4%</td><td>1.17</td><td>$3,034,018</td></tr>
+        <tr><td>43</td><td>agg_lev3_5x_so</td><td>3x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-so">SO</span></td><td>273</td><td>31.1</td><td>1.15</td><td>161.8%</td><td class="bad">-71.2%</td><td>0.99</td><td>$2,618,078</td></tr>
+        <tr><td>44</td><td>agg_lev1_5x_fr</td><td>1x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-fr">FR</span></td><td>175</td><td>30.9</td><td>1.22</td><td>49.7%</td><td class="warn">-23.7%</td><td>0.94</td><td>$1,497,327</td></tr>
+        <tr><td>45</td><td>agg_lev1_5x_so</td><td>1x</td><td>5x</td><td>15.0%</td><td>5.0%</td><td><span class="mt m-so">SO</span></td><td>273</td><td>31.1</td><td>1.19</td><td>56.0%</td><td class="bad">-30.6%</td><td>0.91</td><td>$1,559,868</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== LEV 1x ====== -->
+<div class="section" id="lev1">
+  <h2>Leverage 1x — 全15コンフィグ</h2>
+  <div class="card" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>Depth</th><th>TP/SL</th><th colspan="5"><span class="mt m-ls">L+S</span></th><th colspan="5"><span class="mt m-so">SHORT ONLY</span></th><th colspan="5"><span class="mt m-fr">FR FILTER</span></th></tr>
+        <tr><th></th><th></th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="best">1x</td><td>3/1%</td><td>429</td><td class="good">69.2</td><td>5.16</td><td class="good">313</td><td class="best">9.92</td><td>290</td><td class="good">72.1</td><td>5.86</td><td>222</td><td>8.60</td><td>177</td><td class="best">79.1</td><td class="best">8.34</td><td>153</td><td>7.41</td></tr>
+        <tr><td>2x</td><td>6/2%</td><td>426</td><td>50.0</td><td>2.67</td><td>354</td><td>5.64</td><td>288</td><td>53.5</td><td>3.04</td><td>275</td><td>5.48</td><td>176</td><td>61.4</td><td>4.24</td><td>217</td><td>5.26</td></tr>
+        <tr><td>3x</td><td>9/3%</td><td>421</td><td>39.7</td><td>1.78</td><td>276</td><td>3.27</td><td>284</td><td>41.9</td><td>1.94</td><td>224</td><td>3.38</td><td>176</td><td>44.3</td><td>2.16</td><td>162</td><td>3.17</td></tr>
+        <tr><td>4x</td><td>12/4%</td><td>413</td><td>35.6</td><td>1.49</td><td>222</td><td>2.29</td><td>276</td><td>35.5</td><td>1.48</td><td>148</td><td>1.93</td><td>176</td><td>36.4</td><td>1.60</td><td>116</td><td>1.90</td></tr>
+        <tr><td>5x</td><td>15/5%</td><td>410</td><td>32.7</td><td>1.27</td><td>130</td><td>1.47</td><td>273</td><td>31.1</td><td>1.19</td><td>56</td><td class="bad">0.91</td><td>175</td><td>30.9</td><td>1.22</td><td>50</td><td class="bad">0.94</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== LEV 3x ====== -->
+<div class="section" id="lev3">
+  <h2>Leverage 3x — 全15コンフィグ</h2>
+  <div class="card" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>Depth</th><th>TP/SL</th><th colspan="5"><span class="mt m-ls">L+S</span></th><th colspan="5"><span class="mt m-so">SHORT ONLY</span></th><th colspan="5"><span class="mt m-fr">FR FILTER</span></th></tr>
+        <tr><th></th><th></th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="best">1x</td><td>3/1%</td><td>429</td><td class="good">69.2</td><td>5.12</td><td class="good">977</td><td>8.23</td><td>290</td><td class="good">72.1</td><td>5.92</td><td>703</td><td>7.44</td><td>177</td><td class="best">79.1</td><td class="best">8.49</td><td>496</td><td>6.82</td></tr>
+        <tr><td>2x</td><td>6/2%</td><td>426</td><td>50.0</td><td>2.63</td><td class="good">1,105</td><td>4.59</td><td>288</td><td>53.5</td><td>3.00</td><td>862</td><td>4.73</td><td>176</td><td>61.4</td><td>4.17</td><td>687</td><td>4.52</td></tr>
+        <tr><td>3x</td><td>9/3%</td><td>421</td><td>39.7</td><td>1.78</td><td>893</td><td>2.81</td><td>284</td><td>41.9</td><td>1.95</td><td>730</td><td>3.16</td><td>176</td><td>44.3</td><td>2.16</td><td>529</td><td>3.00</td></tr>
+        <tr><td>4x</td><td>12/4%</td><td>413</td><td>35.6</td><td>1.50</td><td>810</td><td>2.31</td><td>276</td><td>35.5</td><td>1.50</td><td>552</td><td>2.14</td><td>176</td><td>36.4</td><td>1.57</td><td>396</td><td>1.88</td></tr>
+        <tr><td>5x</td><td>15/5%</td><td>410</td><td>32.7</td><td>1.27</td><td>506</td><td>1.53</td><td>273</td><td>31.1</td><td>1.15</td><td>162</td><td class="bad">0.99</td><td>175</td><td>30.9</td><td>1.23</td><td>203</td><td>1.17</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== LEV 7x ====== -->
+<div class="section" id="lev7">
+  <h2>Leverage 7x — 全15コンフィグ</h2>
+  <div class="card" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>Depth</th><th>TP/SL</th><th colspan="5"><span class="mt m-ls">L+S</span></th><th colspan="5"><span class="mt m-so">SHORT ONLY</span></th><th colspan="5"><span class="mt m-fr">FR FILTER</span></th></tr>
+        <tr><th></th><th></th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR%</th><th>PF</th><th>Ret%</th><th>Sha</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="best">1x</td><td>3/1%</td><td>429</td><td class="good">69.2</td><td>5.10</td><td class="good">2,305</td><td>6.79</td><td>290</td><td class="good">72.1</td><td>5.86</td><td class="good">1,666</td><td>6.16</td><td>177</td><td class="best">79.1</td><td class="best">8.50</td><td class="good">1,183</td><td>5.97</td></tr>
+        <tr><td>2x</td><td>6/2%</td><td>426</td><td>50.0</td><td>2.59</td><td class="good">2,605</td><td>3.68</td><td>288</td><td>53.5</td><td>2.98</td><td class="good">2,044</td><td>3.97</td><td>176</td><td>61.4</td><td>4.12</td><td class="good">1,628</td><td>3.78</td></tr>
+        <tr><td>3x</td><td>9/3%</td><td>421</td><td>39.7</td><td>1.78</td><td class="good">2,152</td><td>2.43</td><td>284</td><td>41.9</td><td>1.95</td><td class="good">1,732</td><td>2.76</td><td>176</td><td>44.3</td><td>2.16</td><td class="good">1,256</td><td>2.66</td></tr>
+        <tr><td>4x</td><td>12/4%</td><td>413</td><td>35.6</td><td>1.49</td><td class="good">1,919</td><td>2.23</td><td>276</td><td>35.5</td><td>1.52</td><td class="good">1,344</td><td>2.21</td><td>176</td><td>36.4</td><td>1.58</td><td>953</td><td>1.93</td></tr>
+        <tr><td>5x</td><td>15/5%</td><td>410</td><td>32.7</td><td>1.29</td><td class="good">1,366</td><td>1.71</td><td>273</td><td>31.1</td><td>1.16</td><td>519</td><td>1.34</td><td>175</td><td>30.9</td><td>1.24</td><td>509</td><td>1.37</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== MODE COMPARISON ====== -->
+<div class="section" id="mode-cmp">
+  <h2>Mode別 WR / MDD 比較（depth 1x固定）</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Lev</th><th colspan="3"><span class="mt m-ls">L+S</span></th><th colspan="3"><span class="mt m-so">SHORT ONLY</span></th><th colspan="3"><span class="mt m-fr">FR FILTER</span></th></tr>
+        <tr><th></th><th>WR%</th><th>MDD%</th><th>Sharpe</th><th>WR%</th><th>MDD%</th><th>Sharpe</th><th>WR%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+      <tbody>
+        <tr><td>1x</td><td>69.2</td><td>-1.1</td><td class="best">9.92</td><td>72.1</td><td>-1.1</td><td>8.60</td><td class="best">79.1</td><td class="best">-0.7</td><td>7.41</td></tr>
+        <tr><td>3x</td><td>69.2</td><td>-3.3</td><td>8.23</td><td>72.1</td><td>-3.3</td><td>7.44</td><td class="best">79.1</td><td class="best">-1.3</td><td>6.82</td></tr>
+        <tr><td>7x</td><td>69.2</td><td>-7.0</td><td>6.79</td><td>72.1</td><td>-7.5</td><td>6.16</td><td class="best">79.1</td><td class="best">-3.0</td><td>5.97</td></tr>
+      </tbody>
+    </table>
+    <div class="insight">
+      <strong>FR Filter:</strong> WR +10pp (69→79%)、MDD半減。全レバで最高WR/最小MDD。<br>
+      <strong>L+S:</strong> Sharpe最大（リターン量が多いため）。<br>
+      <strong>SO:</strong> WR +3pp程度、L+SとFRの中間。
+    </div>
+  </div>
+</div>
+
+<!-- ====== DEPTH COMPARISON ====== -->
+<div class="section" id="depth-cmp">
+  <h2>Depth別 Sharpe推移（L+Sモード固定）</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Depth</th><th>TP/SL</th><th>Lev 1x</th><th>Lev 3x</th><th>Lev 7x</th><th>WR%</th><th>傾向</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="best">1x</td><td>3/1%</td><td class="best">9.92</td><td class="best">8.23</td><td class="best">6.79</td><td class="good">69.2%</td><td class="good">全レバで最強</td></tr>
+        <tr><td>2x</td><td>6/2%</td><td>5.64</td><td>4.59</td><td>3.68</td><td>50.0%</td><td>WR急落-19pp</td></tr>
+        <tr><td>3x</td><td>9/3%</td><td>3.27</td><td>2.81</td><td>2.43</td><td>39.7%</td><td>さらに低下</td></tr>
+        <tr><td>4x</td><td>12/4%</td><td>2.29</td><td>2.31</td><td>2.23</td><td>35.6%</td><td>横ばい</td></tr>
+        <tr><td>5x</td><td>15/5%</td><td>1.47</td><td>1.53</td><td>1.71</td><td>32.7%</td><td class="warn">MDD急増</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      Depth 1x→2xでSharpe半減、WR -19pp。深くする利点はBTでは確認できず。<br>
+      ペーパー2日間では「深い方が良い」という結果だったが、2年BTでは明確に逆。<strong>短期バイアスに注意。</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CONCLUSION ====== -->
+<div class="section" id="conclusion">
+  <h2>結論 — 推奨設定</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>用途</th><th>Config</th><th>WR</th><th>PF</th><th>Sharpe</th><th>Return</th><th>MDD</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td style="text-align:left;color:var(--gold)">Sharpe最大</td><td>1x, depth1x, L+S</td><td>69.2%</td><td>5.16</td><td class="best">9.92</td><td>313%</td><td>-1.1%</td></tr>
+        <tr class="hl"><td style="text-align:left;color:var(--cyan)">WR/リスク最小</td><td>1x, depth1x, FR</td><td class="best">79.1%</td><td class="best">8.34</td><td>7.41</td><td>153%</td><td class="best">-0.7%</td></tr>
+        <tr><td style="text-align:left">リターン+安全</td><td>3x, depth1x, L+S</td><td>69.2%</td><td>5.12</td><td>8.23</td><td class="good">977%</td><td>-3.3%</td></tr>
+        <tr><td style="text-align:left">高リターン+FR安全</td><td>7x, depth1x, FR</td><td>79.1%</td><td>8.50</td><td>5.97</td><td class="good">1,183%</td><td>-3.0%</td></tr>
+        <tr><td style="text-align:left">最大リターン</td><td>7x, depth2x, L+S</td><td>50.0%</td><td>2.59</td><td>3.68</td><td class="good">2,605%</td><td class="bad">-37.0%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Aggressive LevBurn-Sec Full Grid | 45 configs (3 Lev × 5 Depth × 3 Mode) | 2024-03-14 ~ 2026-03-14 (2yr) | Compute: ~3.8h | Init: $1,000,000
+</div>
+
+</body>
+</html>

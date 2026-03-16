@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3月13日以降 エントリー銘柄一覧とBOT・条件の整理</title>
+  <style>
+    :root { --bg: #0f1419; --card: #1a2332; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --border: #30363d; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem; }
+    .container { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--muted); margin-bottom: 2rem; }
+    h2 { font-size: 1.25rem; margin-top: 2.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; background: var(--card); border-radius: 8px; overflow: hidden; }
+    th, td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: rgba(88, 166, 255, 0.12); color: var(--accent); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.03); }
+    strong { font-weight: 600; }
+    ul { margin: 0.5rem 0; padding-left: 1.5rem; }
+    li { margin: 0.35rem 0; }
+    .note { color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; }
+    .ref { font-family: ui-monospace, monospace; font-size: 0.85rem; color: var(--muted); }
+    code, .ref { background: rgba(255,255,255,0.06); padding: 0.15em 0.4em; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>3月13日以降にエントリーした銘柄一覧とBOT・条件の整理</h1>
+    <p class="subtitle">ペーパートレードで <strong>2026年3月13日以降</strong> にエントリーした銘柄を洗い出し、どのBOTが・どんな条件で動いたかをわかりやすくまとめた。</p>
+
+    <hr>
+
+    <h2>1. 全体サマリー</h2>
+    <table>
+      <tr><th>項目</th><th>数値</th></tr>
+      <tr><td>エントリー総数</td><td><strong>428件</strong></td></tr>
+      <tr><td>銘柄数</td><td><strong>13銘柄</strong></td></tr>
+      <tr><td>作動したBOT</td><td>すべて <strong>LevBurn-Sec 系</strong>（レバ焼き1秒足スキャン）</td></tr>
+    </table>
+    <p class="note">※ Alpha / Surge / MeanRevert など他BOTからのエントリーはこの期間なし。</p>
+
+    <hr>
+
+    <h2>2. 銘柄別・BOT別エントリー数</h2>
+    <table>
+      <thead>
+        <tr><th>銘柄</th><th>LONG</th><th>SHORT</th><th>主な作動BOT</th><th>エントリー数</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>COS_USDT</strong></td><td>○</td><td>—</td><td>aggressive, aggressive_lev1/lev3, scalp_micro, levburn_sec, fr_extreme, agg_* 等</td><td><strong>168件</strong></td></tr>
+        <tr><td><strong>TAG_USDT</strong></td><td>—</td><td>○</td><td>aggressive, levburn_sec, scalp_micro</td><td><strong>75件</strong></td></tr>
+        <tr><td><strong>RESOLV_USDT</strong></td><td>○</td><td>—</td><td>aggressive, agg_*, levburn_sec, scalp_micro 等</td><td><strong>55件</strong></td></tr>
+        <tr><td><strong>TOWNS_USDT</strong></td><td>○</td><td>—</td><td>aggressive, agg_*, scalp_micro</td><td><strong>26件</strong></td></tr>
+        <tr><td><strong>THE_USDT</strong></td><td>○</td><td>—</td><td>levburn_sec, agg_*, aggressive, evo_*, fr_extreme 等</td><td><strong>28件</strong></td></tr>
+        <tr><td><strong>DENT_USDT</strong></td><td>○</td><td>—</td><td>aggressive, levburn_sec, scalp_micro</td><td><strong>14件</strong></td></tr>
+        <tr><td><strong>MELANIA_USDT</strong></td><td>○</td><td>—</td><td>aggressive, scalp_micro</td><td><strong>5件</strong></td></tr>
+        <tr><td><strong>SIREN_USDT</strong></td><td>○</td><td>—</td><td>aggressive_lev1, scalp_micro_lev1</td><td><strong>3件</strong></td></tr>
+        <tr><td><strong>AGT_USDT</strong></td><td>—</td><td>○</td><td>aggressive, aggressive_lev1/lev3</td><td><strong>3件</strong></td></tr>
+        <tr><td><strong>LYN_USDT</strong></td><td>○</td><td>—</td><td>aggressive</td><td><strong>1件</strong></td></tr>
+        <tr><td><strong>NAORIS_USDT</strong></td><td>—</td><td>○</td><td>aggressive</td><td><strong>1件</strong></td></tr>
+        <tr><td><strong>TRUMPOFFICIAL_USDT</strong></td><td>○</td><td>—</td><td>aggressive</td><td><strong>1件</strong></td></tr>
+        <tr><td><strong>VVV_USDT</strong></td><td>○</td><td>—</td><td>aggressive</td><td><strong>1件</strong></td></tr>
+      </tbody>
+    </table>
+    <p class="note">※ 同一銘柄に複数BOTがそれぞれエントリーするため、銘柄あたりの「トレード数」はBOT数×決済回数で増える。</p>
+
+    <hr>
+
+    <h2>3. この期間のエントリー経路（Tier1・ドミナンスの位置づけ）</h2>
+
+    <h3>3.1 今回のエントリーは「LevBurn-Sec」だけ</h3>
+    <p>3月13日以降のペーパーエントリーは <strong>すべて LevBurn-Sec 系BOT</strong> から。</p>
+    <ul>
+      <li><strong>Alpha</strong>（Fear&lt;10 極限一撃）・<strong>Surge</strong>（Fear 25–45）・<strong>MeanRevert</strong>（Fear 50–80）などは、この期間は条件を満たさずエントリーなし。</li>
+      <li><strong>30分間隔の LevBurn</strong> は、Tier1通過銘柄を対象にFRスキャンするが、シグナルは別経路。今回の428件はすべて <strong>1秒足スキャンの LevBurn-Sec</strong>。</li>
+    </ul>
+
+    <h3>3.2 LevBurn-Sec の銘柄の選ばれ方（Tier1との関係）</h3>
+    <ul>
+      <li><strong>Tier1（870→Top50）</strong><br>
+        メインループでは「聖域割れなし（L02）」「出来高スパイク（L03）」「先行指標（L04）」「ボラ急変（L09）」「相関シフト（L17）」などでスクリーニング。<br>
+        <strong>30分 LevBurn</strong> は、この <strong>Tier1通過銘柄の上位50</strong> のFRを取得し、<strong>FRが閾値を超えた銘柄を「ホットリスト」に載せる</strong>。</li>
+      <li><strong>LevBurn-Sec</strong> は <strong>「ホットリストに載った銘柄」だけ</strong> を5秒ごとにスキャンする。<br>
+        ホットリストは主に「30分LevBurnでTier1通過銘柄のFRを取った結果、閾値超えだったもの」で更新される。<br>
+        そのため、<strong>今回エントリーした銘柄は「いずれかの時点でTier1を通過し、かつFRが閾値を超えた」と解釈してよい</strong>（実装は「Tier1通過→FR取得→閾値超えでホット入り→LevBurn-Secがスキャン」）。</li>
+      <li><strong>ドミナンス（L01）</strong><br>
+        BTC.D / Total MC などでパターンA〜F（リスクオン/オフ）を判定し、<strong>メインループのレジーム</strong>として使われる。<br>
+        LevBurn-Sec の<strong>銘柄選定</strong>には使っていない。<br>
+        ただし <strong>Fear&amp;Greed</strong> は LevBurn-Sec に渡しており、「Fear&lt;25 かつ LONG」のときにFRスコアに +10 するなど、<strong>スコア調整</strong>には使っている（LONGを止める条件にはなっていない）。</li>
+    </ul>
+
+    <h3>3.3 まとめ（条件の関係）</h3>
+    <table>
+      <tr><th>条件</th><th>役割</th></tr>
+      <tr><td><strong>Tier1通過</strong></td><td>30分LevBurnがFRを取得する対象＝「Tier1通過の上位50」のFRが閾値超えならホットリスト入り。<strong>今回の13銘柄は、その時点でTier1を通過していたとみなせる。</strong></td></tr>
+      <tr><td><strong>ドミナンス（L01）</strong></td><td>メインのレジーム判定用。LevBurn-Secの銘柄リストの絞り込みには未使用。</td></tr>
+      <tr><td><strong>Fear&amp;Greed</strong></td><td>LevBurn-SecのFRスコアの微調整（Fear&lt;25でLONGに+10など）。エントリー可否のガードには未使用。</td></tr>
+      <tr><td><strong>FR（資金調達率）</strong></td><td><strong>必須。</strong> 閾値超えでホット入り。FR&gt;0 → SHORT、FR&lt;0 → LONG の方向決定。</td></tr>
+      <tr><td><strong>1秒足トリガー</strong></td><td>価格変動・出来高スパイク・約定偏り・板の偏りが、各BOTの「最低トリガースコア」を超えたときだけエントリー。</td></tr>
+    </table>
+
+    <hr>
+
+    <h2>4. 作動したBOTとエントリー基準（わかりやすく）</h2>
+    <p>いずれも <strong>「FRで方向が決まる ＋ 1秒足でタイミングが決まる」</strong> 構造。</p>
+
+    <h3>4.1 共通の流れ（2段階）</h3>
+    <ol>
+      <li><strong>第1段階（FR）</strong><br>
+        その銘柄の <strong>資金調達率（FR）</strong> が一定以上（目安: 0.05%〜0.3%程度）に偏っている。<br>
+        <strong>FR &gt; 0</strong> → ロングが溜まりすぎ → <strong>SHORT</strong> でエントリー。<br>
+        <strong>FR &lt; 0</strong> → ショートが溜まりすぎ → <strong>LONG</strong> でエントリー。</li>
+      <li><strong>第2段階（リアルタイム）</strong><br>
+        1秒足の <strong>価格の急な動き</strong>（例: 1秒で0.3%以上）<br>
+        <strong>出来高の急増</strong>（直近の出来高が平均の3倍以上など）<br>
+        <strong>約定の偏り</strong>（買いと売りの比率）<br>
+        <strong>板の偏り</strong>（買い板と売り板の厚さの比）<br>
+        → これらをスコア化し、<strong>バリアントごとの「最低スコア」を超えたとき</strong> にエントリー。</li>
+    </ol>
+
+    <h3>4.2 BOT別の違い（イメージ）</h3>
+    <table>
+      <thead>
+        <tr><th>BOT名</th><th>イメージ</th><th>エントリーの厳しさ</th><th>TP/SL</th><th>レバ</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>levburn_sec</strong></td><td>標準型</td><td>やや厳しめ（スコア60以上など）</td><td>TP1.5% / SL0.5%</td><td>10x</td></tr>
+        <tr><td><strong>levburn_sec_aggressive</strong></td><td>攻撃型</td><td>やや緩い（スコア50以上など）</td><td>TP3% / SL1%</td><td>7〜15x</td></tr>
+        <tr><td><strong>levburn_sec_conservative</strong></td><td>堅実型</td><td>厳しめ（スコア75以上など）</td><td>TP1% / SL0.3%</td><td>7x</td></tr>
+        <tr><td><strong>levburn_sec_scalp_micro</strong></td><td>超短期</td><td>スコア高めだがTP/SLが小さい</td><td>TP0.5% / SL0.2%</td><td>20x</td></tr>
+        <tr><td><strong>levburn_sec_fr_extreme</strong></td><td>FR極端時</td><td>FRが特に大きいときだけ</td><td>TP2% / SL0.8%</td><td>10x</td></tr>
+        <tr><td><strong>levburn_sec_agg_lev1 / agg_lev3_ls / agg_7x 等</strong></td><td>Aggressive最適化版</td><td>aggressive に近いがレバや方向フィルター違い</td><td>3% / 1% など</td><td>1x, 3x, 7x</td></tr>
+        <tr><td><strong>levburn_sec_evo_***</strong></td><td>Evolved版</td><td>上に加え追加フィルター（板・OI方向など）</td><td>同上</td><td>同上</td></tr>
+      </tbody>
+    </table>
+    <p class="note">※ 「Tier1を通過」は「30分LevBurnの対象＝ホットリストの元」という意味で効いている。「ドミナンス」は銘柄選定には使われず、レジーム用。</p>
+
+    <hr>
+
+    <h2>5. 銘柄ごとの「なぜこの銘柄にエントリーしたか」</h2>
+    <ul>
+      <li><strong>COS_USDT</strong><br>
+        FRがマイナス（ロング過多）と判定される時間が長く、ホットリストに長く残った。1秒足の動きも条件を満たしやすく、複数BOTが何度もLONGでエントリー。結果としてトレード数・損失が集中。</li>
+      <li><strong>RESOLV_USDT</strong><br>
+        同様にFRマイナスでLONG候補になり、ホット入りして繰り返しエントリー。</li>
+      <li><strong>TAG_USDT</strong><br>
+        FRがプラス（ショート過多）と判定され、SHORTでエントリー。レポート上は成績の良い銘柄の一つ。</li>
+      <li><strong>TOWNS_USDT / THE_USDT / DENT_USDT</strong><br>
+        FRが閾値を超えてホット入りし、主にLONGでエントリー。</li>
+      <li><strong>MELANIA_USDT / TRUMPOFFICIAL_USDT</strong><br>
+        ミーム系。FRが閾値超えでホット入りし、LONGでエントリー（TRUMPはポンプ後の反転でSLに直結した例としてレポートに記載）。</li>
+      <li><strong>AGT_USDT / NAORIS_USDT</strong><br>
+        FRがプラス側でホット入りし、SHORTでエントリー。</li>
+      <li><strong>LYN_USDT / SIREN_USDT / VVV_USDT</strong><br>
+        いずれもFR閾値超えでホット入りし、LONG（SIRENはaggressive_lev1 等）で少数エントリー。</li>
+    </ul>
+
+    <hr>
+
+    <h2>6. 参照</h2>
+    <ul class="ref-list">
+      <li>エントリー元データ: <code>vault/export/paper_signals.csv</code>（3月13日以降 428件）</li>
+      <li>LevBurn-Secロジック: <code>vault/knowledge/mew/mew_24_levburn_sec.md</code></li>
+      <li>ドミナンス: <code>vault/knowledge/logic_group_a/L01_dominance_matrix.md</code></li>
+      <li>Tier1: <code>src/signals/tier1_engine.py</code>（L02聖域, L03出来高, L04先行指標, L09ボラ, L17相関）</li>
+      <li>エンジン上の流れ: <code>src/core/engine.py</code>（Tier1→Tier2→30分LevBurnでFR取得→ホットリスト→LevBurn-Secスキャン）</li>
+    </ul>
+
+    <p style="margin-top: 2rem; color: var(--muted);">以上。</p>
+  </div>
+</body>
+</html>

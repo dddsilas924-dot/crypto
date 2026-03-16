@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Monitor Report - BEFORE (旧フォーマット)</title>
+<style>
+body { font-family: 'Segoe UI', sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
+h1 { color: #00d4ff; border-bottom: 2px solid #00d4ff; padding-bottom: 10px; }
+h2 { color: #ffd700; margin-top: 30px; }
+h3 { color: #ff6b6b; }
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { background: #16213e; color: #00d4ff; padding: 10px; text-align: left; border: 1px solid #333; }
+td { padding: 8px 10px; border: 1px solid #333; }
+tr:hover { background: #16213e; }
+.pass { color: #4ade80; font-weight: bold; }
+.fail { color: #ef4444; font-weight: bold; }
+.warn { color: #fbbf24; }
+.adopt { background: #1a3a2a; }
+.reject { background: #3a1a1a; }
+.insurance { background: #2a2a1a; }
+.experiment { background: #1a2a3a; }
+.section { background: #16213e; border-radius: 8px; padding: 20px; margin: 20px 0; }
+.before { border-left: 4px solid #ef4444; padding-left: 15px; }
+.after { border-left: 4px solid #4ade80; padding-left: 15px; }
+code { background: #0d1117; padding: 2px 6px; border-radius: 4px; color: #79c0ff; }
+pre { background: #0d1117; padding: 15px; border-radius: 8px; overflow-x: auto; line-height: 1.5; }
+.metric { font-size: 24px; font-weight: bold; color: #00d4ff; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+.badge-green { background: #1a3a2a; color: #4ade80; }
+.badge-red { background: #3a1a1a; color: #ef4444; }
+.badge-yellow { background: #2a2a1a; color: #fbbf24; }
+.badge-blue { background: #1a2a3a; color: #00d4ff; }
+
+</style>
+</head>
+<body>
+<h1>Empire Monitor Report - BEFORE (旧フォーマット)</h1>
+
+<h2>A. Project Overview</h2>
+<div class="section">
+<table>
+<tr><th>項目</th><th>値</th></tr>
+<tr><td>Version</td><td><code>4ed5512</code></td></tr>
+<tr><td>Generated</td><td>2026-03-11 17:26:51</td></tr>
+<tr><td>Branch</td><td><code>main</code></td></tr>
+<tr><td>Python Files (src/config/scripts)</td><td><span class="metric">74</span></td></tr>
+<tr><td>Total Lines</td><td><span class="metric">15,322</span></td></tr>
+</table>
+</div>
+
+<h2>B. File Structure</h2>
+<div class="section">
+<table>
+<tr><th>Path</th><th>Lines</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>src/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">Other</span></td><td></td></tr><tr><td><code>src/ai/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">AI</span></td><td></td></tr><tr><td><code>src/backtest/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">Backtest</span></td><td></td></tr><tr><td><code>src/backtest/backtest_engine.py</code></td><td style="text-align:right">1306</td><td><span class="badge badge-blue">Backtest</span></td><td>バックテストエンジン - Bot-Alpha/Surgeのヒストリカル検証</td></tr><tr><td><code>src/core/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">Core</span></td><td></td></tr><tr><td><code>src/core/commentary.py</code></td><td style="text-align:right">344</td><td><span class="badge badge-blue">Core</span></td><td>テンプレートベース日本語コメンタリー生成（AI不使用）</td></tr><tr><td><code>src/core/engine.py</code></td><td style="text-align:right">579</td><td><span class="badge badge-blue">Core</span></td><td>メインエンジン - DB統合・ポジション管理・デイリーサマリー対応・ペーパートレード</td></tr><tr><td><code>src/core/paper_tracker.py</code></td><td style="text-align:right">196</td><td><span class="badge badge-blue">Core</span></td><td>ペーパートレード追跡 - シグナル記録 → 価格追跡 → TP/SL自動判定</td></tr><tr><td><code>src/core/report_scheduler.py</code></td><td style="text-align:right">269</td><td><span class="badge badge-blue">Core</span></td><td>レポートスケジューラー - 3トリガー管理（startup / daily / emergency）</td></tr><tr><td><code>src/core/state.py</code></td><td style="text-align:right">50</td><td><span class="badge badge-blue">Core</span></td><td>銘柄ごとの状態管理</td></tr><tr><td><code>src/core/veto.py</code></td><td style="text-align:right">138</td><td><span class="badge badge-blue">Core</span></td><td>VETOシステム - 3層拒否判定（L10既存 + データ異常 + 手動フラグ）</td></tr><tr><td><code>src/data/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">Data</span></td><td></td></tr><tr><td><code>src/data/cache_manager.py</code></td><td style="text-align:right">165</td><td><span class="badge badge-blue">Data</span></td><td>統合キャッシュマネージャー - ファイル永続 + メモリ揮発</td></tr><tr><td><code>src/data/database.py</code></td><td style="text-align:right">334</td><td><span class="badge badge-blue">Data</span></td><td>SQLiteによるヒストリカルデータ管理</td></tr><tr><td><code>src/execution/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">Execution</span></td><td></td></tr><tr><td><code>src/execution/alert.py</code></td><td style="text-align:right">552</td><td><span class="badge badge-blue">Execution</span></td><td>Telegramアラート送信 - v3.2: 5セクション新フォーマット</td></tr><tr><td><code>src/execution/feedback.py</code></td><td style="text-align:right">71</td><td><span class="badge badge-blue">Execution</span></td><td>アラート精度フィードバックループ</td></tr><tr><td><code>src/execution/position_manager.py</code></td><td style="text-align:right">48</td><td><span class="badge badge-blue">Execution</span></td><td>ポジション管理・DD警告・SL/TP監視</td></tr><tr><td><code>src/fetchers/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">Fetcher</span></td><td></td></tr><tr><td><code>src/fetchers/ohlcv.py</code></td><td style="text-align:right">127</td><td><span class="badge badge-blue">Fetcher</span></td><td>CCXT経由のOHLCV・市場データ取得（キャッシュ統合）</td></tr><tr><td><code>src/signals/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">Signal</span></td><td></td></tr><tr><td><code>src/signals/bot_alpha_engine.py</code></td><td style="text-align:right">111</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-Alpha: 極限一撃モード - Fear &lt; 10 でのみ発火</td></tr><tr><td><code>src/signals/bot_domshift.py</code></td><td style="text-align:right">109</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-DomShift: BTC独走→アルト回転（BTC.Dプロキシで独走極限検知 → アルト先回り）  ナレッジ: L01(ドミナンスマトリクス) + L21(セクターローテ) 逆説: BTC+5</td></tr><tr><td><code>src/signals/bot_event.py</code></td><td style="text-align:right">59</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-Event: イベントドリブン（BTC日次±8%大変動時の逆張り）  注意: 本来4h足ベースだが、1hヒストリカルデータ不足のため日足で代用。 資金の5%のみ使用、高レバレッジ。年数回のブラ</td></tr><tr><td><code>src/signals/bot_feardip.py</code></td><td style="text-align:right">79</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-FearDip: 恐怖底値ロング（Fear&lt;25, BTC急落, 聖域接近+出来高急増）</td></tr><tr><td><code>src/signals/bot_fearflat.py</code></td><td style="text-align:right">95</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-FearFlat: 恐怖×低ボラ底固め（Fear&lt;30 + ATR低 = パニック終了 → ロング）  ナレッジ: L06(ボラ安定性) + L11(センチメント逆張り) 逆説: Fear低=</td></tr><tr><td><code>src/signals/bot_gaptrap.py</code></td><td style="text-align:right">79</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-GapTrap: 窓埋めトラップ（大幅ギャップ + 低出来高 = 偽ブレイク → 逆張り）  ナレッジ: L12(イベントリスク) + L03(出来高)逆 + L15(ATR) 逆説: ギャッ</td></tr><tr><td><code>src/signals/bot_scalp.py</code></td><td style="text-align:right">86</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-Scalp: 高速回転（BB±2σタッチ + RSI極値、日足代用）  注意: 本来1h足ベースだが、1hヒストリカルデータ不足のため日足で代用。 資金の5%のみ使用、高レバレッジ。高頻度。</td></tr><tr><td><code>src/signals/bot_sectorlead.py</code></td><td style="text-align:right">83</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-SectorLead: セクターリーダー先行反発ロング（Fear&lt;25, リーダー反発→フォロワー遅延買い）</td></tr><tr><td><code>src/signals/bot_sectorsync.py</code></td><td style="text-align:right">109</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-SectorSync: クロスセクター同期異常（通常無相関セクター同期 → 遅延セクター買い）  ナレッジ: L17(相関シフト)逆用 + L21(セクターローテ) 逆説: 全既存Botは「低</td></tr><tr><td><code>src/signals/bot_shortsqueeze.py</code></td><td style="text-align:right">81</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-ShortSqueeze: ショートカバー検知ロング（Fear&lt;25, ショート過剰プロキシ）  注意: FR/OIのヒストリカルデータがDBにないため、価格ベースのプロキシを使用。 - FR</td></tr><tr><td><code>src/signals/bot_sniper.py</code></td><td style="text-align:right">79</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-Sniper: 精密狙撃（Fear&lt;30, BTC急落, 出来高爆発, 低BTC相関アルト）  注意: 本来1h足ベースだが、1hヒストリカルデータ不足のため日足で代用。 資金の5%のみ使用、</td></tr><tr><td><code>src/signals/bot_surge_engine.py</code></td><td style="text-align:right">209</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-Surge: 日常循環モード - 乖離・セクター波及を常時監視</td></tr><tr><td><code>src/signals/bot_volexhaust.py</code></td><td style="text-align:right">81</td><td><span class="badge badge-yellow">Bot</span></td><td>Bot-VolumeExhaust: 出来高枯渇反転（MA乖離大 + 出来高減少 = 売り手枯渇 → ロング）  ナレッジ: L03(出来高)逆用 + L07(MA乖離) 逆説: 全既存Botは出来高</td></tr><tr><td><code>src/signals/regime.py</code></td><td style="text-align:right">148</td><td><span class="badge badge-blue">Signal</span></td><td>L01: ドミナンス・マトリクス + Fear&amp;Greed（キャッシュ統合）</td></tr><tr><td><code>src/signals/tier1_engine.py</code></td><td style="text-align:right">135</td><td><span class="badge badge-blue">Engine</span></td><td>Tier 1: 全銘柄軽量スクリーニング（L02, L03, L04, L09, L17 + Alpha乖離）</td></tr><tr><td><code>src/signals/tier2_engine.py</code></td><td style="text-align:right">67</td><td><span class="badge badge-blue">Engine</span></td><td>Tier 2: 需給・健全性検証（L08, L10, L13）</td></tr><tr><td><code>src/utils/__init__.py</code></td><td style="text-align:right">0</td><td><span class="badge badge-blue">Utility</span></td><td></td></tr><tr><td><code>config/sector_mapping.py</code></td><td style="text-align:right">170</td><td><span class="badge badge-red">Config</span></td><td>Messari 11セクター分類マッピング</td></tr><tr><td><code>scripts/fetch_all_prices.py</code></td><td style="text-align:right">97</td><td><span class="badge badge-blue">Script</span></td><td>fetch_all_prices.py — full_market_enriched.csv の全銘柄株価を一括取得  vault/data_cache/price/{ticker}.csv に保存。</td></tr><tr><td><code>scripts/final_top10.py</code></td><td style="text-align:right">31</td><td><span class="badge badge-blue">Script</span></td><td>Final Top 10 across Phase 2 + Phase 3</td></tr><tr><td><code>scripts/fix_sanctuary.py</code></td><td style="text-align:right">110</td><td><span class="badge badge-blue">Script</span></td><td>聖域価格補完 - 新規上場銘柄は全日足の最安値を聖域に設定</td></tr><tr><td><code>scripts/fix_sectors.py</code></td><td style="text-align:right">431</td><td><span class="badge badge-blue">Script</span></td><td>セクター分類修正 - 5段階処理（キャッシュ統合）</td></tr><tr><td><code>scripts/fix_unknown_sectors.py</code></td><td style="text-align:right">415</td><td><span class="badge badge-blue">Script</span></td><td>Unknown銘柄セクター修正 + 非クリプト除外 - 4段階処理（キャッシュ統合）</td></tr><tr><td><code>scripts/generate_report.py</code></td><td style="text-align:right">927</td><td><span class="badge badge-blue">Script</span></td><td>バックテストレポート生成: HTML + 埋め込みグラフ</td></tr><tr><td><code>scripts/generate_report_html.py</code></td><td style="text-align:right">1007</td><td><span class="badge badge-blue">Script</span></td><td>Empire Monitor HTML Report Generator  Generates comprehensive HTML reports about the crypto trading </td></tr><tr><td><code>scripts/generate_universe.py</code></td><td style="text-align:right">273</td><td><span class="badge badge-blue">Script</span></td><td>generate_universe.py — JPX上場銘柄リスト + yfinance で enriched CSV を生成  1. JPXから全上場銘柄リスト取得 (内国株式のみ) 2. yfin</td></tr><tr><td><code>scripts/init_fear_history.py</code></td><td style="text-align:right">74</td><td><span class="badge badge-blue">Script</span></td><td>Fear &amp; Greed Index ヒストリカルデータ取得・DB保存</td></tr><tr><td><code>scripts/init_historical.py</code></td><td style="text-align:right">88</td><td><span class="badge badge-blue">Script</span></td><td>ヒストリカルデータ初期取得 - MEXC先物全銘柄の日足・1時間足を最大範囲で取得</td></tr><tr><td><code>scripts/init_sectors.py</code></td><td style="text-align:right">230</td><td><span class="badge badge-blue">Script</span></td><td>CoinGecko API → Messari 11セクター分類 + チェーンタグ（キャッシュ統合）</td></tr><tr><td><code>scripts/run_4source_experiment.py</code></td><td style="text-align:right">332</td><td><span class="badge badge-blue">Runner</span></td><td>4ソース対照実験: A(先生)/B1(Gemini解釈)/B2(Gemini独自)/C(SURF) 8パターン</td></tr><tr><td><code>scripts/run_backtest.py</code></td><td style="text-align:right">188</td><td><span class="badge badge-green">Test</span></td><td>バックテスト実行スクリプト  使い方: python scripts/run_backtest.py --bot alpha --start 2024-01-01 --end 2026-03-01 p</td></tr><tr><td><code>scripts/run_bot_ab.py</code></td><td style="text-align:right">209</td><td><span class="badge badge-blue">Runner</span></td><td>BOT-A / BOT-B 微調整バックテスト + 2025Q2除外分析</td></tr><tr><td><code>scripts/run_bot_improvement.py</code></td><td style="text-align:right">343</td><td><span class="badge badge-blue">Runner</span></td><td>Bot改良 3タスク一括実行スクリプト  Task 1: MeanRevert レバレッジ検証 (1x, 2x, 3x, 5x, 10x) Task 2: Fear&lt;25 ロング3Bot (FearD</td></tr><tr><td><code>scripts/run_cap_sensitivity.py</code></td><td style="text-align:right">146</td><td><span class="badge badge-blue">Runner</span></td><td>Task 1: ポジションキャップ感度分析  対象: Surge, MeanRevert, WeakShort max_position_jpy: 300万, 500万, 1000万, None (キ</td></tr><tr><td><code>scripts/run_engine_audit.py</code></td><td style="text-align:right">142</td><td><span class="badge badge-blue">Runner</span></td><td>バックテストエンジン修正前後比較スクリプト  修正内容: 1. MDD: トレード確定ベース → equity_curve（含み損込み）ベース 2. Sharpe: トレード単位PnL × √252 </td></tr><tr><td><code>scripts/run_full_analysis.py</code></td><td style="text-align:right">242</td><td><span class="badge badge-blue">Runner</span></td><td>全好成績パターンの四半期別分析+2025Q2依存度+損益分布+連敗分析+銘柄集中度</td></tr><tr><td><code>scripts/run_grid_search.py</code></td><td style="text-align:right">190</td><td><span class="badge badge-blue">Runner</span></td><td>大規模グリッドサーチ: S系×E系×T系</td></tr><tr><td><code>scripts/run_hybrid_experiment.py</code></td><td style="text-align:right">356</td><td><span class="badge badge-blue">Runner</span></td><td>ハイブリッド実験: SURF改善提案(忠実) + ハイブリッド最強版 + ベースライン比較</td></tr><tr><td><code>scripts/run_knowledge_bots.py</code></td><td style="text-align:right">284</td><td><span class="badge badge-blue">Runner</span></td><td>ナレッジBot 5種 バックテスト + WF + キャップ複利 + Telegram通知  Phase 3: バックテスト (5 new bots) Phase 4: WF検証 (PF&gt;1.5 のみ)</td></tr><tr><td><code>scripts/run_leverage_compare.py</code></td><td style="text-align:right">236</td><td><span class="badge badge-blue">Runner</span></td><td>主力Bot レバレッジ別比較（修正済みエンジン）  対象: Surge, MeanRevert, WeakShort, Alpha, Sniper, Scalp レバレッジ: 1x, 2x, 3x, </td></tr><tr><td><code>scripts/run_leverage_test.py</code></td><td style="text-align:right">186</td><td><span class="badge badge-green">Test</span></td><td>レバレッジバックテスト: BOT-A(S1×E16) / BOT-B(S12×E16) × T60-T65</td></tr><tr><td><code>scripts/run_phase2_backtest.py</code></td><td style="text-align:right">116</td><td><span class="badge badge-green">Test</span></td><td>Phase 2: 8 Exit × 5 S×E = 40パターン バックテスト（リターン最大化探索）</td></tr><tr><td><code>scripts/run_phase3_backtest.py</code></td><td style="text-align:right">104</td><td><span class="badge badge-green">Test</span></td><td>Phase 3: Top3 S×T × 5 E = 15パターン バックテスト</td></tr><tr><td><code>scripts/run_pyramid_compare.py</code></td><td style="text-align:right">202</td><td><span class="badge badge-blue">Runner</span></td><td>ピラミッディング有無の比較スクリプト</td></tr><tr><td><code>scripts/run_quarterly_analysis.py</code></td><td style="text-align:right">169</td><td><span class="badge badge-blue">Runner</span></td><td>Top5パターンの四半期別パフォーマンス分析</td></tr><tr><td><code>scripts/run_t5t9_backtest.py</code></td><td style="text-align:right">111</td><td><span class="badge badge-green">Test</span></td><td>T4-T9 × 3 S×E combos = 18パターン バックテスト</td></tr><tr><td><code>scripts/run_walkforward.py</code></td><td style="text-align:right">274</td><td><span class="badge badge-blue">Runner</span></td><td>ウォークフォワード検証スクリプト  使い方: python scripts/run_walkforward.py --bot surge python scripts/run_walkforward.</td></tr><tr><td><code>scripts/send_final_summary.py</code></td><td style="text-align:right">66</td><td><span class="badge badge-blue">Script</span></td><td>最終サマリー Telegram送信</td></tr><tr><td><code>scripts/send_meanrevert_analysis.py</code></td><td style="text-align:right">66</td><td><span class="badge badge-blue">Script</span></td><td>MeanRevert検証結果 Telegram送信</td></tr><tr><td><code>scripts/send_newbot_summary.py</code></td><td style="text-align:right">56</td><td><span class="badge badge-blue">Script</span></td><td>新規Bot バックテスト結果サマリー → Telegram送信</td></tr><tr><td><code>scripts/test_new_modules.py</code></td><td style="text-align:right">397</td><td><span class="badge badge-green">Test</span></td><td>テスト: commentary.py + veto.py + alert.py新フォーマット</td></tr><tr><td><code>scripts/test_system.py</code></td><td style="text-align:right">1068</td><td><span class="badge badge-green">Test</span></td><td>統合テスト v3.3: ペーパートレード + 安定性対策</td></tr><tr><td><code>scripts/verify_trades.py</code></td><td style="text-align:right">197</td><td><span class="badge badge-blue">Script</span></td><td>Task 2: トレード手動検算スクリプト  MeanRevert 10件 + Surge 10件をランダム抽出し、DBの生データと照合: 1. entry_price == 翌日DB始値 2. TP</td></tr>
+</table>
+<p style="color:#888;">Total: 74 files</p>
+</div>
+
+<h2>C. Bot Performance (Backtest Results)</h2>
+<div class="section">
+<table>
+<tr>
+<th>Bot</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th>
+<th>MDD%</th><th>Sharpe</th><th>Fear Range</th><th>Direction</th><th>Status</th>
+</tr>
+<tr class="adopt"><td>surge</td><td style="text-align:right">71</td><td style="text-align:right">59.2%</td><td style="text-align:right">3.02</td><td style="text-align:right"><span class="pass">+70.4</span></td><td style="text-align:right"><span class="pass">-5.1%</span></td><td style="text-align:right"><span class="pass">2.85</span></td><td>25-45</td><td>Long</td><td>&#x2705; 採用</td></tr><tr class="adopt"><td>meanrevert</td><td style="text-align:right">370</td><td style="text-align:right">55.4%</td><td style="text-align:right">2.15</td><td style="text-align:right"><span class="pass">+472.4</span></td><td style="text-align:right"><span class="pass">-5.9%</span></td><td style="text-align:right"><span class="pass">4.95</span></td><td>50-80</td><td>Short</td><td>&#x2705; 採用</td></tr><tr class="adopt"><td>weakshort</td><td style="text-align:right">103</td><td style="text-align:right">55.3%</td><td style="text-align:right">2.17</td><td style="text-align:right"><span class="pass">+54.2</span></td><td style="text-align:right"><span class="pass">-5.2%</span></td><td style="text-align:right"><span class="pass">2.53</span></td><td>50-75</td><td>Short</td><td>&#x2705; 採用</td></tr><tr class="insurance"><td>alpha</td><td style="text-align:right">0</td><td style="text-align:right">0.0%</td><td style="text-align:right">0.00</td><td style="text-align:right"><span class="pass">+0.0</span></td><td style="text-align:right"><span class="pass">0.0%</span></td><td style="text-align:right"><span class="fail">0.00</span></td><td>0-10</td><td>Long</td><td>&#x1F536; 保険</td></tr><tr class="insurance"><td>sniper</td><td style="text-align:right">10</td><td style="text-align:right">60.0%</td><td style="text-align:right">5.13</td><td style="text-align:right"><span class="pass">+40.7</span></td><td style="text-align:right"><span class="pass">-4.1%</span></td><td style="text-align:right"><span class="warn">1.35</span></td><td>0-30</td><td>Long</td><td>&#x1F536; 保険</td></tr><tr class="experiment"><td>scalp</td><td style="text-align:right">475</td><td style="text-align:right">39.8%</td><td style="text-align:right">1.52</td><td style="text-align:right"><span class="pass">+1066.6</span></td><td style="text-align:right"><span class="fail">-31.0%</span></td><td style="text-align:right"><span class="pass">3.24</span></td><td>All</td><td>L/S</td><td>&#x1F9EA; 実験</td></tr><tr class="reject"><td>momentum</td><td style="text-align:right">268</td><td style="text-align:right">31.0%</td><td style="text-align:right">1.00</td><td style="text-align:right"><span class="pass">+0.6</span></td><td style="text-align:right"><span class="fail">-39.8%</span></td><td style="text-align:right">0.15</td><td>20-60</td><td>Long</td><td>&#x274C; 不採用</td></tr><tr class="reject"><td>rebound</td><td style="text-align:right">30</td><td style="text-align:right">33.3%</td><td style="text-align:right">1.11</td><td style="text-align:right"><span class="pass">+7.5</span></td><td style="text-align:right"><span class="warn">-17.7%</span></td><td style="text-align:right">0.27</td><td>0-25</td><td>Long</td><td>&#x274C; 不採用</td></tr><tr class="experiment"><td>stability</td><td style="text-align:right">106</td><td style="text-align:right">39.6%</td><td style="text-align:right">1.29</td><td style="text-align:right"><span class="pass">+16.1</span></td><td style="text-align:right"><span class="pass">-9.2%</span></td><td style="text-align:right">0.89</td><td>15-55</td><td>Long</td><td>&#x1F9EA; 実験</td></tr><tr class="experiment"><td>trend</td><td style="text-align:right">138</td><td style="text-align:right">31.9%</td><td style="text-align:right">1.10</td><td style="text-align:right"><span class="pass">+13.2</span></td><td style="text-align:right"><span class="warn">-14.4%</span></td><td style="text-align:right">0.46</td><td>45-75</td><td>Long</td><td>&#x1F9EA; 実験</td></tr><tr class="reject"><td>cascade</td><td style="text-align:right">99</td><td style="text-align:right">27.3%</td><td style="text-align:right">0.74</td><td style="text-align:right"><span class="fail">-24.0</span></td><td style="text-align:right"><span class="fail">-28.0%</span></td><td style="text-align:right"><span class="fail">-0.70</span></td><td>20-65</td><td>Long</td><td>&#x274C; 不採用</td></tr><tr class="reject"><td>breakout</td><td style="text-align:right">21</td><td style="text-align:right">28.6%</td><td style="text-align:right">0.94</td><td style="text-align:right"><span class="fail">-1.4</span></td><td style="text-align:right"><span class="warn">-12.5%</span></td><td style="text-align:right"><span class="fail">-0.05</span></td><td>20-55</td><td>Long</td><td>&#x274C; 不採用</td></tr><tr class="reject"><td>btcfollow</td><td style="text-align:right">1</td><td style="text-align:right">100.0%</td><td style="text-align:right">999.00</td><td style="text-align:right"><span class="pass">+11.1</span></td><td style="text-align:right"><span class="pass">-0.2%</span></td><td style="text-align:right">0.70</td><td>0-30</td><td>Long</td><td>&#x274C; 不採用</td></tr>
+</table>
+<p style="color:#888;">
+&#x2705; 採用 = Production &nbsp;&nbsp;
+&#x1F536; 保険 = Insurance (rare fire) &nbsp;&nbsp;
+&#x1F9EA; 実験 = Experimental &nbsp;&nbsp;
+&#x274C; 不採用 = Rejected
+</p>
+</div>
+
+<h2>D. Report Format Sample (BEFORE - Old Format)</h2>
+<div class="section before">
+<h3>旧フォーマット: 4セクション構成</h3>
+<p>市場環境 + Tier1 + Tier2 + ポジションのシンプルな構成。結論やBot解説なし。</p>
+<pre>&#x1F680; 起動レポート 2026-03-11 17:00
+
+■ 市場環境
+  BTC: $82,500 (前日比 +1.5%)
+  Fear&amp;Greed: 35 (Fear域)
+  BTC.D: 61.2%
+  パターン: B (全力買い（アルト祭）)
+  Bot-Alpha: 待機中
+  Bot-Surge: 稼働中
+
+■ Tier1通過 (182銘柄)
+  セクター別: DeFi:42, AI:28, L1:25, Gaming:18
+
+■ Tier2通過 上位20 (全68銘柄)
+  1. PAXG [DeFi] Score:109
+  2. SOL [L1] Score:95
+  3. ETH [L1] Score:88
+  4. AVAX [L1] Score:82
+  5. LINK [Oracle] Score:79
+  ...
+
+■ ポジション (0件)
+  なし
+</pre>
+</div>
+
+<h2>E. Test Results</h2>
+<div class="section">
+<p>Result: <span class="pass">ALL 36 TESTS PASSED</span></p>
+<table>
+<tr><th>Suite</th><th>Test</th><th>Status</th></tr>
+<tr><td>Commentary</td><td>regime_comment Pattern B: 🎉 アルト祭り突入。BTC上昇中にドミナンス低下＝資金がアルトに流れている。Tier2上位を積極的に狙う。</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>regime_comment Pattern C + BTC急落</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>fear_comment fg=5: 😱 極限恐怖(F&amp;G=5)。Bot-Alpha発火圏内。歴史的買い場の可能性。...</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>fear_comment fg=85: 🤑 極限貪欲(F&amp;G=85)。天井圏の警戒。新規ロング禁止、利確優先。...</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>bot_status alpha fired: Bot-Alpha: 🔴 発火中！極限一撃モード。低相関・高αの厳選銘柄にLong 3x。...</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>bot_status surge waiting</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>tier1_summary: Tier1通過: 180/870銘柄 (20.7%)</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>tier2_symbol_comment: SOL: 合計70pt (T1:45 + T2:25)</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>trigger_comment BTC 1h: 市場意味: フラッシュクラッシュ/急騰 / 執行: 新規エントリー見送り。既存ポジションSL確認。 / 監視: Alph...</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>score_guide_footer</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>build_report_commentary</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>_build_conclusion Pattern C</td><td><span class="pass">PASS</span></td></tr><tr><td>Commentary</td><td>_build_conclusion Fear=5</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>VetoSystem init with manual_symbols</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>Layer 3 manual veto: 手動VETO: SCAM/USDT:USDTはsettings.yaml veto.manual_s</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>Layer 2 price=0 veto</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>Layer 2 negative price veto</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>Layer 2 OHLCV missing veto</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>Layer 2 spread veto</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>Normal pass (no veto)</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>add/remove manual veto</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>veto_stats: {&#x27;total&#x27;: 4, &#x27;by_reason&#x27;: {&#x27;手動VETO&#x27;: 1, &#x27;データ異常&#x27;: 3}, &#x27;manual_count&#x27;: 1}</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>recent_vetos: 4 entries</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>extra_checks lt veto</td><td><span class="pass">PASS</span></td></tr><tr><td>VetoSystem</td><td>Default config - no veto</td><td><span class="pass">PASS</span></td></tr><tr><td>Alert imports</td><td>TelegramAlert new methods exist</td><td><span class="pass">PASS</span></td></tr><tr><td>Alert imports</td><td>EmpireMonitor imports VetoSystem</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>Bot status with distance (Alpha near)</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>Bot status with multiple bots</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>Score breakdown: 聖域+20, 出来高+15, 変動+10, 低相関+10, α乖離+5, FR+20, 板厚+15, 清算-5</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>Matching bots: ◎Surge</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>Matching bots fg=60: ○MeanRevert ○WeakShort</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>SymbolState has tier details</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>Trigger analysis enhanced: 市場意味: トレンド転換の可能性 / 執行: 全ポジションSL見直し。ポジション縮小検討。 / 監視: Alpha, S...</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>Trigger analysis OI</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>Market premise header</td><td><span class="pass">PASS</span></td></tr><tr><td>Enhanced Features</td><td>ALL TESTS PASSED</td><td><span class="pass">PASS</span></td></tr>
+</table>
+<details>
+<summary style="cursor:pointer; color:#00d4ff;">Raw test output</summary>
+<pre>
+=== Test: Commentary ===
+  ✅ regime_comment Pattern B: 🎉 アルト祭り突入。BTC上昇中にドミナンス低下＝資金がアルトに流れている。Tier2上位を積極的に狙う。
+→ 全力買い...
+  ✅ regime_comment Pattern C + BTC急落
+  ✅ fear_comment fg=5: 😱 極限恐怖(F&amp;G=5)。Bot-Alpha発火圏内。歴史的買い場の可能性。...
+  ✅ fear_comment fg=85: 🤑 極限貪欲(F&amp;G=85)。天井圏の警戒。新規ロング禁止、利確優先。...
+  ✅ bot_status alpha fired: Bot-Alpha: 🔴 発火中！極限一撃モード。低相関・高αの厳選銘柄にLong 3x。...
+  ✅ bot_status surge waiting
+  ✅ tier1_summary: Tier1通過: 180/870銘柄 (20.7%)
+通常レベルの通過率。
+主要セクター: DeFi(40銘柄)、AI(...
+  ✅ tier2_symbol_comment: SOL: 合計70pt (T1:45 + T2:25)
+  T1内訳: 聖域20 / 出来高15 / 価格変動10
+  ...
+  ✅ trigger_comment BTC 1h: 市場意味: フラッシュクラッシュ/急騰 / 執行: 新規エントリー見送り。既存ポジションSL確認。 / 監視: Alph...
+  ✅ score_guide_footer
+  ✅ build_report_commentary
+  ✅ _build_conclusion Pattern C
+  ✅ _build_conclusion Fear=5
+
+  Commentary: 13/13 passed
+
+=== Test: VetoSystem ===
+  ✅ VetoSystem init with manual_symbols
+  ✅ Layer 3 manual veto: 手動VETO: SCAM/USDT:USDTはsettings.yaml veto.manual_s
+  ✅ Layer 2 price=0 veto
+  ✅ Layer 2 negative price veto
+  ✅ Layer 2 OHLCV missing veto
+  ✅ Layer 2 spread veto
+  ✅ Normal pass (no veto)
+  ✅ add/remove manual veto
+  ✅ veto_stats: {&#x27;total&#x27;: 4, &#x27;by_reason&#x27;: {&#x27;手動VETO&#x27;: 1, &#x27;データ異常&#x27;: 3}, &#x27;manual_count&#x27;: 1}
+  ✅ recent_vetos: 4 entries
+  ✅ extra_checks lt veto
+  ✅ Default config - no veto
+
+  VetoSystem: 12/12 passed
+
+=== Test: Alert imports ===
+  ✅ TelegramAlert new methods exist
+  ✅ EmpireMonitor imports VetoSystem
+
+  Alert imports: 2/2 passed
+
+=== Test: Enhanced Features ===
+  ✅ Bot status with distance (Alpha near)
+  ✅ Bot status with multiple bots
+  ✅ Score breakdown: 聖域+20, 出来高+15, 変動+10, 低相関+10, α乖離+5, FR+20, 板厚+15, 清算-5
+  ✅ Matching bots: ◎Surge
+  ✅ Matching bots fg=60: ○MeanRevert ○WeakShort
+  ✅ SymbolState has tier details
+  ✅ Trigger analysis enhanced: 市場意味: トレンド転換の可能性 / 執行: 全ポジションSL見直し。ポジション縮小検討。 / 監視: Alpha, S...
+  ✅ Trigger analysis OI
+  ✅ Market premise header
+
+  Enhanced Features: 9/9 passed
+
+==================================================
+TOTAL: 36/36 passed
+ALL TESTS PASSED ✅
+</pre>
+</details>
+</div>
+
+<h2>F. Known Issues / Unimplemented</h2>
+<div class="section">
+<p>Implemented: <span class="pass">5</span> &nbsp; Not Implemented: <span class="fail">3</span></p>
+<table>
+<tr><th>Feature</th><th>Status</th></tr>
+<tr><td>BTC.D validation</td><td><span class="pass">実装済 (30-80% guard)</span></td></tr><tr><td>VETO system (3-layer)</td><td><span class="pass">基本実装済</span></td></tr><tr><td>Macro event VETO</td><td><span class="fail">未実装</span></td></tr><tr><td>Bot simultaneous signal priority</td><td><span class="fail">未実装</span></td></tr><tr><td>Pattern-specific win rate tracking</td><td><span class="fail">未実装</span></td></tr><tr><td>Commentary template system</td><td><span class="pass">実装済</span></td></tr><tr><td>Score guide footer</td><td><span class="pass">実装済</span></td></tr><tr><td>Community report format</td><td><span class="pass">実装済</span></td></tr>
+</table>
+</div>
+
+<hr style="border-color:#333; margin-top:40px;">
+<p style="color:#666; font-size:12px;">Generated: 2026-03-11 17:26:53 by generate_report_html.py</p>
+</body>
+</html>

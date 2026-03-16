@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>起動戦略レポート</title>
+<style>
+body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', monospace; margin: 0 auto; max-width: 1200px; padding: 20px; line-height: 1.7; }
+h1 { color: #ff6b35; border-bottom: 2px solid #30363d; padding-bottom: 10px; }
+h2 { color: #58a6ff; margin-top: 40px; border-left: 4px solid #58a6ff; padding-left: 12px; }
+h3 { color: #8b949e; margin-top: 25px; }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; font-size: 0.92em; }
+th { background: #161b22; color: #58a6ff; padding: 8px 10px; text-align: left; border: 1px solid #30363d; }
+td { padding: 7px 10px; border: 1px solid #30363d; }
+tr:nth-child(even) { background: #161b22; }
+.box { background: #161b22; padding: 15px 20px; border-radius: 8px; margin: 15px 0; border: 1px solid #30363d; }
+.good { color: #4caf50; } .warn { color: #ff9800; } .bad { color: #f44336; }
+.highlight { background: #1b4332; }
+.insight { background: #1a1a2e; border-left: 3px solid #ff9800; padding: 12px 15px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+.danger { background: #2a1a1a; border-left: 3px solid #f44336; padding: 12px 15px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+.verdict { background: #0d2818; border: 1px solid #4caf50; padding: 12px 15px; margin: 12px 0; border-radius: 6px; }
+.step { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px 20px; margin: 15px 0; }
+.step-num { display: inline-block; background: #58a6ff; color: #0d1117; width: 30px; height: 30px; border-radius: 50%; text-align: center; line-height: 30px; font-weight: bold; margin-right: 10px; }
+code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+pre { background: #161b22; padding: 12px; border-radius: 6px; border: 1px solid #30363d; overflow-x: auto; }
+</style></head><body>
+
+<h1>起動戦略レポート</h1>
+<div class="box">
+<b>目的:</b> グリッドサーチ・相関分析・レジーム分析の結果を踏まえ、実際にどのBotをどの設定で稼働させるかの具体的な計画<br>
+<b>取引所:</b> MEXC 先物 (Perpetual Futures)<br>
+<b>現在の状態:</b> 全Bot paper モード（ペーパートレード）
+</div>
+
+<!-- ============================================================ -->
+<h2>Phase 1: 設定変更（即時実行）</h2>
+
+<p>まずコードやリアルトレードの前に、settings.yaml のパラメータを変更する。</p>
+
+<h3>変更する Bot と設定値</h3>
+
+<table>
+<tr>
+<th>Bot</th>
+<th>項目</th>
+<th>現行値</th>
+<th>変更後</th>
+<th>変更理由</th>
+</tr>
+<!-- MeanRevert-Tight -->
+<tr class="highlight"><td rowspan="3"><b>MeanRevert-Tight</b><br><span class="good">主力</span></td>
+<td>利確 (take_profit_pct)</td><td>6.0%</td><td class="good"><b>8.4%</b></td>
+<td>×1.4 = 6.0 × 1.4 = 8.4%。利確を伸ばしてリターン改善</td></tr>
+<tr class="highlight"><td>損切 (stop_loss_pct)</td><td>2.1%</td><td class="good"><b>1.26%</b></td>
+<td>×0.6 = 2.1 × 0.6 = 1.26%。早期損切でドローダウン改善</td></tr>
+<tr class="highlight"><td>レバレッジ / ポジションサイズ</td><td>2倍 / 15%</td><td><b>3倍 / 15%</b></td>
+<td>レバ3倍まで引き上げ。ドローダウン-20%の範囲内</td></tr>
+
+<!-- Scalp -->
+<tr class="highlight"><td rowspan="3"><b>Scalp</b><br><span class="good">安定収益</span></td>
+<td>利確</td><td>8.0%</td><td><b>8.0%</b> (変更なし)</td>
+<td>×1.0 が最適。現行維持</td></tr>
+<tr class="highlight"><td>損切</td><td>3.0%</td><td class="good"><b>1.8%</b></td>
+<td>×0.6 = 3.0 × 0.6 = 1.8%</td></tr>
+<tr class="highlight"><td>レバレッジ / ポジションサイズ</td><td>10倍 / 5%</td><td class="good"><b>3倍 / 5%</b></td>
+<td>レバ10→3に下げる。プロフィットファクターは変わらず、ドローダウン大幅改善</td></tr>
+
+<!-- WeakShort -->
+<tr class="highlight"><td rowspan="3"><b>WeakShort</b><br><span class="good">ヘッジ</span></td>
+<td>利確</td><td>5.0%</td><td><b>5.0%</b> (変更なし)</td>
+<td>×1.0 が最適。現行維持</td></tr>
+<tr class="highlight"><td>損切</td><td>2.5%</td><td class="good"><b>1.5%</b></td>
+<td>×0.6 = 2.5 × 0.6 = 1.5%</td></tr>
+<tr class="highlight"><td>レバレッジ</td><td>2倍</td><td><b>3倍</b></td>
+<td>推奨レバ3倍。ドローダウン-20%の範囲内</td></tr>
+
+<!-- MeanRevert -->
+<tr><td rowspan="3"><b>MeanRevert</b><br><span class="warn">補助</span></td>
+<td>利確</td><td>6.0%</td><td class="good"><b>8.4%</b></td>
+<td>×1.4 = 6.0 × 1.4 = 8.4%</td></tr>
+<tr><td>損切</td><td>3.0%</td><td class="good"><b>1.8%</b></td>
+<td>×0.6 = 3.0 × 0.6 = 1.8%</td></tr>
+<tr><td>レバレッジ</td><td>2倍</td><td><b>3倍</b></td>
+<td>推奨レバ3倍</td></tr>
+
+<!-- Surge -->
+<tr><td rowspan="3"><b>Surge</b><br><span class="warn">補助</span></td>
+<td>利確</td><td>5.0%</td><td class="good"><b>7.0%</b></td>
+<td>×1.4 = 5.0 × 1.4 = 7.0%</td></tr>
+<tr><td>損切</td><td>2.0%</td><td class="good"><b>1.2%</b></td>
+<td>×0.6 = 2.0 × 0.6 = 1.2%</td></tr>
+<tr><td>レバレッジ</td><td>2倍</td><td><b>3倍</b></td>
+<td>推奨レバ3倍</td></tr>
+</table>
+
+<h3>無効化する Bot</h3>
+<table>
+<tr><th>Bot</th><th>現行モード</th><th>変更後</th><th>理由</th></tr>
+<tr><td><s>MeanRevert-Adaptive</s></td><td>paper</td><td class="bad"><b>disabled</b></td><td>MeanRevertと取引100%重複。資金の無駄遣い</td></tr>
+<tr><td><s>MeanRevert-Hybrid</s></td><td>paper</td><td class="bad"><b>disabled</b></td><td>MeanRevertとショート98.2%重複。追加のロング年6回は統合可能</td></tr>
+</table>
+
+<h3>据え置く Bot（低頻度のため変更効果が薄い）</h3>
+<table>
+<tr><th>Bot</th><th>判断</th><th>理由</th></tr>
+<tr><td>Sniper</td><td>paper 維持</td><td>年5回。統計不十分。レバ10→3に下げる価値はあるが優先度低</td></tr>
+<tr><td>Alpha</td><td>paper 維持</td><td>年2回。統計不十分。現行レバ3倍のため変更不要</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>Phase 2: ペーパートレードで検証（2-4週間）</h2>
+
+<div class="step">
+<span class="step-num">1</span> <b>settings.yaml を Phase 1 の通りに変更</b><br>
+<span class="small">5Bot の利確/損切/レバを変更、2Bot を disabled に</span>
+</div>
+
+<div class="step">
+<span class="step-num">2</span> <b>ペーパートレードで起動</b>
+<pre>python main.py --dry-run --port 8080</pre>
+<span class="small">dry-run = 実際の注文は出さず、シグナル発火とポジション計算のみ実行。GUI で監視可能。</span>
+</div>
+
+<div class="step">
+<span class="step-num">3</span> <b>2-4週間の観察ポイント</b>
+<table>
+<tr><th>確認項目</th><th>期待値</th><th>アラート基準</th></tr>
+<tr><td>MeanRevert-Tight の損切頻度</td><td>損切が増えても勝ちが大きいはず</td><td class="warn">損切が連続5回以上なら要確認</td></tr>
+<tr><td>Scalp のシグナル頻度</td><td>日次で数件</td><td class="warn">3日以上シグナルゼロなら異常</td></tr>
+<tr><td>WeakShort のエントリー方向</td><td>ショートのみ</td><td class="bad">ロングが出たらロジック異常</td></tr>
+<tr><td>全体のドローダウン</td><td>-5%以内</td><td class="bad">-10%超で原因調査</td></tr>
+<tr><td>Adaptive/Hybrid が稼働していないこと</td><td>disabled</td><td class="bad">シグナルが出たら設定ミス</td></tr>
+</table>
+</div>
+
+<div class="step">
+<span class="step-num">4</span> <b>2週間後の判断</b>
+<table>
+<tr><th>結果</th><th>アクション</th></tr>
+<tr><td class="good">期待通り: シグナル頻度/勝率がバックテストと整合</td><td>Phase 3 へ進む</td></tr>
+<tr><td class="warn">微妙: 勝率は合うがシグナル頻度が低い</td><td>もう2週間延長して様子見</td></tr>
+<tr><td class="bad">乖離: バックテストと大きく異なる</td><td>原因調査。ライブデータとヒストリカルの差異を確認</td></tr>
+</table>
+</div>
+
+<!-- ============================================================ -->
+<h2>Phase 3: 実弾投入（段階的）</h2>
+
+<div class="insight">
+<b>原則: 一気に全資金を投入しない。</b> 3段階に分けて増額し、各段階で2週間以上の検証期間を設ける。
+</div>
+
+<h3>Step 1: 最小資金（総資金の10%）</h3>
+
+<div class="box">
+<b>投入Bot:</b> MeanRevert-Tight + Scalp の2本のみ<br>
+<b>理由:</b> 複合スコア Top2。最もバックテスト信頼度が高い（取引数437/1268、シャープレシオ1.44/2.01）<br>
+<b>ポジションサイズ:</b> 通常の 1/3 に制限<br>
+<b>期間:</b> 2週間<br>
+<b>成功基準:</b> プロフィットファクター 2.0 以上、最大ドローダウン -5% 以内
+</div>
+
+<table>
+<tr><th>Bot</th><th>モード</th><th>利確</th><th>損切</th><th>レバレッジ</th><th>ポジションサイズ</th><th>想定取引頻度</th></tr>
+<tr class="highlight"><td>MeanRevert-Tight</td><td class="good"><b>live</b></td><td>8.4%</td><td>1.26%</td><td>3倍</td><td><b>5%</b> (通常の1/3)</td><td>週1-2回</td></tr>
+<tr class="highlight"><td>Scalp</td><td class="good"><b>live</b></td><td>8.0%</td><td>1.8%</td><td>3倍</td><td><b>2%</b> (通常の1/3)</td><td>ほぼ毎日</td></tr>
+<tr><td>WeakShort</td><td>paper</td><td colspan="5">ペーパートレード継続</td></tr>
+<tr><td>MeanRevert</td><td>paper</td><td colspan="5">ペーパートレード継続</td></tr>
+<tr><td>Surge</td><td>paper</td><td colspan="5">ペーパートレード継続</td></tr>
+</table>
+
+<h3>Step 2: 中間資金（総資金の30%）</h3>
+
+<div class="box">
+<b>条件:</b> Step 1 で2週間黒字かつドローダウン基準クリア<br>
+<b>追加Bot:</b> WeakShort を live に昇格<br>
+<b>ポジションサイズ:</b> 通常の 2/3 に拡大<br>
+<b>期間:</b> 2週間
+</div>
+
+<table>
+<tr><th>Bot</th><th>モード</th><th>ポジションサイズ</th></tr>
+<tr class="highlight"><td>MeanRevert-Tight</td><td class="good">live</td><td><b>10%</b> (通常の2/3)</td></tr>
+<tr class="highlight"><td>Scalp</td><td class="good">live</td><td><b>3%</b> (通常の2/3)</td></tr>
+<tr class="highlight"><td>WeakShort</td><td class="good"><b>live (新規)</b></td><td><b>10%</b> (通常の2/3)</td></tr>
+<tr><td>MeanRevert</td><td>paper</td><td>-</td></tr>
+<tr><td>Surge</td><td>paper</td><td>-</td></tr>
+</table>
+
+<h3>Step 3: 本番資金（総資金の60-80%）</h3>
+
+<div class="box">
+<b>条件:</b> Step 2 で2週間黒字かつドローダウン基準クリア<br>
+<b>追加Bot:</b> MeanRevert + Surge を live に昇格<br>
+<b>ポジションサイズ:</b> 通常通り<br>
+<b>残り20-40%:</b> 現金バッファとして保持（急なドローダウン時のマージン維持用）
+</div>
+
+<table>
+<tr><th>Bot</th><th>モード</th><th>ポジションサイズ</th><th>役割</th></tr>
+<tr class="highlight"><td>MeanRevert-Tight</td><td class="good">live</td><td>15%</td><td>主力エンジン</td></tr>
+<tr class="highlight"><td>Scalp</td><td class="good">live</td><td>5%</td><td>安定収益源</td></tr>
+<tr class="highlight"><td>WeakShort</td><td class="good">live</td><td>15%</td><td>ショートヘッジ</td></tr>
+<tr><td>MeanRevert</td><td class="good">live</td><td>15%</td><td>補助（Tightの補完）</td></tr>
+<tr><td>Surge</td><td class="good">live</td><td>15%</td><td>下落相場ブースター</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>資金配分の全体像</h2>
+
+<div class="box" style="text-align:center;">
+<div style="display:flex; height:40px; border-radius:8px; overflow:hidden; margin:10px 0;">
+<div style="flex:15; background:#4caf50;" title="MeanRevert-Tight 15%"></div>
+<div style="flex:5; background:#2196f3;" title="Scalp 5%"></div>
+<div style="flex:15; background:#ff9800;" title="WeakShort 15%"></div>
+<div style="flex:15; background:#9c27b0;" title="MeanRevert 15%"></div>
+<div style="flex:15; background:#f44336;" title="Surge 15%"></div>
+<div style="flex:35; background:#333;" title="現金バッファ 35%"></div>
+</div>
+<span style="font-size:0.85em;">
+<span style="color:#4caf50;">&#9632; MR-Tight 15%</span> &nbsp;
+<span style="color:#2196f3;">&#9632; Scalp 5%</span> &nbsp;
+<span style="color:#ff9800;">&#9632; WeakShort 15%</span> &nbsp;
+<span style="color:#9c27b0;">&#9632; MeanRevert 15%</span> &nbsp;
+<span style="color:#f44336;">&#9632; Surge 15%</span> &nbsp;
+<span style="color:#666;">&#9632; 現金バッファ 35%</span>
+</span>
+</div>
+
+<div class="insight">
+<b>最大同時ポジション:</b> 5Bot × 各15%（Scalp 5%） = 最大65%。残り35%は常に現金。<br>
+<b>全Botが同時に最大ドローダウンを記録しても:</b> 合成最大ドローダウン -4.6%（相関分析より）。個別Botの-20%とは異なり、分散効果で大幅圧縮される。<br>
+<b>レバレッジ3倍 × ポジション65%:</b> 実効レバレッジは約2倍。MEXC先物の証拠金要件は余裕を持って満たす。
+</div>
+
+<!-- ============================================================ -->
+<h2>緊急停止ルール</h2>
+
+<table>
+<tr><th>条件</th><th>アクション</th></tr>
+<tr>
+<td class="warn">ポートフォリオ全体のドローダウンが <b>-5%</b> を超えた</td>
+<td>新規エントリーを停止。既存ポジションは利確/損切まで保持。原因調査。</td>
+</tr>
+<tr>
+<td class="bad">ポートフォリオ全体のドローダウンが <b>-10%</b> を超えた</td>
+<td>全ポジション即時クローズ。全Bot を disabled に変更。バックテストとライブの乖離を徹底調査。</td>
+</tr>
+<tr>
+<td class="bad">単一Botが <b>5連敗以上</b></td>
+<td>該当Botのみ paper に戻す。他のBotは継続。</td>
+</tr>
+<tr>
+<td class="bad">MEXC API エラーが <b>連続3回</b></td>
+<td>全Bot を一時停止。API状態を確認後に再開。</td>
+</tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>settings.yaml の具体的な変更内容</h2>
+
+<p>Phase 1 で行う変更の diff:</p>
+
+<pre>
+<span class="small"># bot_meanrevert_tight:</span>
+  take_profit_pct: <span class="bad">6.0</span>  →  <span class="good">8.4</span>
+  stop_loss_pct:   <span class="bad">2.1</span>  →  <span class="good">1.26</span>
+  leverage:        <span class="bad">2</span>    →  <span class="good">3</span>
+
+<span class="small"># bot_scalp:</span>
+  stop_loss_pct:   <span class="bad">3.0</span>  →  <span class="good">1.8</span>
+  leverage:        <span class="bad">10</span>   →  <span class="good">3</span>
+
+<span class="small"># bot_weakshort:</span>
+  stop_loss_pct:   <span class="bad">2.5</span>  →  <span class="good">1.5</span>
+  leverage:        <span class="bad">2</span>    →  <span class="good">3</span>
+
+<span class="small"># bot_meanrevert:</span>
+  take_profit_pct: <span class="bad">6.0</span>  →  <span class="good">8.4</span>
+  stop_loss_pct:   <span class="bad">3.0</span>  →  <span class="good">1.8</span>
+  leverage:        <span class="bad">2</span>    →  <span class="good">3</span>
+
+<span class="small"># bot_surge:</span>
+  take_profit_pct: <span class="bad">5.0</span>  →  <span class="good">7.0</span>
+  stop_loss_pct:   <span class="bad">2.0</span>  →  <span class="good">1.2</span>
+  leverage:        <span class="bad">2</span>    →  <span class="good">3</span>
+
+<span class="small"># bots: (mode変更)</span>
+  meanrevert_adaptive: mode: <span class="bad">paper</span>  →  <span class="good">disabled</span>
+  meanrevert_hybrid:   mode: <span class="bad">paper</span>  →  <span class="good">disabled</span>
+</pre>
+
+<!-- ============================================================ -->
+<h2>タイムライン</h2>
+
+<table>
+<tr><th>期間</th><th>内容</th><th>稼働Bot数</th><th>資金投入率</th></tr>
+<tr><td><b>今日</b></td><td>settings.yaml 変更 + ペーパートレード起動</td><td>5 (paper)</td><td>0%</td></tr>
+<tr><td><b>2週間後</b><br>(3月末)</td><td>ペーパー結果確認。問題なければ Step 1 へ</td><td>2 (live) + 3 (paper)</td><td>10%</td></tr>
+<tr><td><b>4週間後</b><br>(4月中旬)</td><td>Step 1 結果確認。問題なければ Step 2 へ</td><td>3 (live) + 2 (paper)</td><td>30%</td></tr>
+<tr><td><b>6週間後</b><br>(4月末)</td><td>Step 2 結果確認。問題なければ Step 3 へ</td><td>5 (live)</td><td>65%</td></tr>
+</table>
+
+<div class="verdict">
+<b>最速で6週間後に全Bot本番稼働。</b> 各ステップで問題が出た場合はその段階で止まり、原因調査後に再開。<br>
+急がない。バックテストで6年分確認済みでも、ライブは別物。段階的に信頼を積み上げる。
+</div>
+
+<p style="color:#8b949e; font-size:0.8em; margin-top: 40px; border-top: 1px solid #30363d; padding-top: 10px;">
+Launch Strategy Report | Generated: 2026-03-13 |
+根拠データ: grid_search_results.csv (1,350件), correlation_matrix.csv, regime_performance.csv, reanalysis_report.html
+</p>
+
+</body></html>

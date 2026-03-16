@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Monitor - 2日間ペーパートレード成績レポート</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--border:#1e293b;--accent:#3b82f6;--accent2:#8b5cf6;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;--gold:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b,#0f172a);border-bottom:1px solid var(--border);padding:36px 20px;text-align:center}
+.header h1{font-size:2rem;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{color:var(--muted);font-size:.9rem}
+.stats-bar{display:flex;justify-content:center;gap:24px;padding:18px;background:var(--card);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat-item{text-align:center}.stat-item .num{font-size:1.5rem;font-weight:700}.stat-item .label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+.section{margin:32px 0}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.section-header .icon{font-size:1.2rem;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex-shrink:0}
+.section-header h2{font-size:1.15rem}.section-header .count{background:var(--card);color:var(--muted);padding:2px 8px;border-radius:10px;font-size:.72rem;border:1px solid var(--border)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px}
+table.t{width:100%;border-collapse:collapse;font-size:.8rem}
+table.t th{text-align:left;padding:6px 8px;color:var(--accent);border-bottom:1px solid rgba(59,130,246,.2);font-weight:600;font-size:.72rem;text-transform:uppercase}
+table.t td{padding:5px 8px;border-bottom:1px solid var(--border);color:var(--muted)}
+table.t tr:hover td{background:rgba(59,130,246,.04);color:var(--text)}
+.good{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--orange)}.best{color:var(--gold);font-weight:700}
+.highlight-row td{background:rgba(251,191,36,.06)!important}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+.note{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--orange)}
+.alert{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--red)}
+.insight{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--green)}
+.bar-container{display:flex;align-items:center;gap:6px;margin:3px 0}
+.bar-label{width:50px;text-align:right;font-size:.72rem;color:var(--dim);font-family:monospace}
+.bar{height:18px;border-radius:3px;display:flex;align-items:center;padding:0 6px;font-size:.7rem;color:#fff;font-weight:600;min-width:20px}
+.footer{text-align:center;padding:32px 20px;color:var(--dim);font-size:.72rem;border-top:1px solid var(--border);margin-top:40px}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin:12px 0}
+.metric{background:rgba(0,0,0,.2);border-radius:6px;padding:8px;text-align:center}
+.metric .mv{font-size:1.2rem;font-weight:700}.metric .ml{font-size:.68rem;color:var(--dim);text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>2日間ペーパートレード 成績レポート</h1>
+  <div class="sub">2026-03-13 00:50 ~ 2026-03-15 08:14 | LevBurn-Sec全バリアント | 実リアルタイムデータ</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="num" style="color:var(--accent)">281</div><div class="label">Total Signals</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--text)">279</div><div class="label">Closed</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--green)">103</div><div class="label">Wins</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--red)">176</div><div class="label">Losses</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--red)">36.9%</div><div class="label">Win Rate</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--red)">-48.61%</div><div class="label">Total PnL</div></div>
+</div>
+
+<div class="container">
+
+<!-- ====== EXECUTIVE SUMMARY ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(239,68,68,.15)">&#x1F4CB;</div>
+    <h2>Executive Summary</h2>
+  </div>
+
+  <div class="alert">
+    <strong>総合評価: 赤字（-48.61%）</strong> — 2日間で279トレード中176敗。WR 36.9%はバックテストの81.7%と大幅に乖離。
+    主因: (1) LONG偏りの損失 (2) RESOLV銘柄の集中損失 (3) 連敗最大9連敗。
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric"><div class="mv" style="color:var(--red)">-48.61%</div><div class="ml">Total PnL</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">36.9%</div><div class="ml">Win Rate</div></div>
+    <div class="metric"><div class="mv">279</div><div class="ml">Closed Trades</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">9</div><div class="ml">Max Consecutive Loss</div></div>
+    <div class="metric"><div class="mv" style="color:var(--green)">+19.46%</div><div class="ml">Best Trade</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">-18.30%</div><div class="ml">Worst Trade</div></div>
+    <div class="metric"><div class="mv">12</div><div class="ml">Bot Variants</div></div>
+    <div class="metric"><div class="mv">10</div><div class="ml">Symbols Traded</div></div>
+  </div>
+</div>
+
+<!-- ====== DAILY BREAKDOWN ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(59,130,246,.15)">&#x1F4C5;</div>
+    <h2>日別パフォーマンス</h2>
+  </div>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Date</th><th>Trades</th><th>Wins</th><th>Losses</th><th>WR%</th><th>Total PnL</th><th>評価</th></tr></thead>
+      <tbody>
+        <tr><td>2026-03-13</td><td>19</td><td>5</td><td>14</td><td class="bad">26.3%</td><td class="bad">-69.97%</td><td class="bad">立ち上げ直後・調整不足</td></tr>
+        <tr class="highlight-row"><td style="color:var(--green)">2026-03-14</td><td>133</td><td>62</td><td>71</td><td>46.6%</td><td class="good">+141.30%</td><td class="good">唯一のプラス日</td></tr>
+        <tr><td>2026-03-15</td><td>127</td><td>36</td><td>91</td><td class="bad">28.3%</td><td class="bad">-119.94%</td><td class="bad">LONG連敗・市場逆行</td></tr>
+      </tbody>
+    </table>
+    <div class="note">3/14だけ+141%のプラス (WR46.6%)。3/13と3/15は30%以下のWRで大幅赤字。市場環境に強く依存。</div>
+  </div>
+</div>
+
+<!-- ====== BOT PERFORMANCE ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(139,92,246,.15)">&#x1F916;</div>
+    <h2>BOT別パフォーマンス</h2>
+    <span class="count">12 variants</span>
+  </div>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Bot</th><th>Lev</th><th>Trades</th><th>W</th><th>L</th><th>WR%</th><th>Avg Win</th><th>Avg Loss</th><th>PF</th><th>Total PnL</th><th>評価</th></tr></thead>
+      <tbody>
+        <tr class="highlight-row">
+          <td style="color:var(--green)">levburn_sec_aggressive</td><td>7x</td><td>121</td><td>47</td><td>74</td><td>38.8%</td>
+          <td class="good">+14.81%</td><td class="bad">-8.40%</td><td>1.12</td><td class="good">+74.03%</td><td class="good">唯一の大幅プラス</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_aggressive_lev1</td><td>1x</td><td>33</td><td>13</td><td>20</td><td>39.4%</td>
+          <td class="good">+2.78%</td><td class="bad">-1.22%</td><td>1.48</td><td class="good">+11.74%</td><td class="good">安定プラス</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_lev3</td><td>3x</td><td>2</td><td>1</td><td>1</td><td>50.0%</td>
+          <td>+3.84%</td><td>-2.16%</td><td>1.78</td><td>+1.68%</td><td>サンプル少</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_lev1</td><td>1x</td><td>7</td><td>3</td><td>4</td><td>42.9%</td>
+          <td>+1.28%</td><td>-0.72%</td><td>1.33</td><td>+0.96%</td><td>微プラス</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_aggressive_lev3</td><td>3x</td><td>26</td><td>8</td><td>18</td><td>30.8%</td>
+          <td>+8.34%</td><td>-3.66%</td><td>1.01</td><td>+0.84%</td><td>ほぼゼロ</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_scalp_micro_lev1</td><td>1x</td><td>5</td><td>1</td><td>4</td><td class="bad">20.0%</td>
+          <td>+0.28%</td><td>-0.42%</td><td class="bad">0.17</td><td class="bad">-1.40%</td><td class="bad">赤字</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_fr_extreme_lev1</td><td>1x</td><td>5</td><td>1</td><td>4</td><td class="bad">20.0%</td>
+          <td>+1.78%</td><td>-1.02%</td><td class="bad">0.44</td><td class="bad">-2.30%</td><td class="bad">赤字</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_scalp_micro_lev3</td><td>3x</td><td>2</td><td>0</td><td>2</td><td class="bad">0.0%</td>
+          <td>—</td><td>-1.26%</td><td class="bad">0.00</td><td class="bad">-2.52%</td><td class="bad">全敗</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_fr_extreme_lev3</td><td>3x</td><td>4</td><td>1</td><td>3</td><td class="bad">25.0%</td>
+          <td>+5.34%</td><td>-3.06%</td><td class="bad">0.58</td><td class="bad">-3.84%</td><td class="bad">赤字</td>
+        </tr>
+        <tr>
+          <td>levburn_sec</td><td>10x</td><td>27</td><td>9</td><td>18</td><td>33.3%</td>
+          <td>+12.80%</td><td>-7.20%</td><td class="bad">0.89</td><td class="bad">-14.40%</td><td class="bad">赤字</td>
+        </tr>
+        <tr>
+          <td>levburn_sec_fr_extreme</td><td>10x</td><td>7</td><td>2</td><td>5</td><td class="bad">28.6%</td>
+          <td>+17.80%</td><td>-10.20%</td><td class="bad">0.70</td><td class="bad">-15.40%</td><td class="bad">赤字</td>
+        </tr>
+        <tr>
+          <td style="color:var(--red)">levburn_sec_scalp_micro</td><td>20x</td><td>40</td><td>17</td><td>23</td><td>42.5%</td>
+          <td>+5.60%</td><td>-8.40%</td><td class="bad">0.49</td><td class="bad">-98.00%</td><td class="bad">最大損失</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="insight">
+    <strong>levburn_sec_aggressive (7x) が唯一の実質プラス</strong> — PF 1.12、WR 38.8%でも平均勝ち(+14.81%)が平均負け(-8.40%)の1.76倍のためプラスに。
+    lev1版(PF 1.48)はリスク対比で最も安定。scalp_micro(20x)は-98%で事実上の破産。
+  </div>
+</div>
+
+<!-- ====== LONG vs SHORT ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(16,185,129,.15)">&#x2194;</div>
+    <h2>LONG vs SHORT パフォーマンス</h2>
+  </div>
+  <div class="card">
+    <div class="two-col">
+      <div>
+        <table class="t">
+          <thead><tr><th colspan="2" style="color:var(--green)">LONG</th></tr></thead>
+          <tbody>
+            <tr><td>Trades</td><td>203</td></tr>
+            <tr><td>Wins</td><td>66</td></tr>
+            <tr><td>Win Rate</td><td class="bad">32.5%</td></tr>
+            <tr><td>Total PnL</td><td class="bad">-159.53%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table class="t">
+          <thead><tr><th colspan="2" style="color:var(--red)">SHORT</th></tr></thead>
+          <tbody>
+            <tr><td>Trades</td><td>76</td></tr>
+            <tr><td>Wins</td><td>37</td></tr>
+            <tr><td>Win Rate</td><td class="good">48.7%</td></tr>
+            <tr><td>Total PnL</td><td class="good">+110.92%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="alert" style="margin-top:10px;">
+      <strong>LONGが全損失の元凶。</strong> LONG: WR32.5%, -159.53% / SHORT: WR48.7%, +110.92%。
+      LONGが2.67倍多い(203 vs 76)のに勝率16.2pp低い。この2日間は下落/横ばい市場でLONGが焼かれた。
+    </div>
+  </div>
+</div>
+
+<!-- ====== LEVERAGE ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(139,92,246,.15)">&#x1F4B0;</div>
+    <h2>レバレッジ別パフォーマンス</h2>
+  </div>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Leverage</th><th>Trades</th><th>Wins</th><th>Losses</th><th>WR%</th><th>Total PnL</th><th>Avg PnL</th><th>評価</th></tr></thead>
+      <tbody>
+        <tr class="highlight-row"><td>1x</td><td>50</td><td>18</td><td>32</td><td>36.0%</td><td class="good">+9.00%</td><td>+0.18%</td><td class="good">唯一の安定プラス</td></tr>
+        <tr><td>3x</td><td>34</td><td>10</td><td>24</td><td class="bad">29.4%</td><td class="bad">-3.84%</td><td>-0.11%</td><td class="warn">微マイナス</td></tr>
+        <tr class="highlight-row"><td>7x</td><td>104</td><td>42</td><td>62</td><td>40.4%</td><td class="good">+128.40%</td><td>+1.23%</td><td class="good">最大リターン</td></tr>
+        <tr><td>10x</td><td>34</td><td>11</td><td>23</td><td class="bad">32.4%</td><td class="bad">-29.80%</td><td>-0.88%</td><td class="bad">赤字</td></tr>
+        <tr><td>15x</td><td>17</td><td>5</td><td>12</td><td class="bad">29.4%</td><td class="bad">-54.37%</td><td>-3.20%</td><td class="bad">大幅赤字</td></tr>
+        <tr><td style="color:var(--red)">20x</td><td>40</td><td>17</td><td>23</td><td>42.5%</td><td class="bad">-98.00%</td><td>-2.45%</td><td class="bad">破産級</td></tr>
+      </tbody>
+    </table>
+    <div class="note">1xと7xのみプラス。7x(aggressive)は平均勝ち/負けの比率(1.76x)でカバー。10x以上は全て赤字。</div>
+  </div>
+</div>
+
+<!-- ====== SYMBOL ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(6,182,212,.15)">&#x1F4B1;</div>
+    <h2>銘柄別パフォーマンス</h2>
+  </div>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Symbol</th><th>Trades</th><th>W</th><th>L</th><th>WR%</th><th>Total PnL</th><th>集中度</th></tr></thead>
+      <tbody>
+        <tr class="highlight-row"><td style="color:var(--green)">TAG_USDT</td><td>75</td><td>37</td><td>38</td><td>49.3%</td><td class="good">+114.22%</td><td>26.9%</td></tr>
+        <tr><td>VVV_USDT</td><td>1</td><td>1</td><td>0</td><td class="good">100%</td><td class="good">+19.46%</td><td>0.4%</td></tr>
+        <tr><td>COS_USDT</td><td>138</td><td>52</td><td>86</td><td>37.7%</td><td>+12.74%</td><td style="color:var(--red)">49.5%</td></tr>
+        <tr><td>SIREN_USDT</td><td>3</td><td>1</td><td>2</td><td>33.3%</td><td>-2.16%</td><td>1.1%</td></tr>
+        <tr><td>NAORIS_USDT</td><td>1</td><td>0</td><td>1</td><td class="bad">0%</td><td class="bad">-3.30%</td><td>0.4%</td></tr>
+        <tr><td>LYN_USDT</td><td>1</td><td>0</td><td>1</td><td class="bad">0%</td><td class="bad">-3.30%</td><td>0.4%</td></tr>
+        <tr><td>MELANIA_USDT</td><td>5</td><td>2</td><td>3</td><td>40.0%</td><td class="bad">-9.79%</td><td>1.8%</td></tr>
+        <tr><td>TRUMPOFFICIAL_USDT</td><td>1</td><td>0</td><td>1</td><td class="bad">0%</td><td class="bad">-18.30%</td><td>0.4%</td></tr>
+        <tr><td style="color:var(--red)">DENT_USDT</td><td>15</td><td>4</td><td>11</td><td class="bad">26.7%</td><td class="bad">-40.22%</td><td>5.4%</td></tr>
+        <tr><td style="color:var(--red)">RESOLV_USDT</td><td>39</td><td>6</td><td>33</td><td class="bad">15.4%</td><td class="bad">-117.96%</td><td>14.0%</td></tr>
+      </tbody>
+    </table>
+    <div class="alert">
+      <strong>RESOLV単体で-117.96%</strong> — 39トレードでWR15.4%。全損失の半分以上がこの1銘柄。
+      COS(138回, 49.5%)に過度に集中。TAG(49.3%WR, +114%)が唯一の稼ぎ頭。
+    </div>
+  </div>
+</div>
+
+<!-- ====== HOURLY ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(59,130,246,.15)">&#x23F0;</div>
+    <h2>時間帯別パフォーマンス</h2>
+  </div>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Hour (UTC+9)</th><th>Trades</th><th>Wins</th><th>PnL</th><th>Visual</th></tr></thead>
+      <tbody>
+        <tr><td>03/13 21:00</td><td>10</td><td>3</td><td class="bad">-63.18%</td><td><div class="bar" style="width:60px;background:var(--red)">-63%</div></td></tr>
+        <tr><td>03/14 01:00</td><td>4</td><td>3</td><td class="good">+49.84%</td><td><div class="bar" style="width:48px;background:var(--green)">+50%</div></td></tr>
+        <tr class="highlight-row"><td style="color:var(--green)">03/14 04:00</td><td>11</td><td>10</td><td class="best">+165.68%</td><td><div class="bar" style="width:160px;background:var(--green)">+166%</div></td></tr>
+        <tr><td style="color:var(--red)">03/14 06:00</td><td>15</td><td>1</td><td class="bad">-113.17%</td><td><div class="bar" style="width:110px;background:var(--red)">-113%</div></td></tr>
+        <tr><td style="color:var(--red)">03/14 07:00</td><td>11</td><td>1</td><td class="bad">-64.32%</td><td><div class="bar" style="width:62px;background:var(--red)">-64%</div></td></tr>
+        <tr><td>03/14 09:00</td><td>10</td><td>9</td><td class="good">+75.36%</td><td><div class="bar" style="width:73px;background:var(--green)">+75%</div></td></tr>
+        <tr><td>03/14 22:00</td><td>9</td><td>6</td><td class="good">+56.68%</td><td><div class="bar" style="width:55px;background:var(--green)">+57%</div></td></tr>
+        <tr><td style="color:var(--red)">03/15 02:00</td><td>17</td><td>3</td><td class="bad">-43.34%</td><td><div class="bar" style="width:42px;background:var(--red)">-43%</div></td></tr>
+        <tr><td style="color:var(--red)">03/15 03:00</td><td>26</td><td>4</td><td class="bad">-60.80%</td><td><div class="bar" style="width:59px;background:var(--red)">-61%</div></td></tr>
+        <tr><td>03/15 07:00</td><td>22</td><td>13</td><td class="good">+53.52%</td><td><div class="bar" style="width:52px;background:var(--green)">+54%</div></td></tr>
+      </tbody>
+    </table>
+    <div class="note">04:00と09:00に勝ち集中、06:00-07:00と02:00-03:00に負け集中。明確な時間帯依存あり。</div>
+  </div>
+</div>
+
+<!-- ====== CONSECUTIVE LOSSES ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(239,68,68,.15)">&#x1F4C9;</div>
+    <h2>連敗分析（levburn_sec_aggressive）</h2>
+  </div>
+  <div class="card">
+    <div class="metric-grid">
+      <div class="metric"><div class="mv" style="color:var(--red)">9</div><div class="ml">最大連敗</div></div>
+      <div class="metric"><div class="mv" style="color:var(--orange)">3.5</div><div class="ml">平均連敗</div></div>
+      <div class="metric"><div class="mv">17</div><div class="ml">連敗発生回数</div></div>
+      <div class="metric"><div class="mv" style="color:var(--red)">-75.6%</div><div class="ml">9連敗の損失</div></div>
+    </div>
+
+    <h3 style="font-size:.9rem;margin:12px 0 8px;color:var(--muted)">連敗ストリーク分布</h3>
+    <div class="bar-container"><div class="bar-label">9連敗</div><div class="bar" style="width:180px;background:var(--red)">1回</div></div>
+    <div class="bar-container"><div class="bar-label">8連敗</div><div class="bar" style="width:160px;background:var(--red)">2回</div></div>
+    <div class="bar-container"><div class="bar-label">6連敗</div><div class="bar" style="width:120px;background:var(--orange)">2回</div></div>
+    <div class="bar-container"><div class="bar-label">5連敗</div><div class="bar" style="width:100px;background:var(--orange)">2回</div></div>
+    <div class="bar-container"><div class="bar-label">4連敗</div><div class="bar" style="width:80px;background:var(--orange)">2回</div></div>
+    <div class="bar-container"><div class="bar-label">3連敗</div><div class="bar" style="width:60px;background:var(--dim)">3回</div></div>
+    <div class="bar-container"><div class="bar-label">2連敗</div><div class="bar" style="width:40px;background:var(--dim)">3回</div></div>
+    <div class="bar-container"><div class="bar-label">1連敗</div><div class="bar" style="width:20px;background:var(--dim)">2回</div></div>
+
+    <div class="alert" style="margin-top:10px;">
+      9連敗 = -8.40% x 9 = <strong>-75.6%</strong>相当。8連敗が2回。バックテスト(WR81.7%)では考えにくい頻度。
+      <br>原因仮説: (1) 同一銘柄の同方向連続エントリー (2) リアルタイムのスリッページ/遅延 (3) FR偏りの精度不足
+    </div>
+  </div>
+</div>
+
+<!-- ====== BEST/WORST ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(251,191,36,.15)">&#x1F3C6;</div>
+    <h2>Best / Worst Trades</h2>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <h3 style="font-size:.9rem;color:var(--green);margin-bottom:8px">Top 5 Winners</h3>
+      <table class="t">
+        <thead><tr><th>Bot</th><th>Symbol</th><th>Side</th><th>Lev</th><th>PnL</th></tr></thead>
+        <tbody>
+          <tr><td>aggressive</td><td>RESOLV</td><td class="good">LONG</td><td>7x</td><td class="good">+19.46%</td></tr>
+          <tr><td>aggressive</td><td>RESOLV</td><td class="good">LONG</td><td>7x</td><td class="good">+19.46%</td></tr>
+          <tr><td>aggressive</td><td>RESOLV</td><td class="good">LONG</td><td>7x</td><td class="good">+19.46%</td></tr>
+          <tr><td>aggressive</td><td>TAG</td><td class="bad">SHORT</td><td>7x</td><td class="good">+19.46%</td></tr>
+          <tr><td>aggressive</td><td>TAG</td><td class="bad">SHORT</td><td>7x</td><td class="good">+19.46%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 style="font-size:.9rem;color:var(--red);margin-bottom:8px">Top 5 Losers</h3>
+      <table class="t">
+        <thead><tr><th>Bot</th><th>Symbol</th><th>Side</th><th>Lev</th><th>PnL</th></tr></thead>
+        <tbody>
+          <tr><td>aggressive</td><td>TRUMP</td><td class="good">LONG</td><td>15x</td><td class="bad">-18.30%</td></tr>
+          <tr><td>aggressive</td><td>MELANIA</td><td class="good">LONG</td><td>15x</td><td class="bad">-18.30%</td></tr>
+          <tr><td>aggressive</td><td>MELANIA</td><td class="good">LONG</td><td>15x</td><td class="bad">-18.30%</td></tr>
+          <tr><td>aggressive</td><td>DENT</td><td class="good">LONG</td><td>15x</td><td class="bad">-18.30%</td></tr>
+          <tr><td>fr_extreme</td><td>COS</td><td class="good">LONG</td><td>10x</td><td class="bad">-10.20%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="note">ワースト5は全てLONG+高レバ(15x)。TRUMP/MELANIAはミームコイン = ボラ高で損切り直撃。</div>
+</div>
+
+<!-- ====== BT vs PAPER ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(59,130,246,.15)">&#x1F504;</div>
+    <h2>バックテスト vs ペーパー乖離分析</h2>
+  </div>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Metric</th><th>Backtest (1yr)</th><th>Paper (2日)</th><th>乖離</th><th>原因</th></tr></thead>
+      <tbody>
+        <tr><td>WR (aggressive)</td><td class="good">68.2%</td><td class="bad">38.8%</td><td class="bad">-29.4pp</td><td>スリッページ + 市場環境</td></tr>
+        <tr><td>WR (standard)</td><td class="good">82.6%</td><td class="bad">33.3%</td><td class="bad">-49.3pp</td><td>リアルタイム遅延</td></tr>
+        <tr><td>WR (scalp_micro)</td><td class="good">94.5%</td><td class="bad">42.5%</td><td class="bad">-52.0pp</td><td>20xで誤差が致命的</td></tr>
+        <tr><td>PF (aggressive)</td><td>4.91</td><td>1.12</td><td class="bad">-3.79</td><td>理想 vs 現実</td></tr>
+        <tr><td>Sharpe (aggressive)</td><td>6.64</td><td>—</td><td>—</td><td>2日では算出不可</td></tr>
+        <tr><td>Max連敗</td><td>—</td><td class="bad">9連敗</td><td>—</td><td>同銘柄同方向の反復</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alert" style="margin-top:10px">
+      <strong>バックテストとの乖離が極めて大きい。</strong> 主因:<br>
+      1. <strong>スリッページ</strong>: BT=0.05%想定 vs 実際はミーム/低流動性銘柄で数%<br>
+      2. <strong>LONGバイアス</strong>: FR > 0 → SHORT が正解だが、LONGシグナルが72.7%(203/279)を占有<br>
+      3. <strong>銘柄集中</strong>: COS(49.5%)とRESOLV(14%)で全トレードの63.5%<br>
+      4. <strong>連敗構造</strong>: 同銘柄同方向のエントリーが止まらない → 今回の修正(BOT別銘柄制限)で改善見込み
+    </div>
+  </div>
+</div>
+
+<!-- ====== RECOMMENDATIONS ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(16,185,129,.15)">&#x1F4A1;</div>
+    <h2>改善提案</h2>
+  </div>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>#</th><th>課題</th><th>対策</th><th>期待効果</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>同一銘柄の同方向連続エントリー</td><td>BOT別銘柄制限(実装済み)</td><td>連敗9→2-3に抑制</td><td class="good">実装済</td></tr>
+        <tr><td>2</td><td>LONGバイアス (72.7%)</td><td>FR方向の検証強化 / SHORT優先モード</td><td>WR改善</td><td class="warn">検討中</td></tr>
+        <tr><td>3</td><td>低流動性銘柄(RESOLV等)</td><td>出来高最低閾値の導入</td><td>スリッページ削減</td><td class="warn">検討中</td></tr>
+        <tr><td>4</td><td>20x/15xレバの壊滅的損失</td><td>scalp_micro/fr_extreme高レバ無効化</td><td>-152%の損失回避</td><td class="warn">要対応</td></tr>
+        <tr><td>5</td><td>連敗後の同銘柄再エントリー</td><td>lossskipバリアント(作成済み)</td><td>連敗ダメージ軽減</td><td class="good">BT済</td></tr>
+        <tr><td>6</td><td>ミームコイン(TRUMP/MELANIA)</td><td>ミームコイン除外 or 別レバ設定</td><td>ワースト損失回避</td><td class="warn">検討中</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Empire Monitor Paper Trading Report | Period: 2026-03-13 00:50 ~ 2026-03-15 08:14 (約55時間) | 281 Signals / 12 Bot Variants / 10 Symbols
+</div>
+
+</body>
+</html>

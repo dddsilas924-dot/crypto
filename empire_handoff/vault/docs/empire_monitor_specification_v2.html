@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Monitor 完全仕様書 v2</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --red: #f85149;
+    --orange: #d29922;
+    --purple: #bc8cff;
+    --pink: #f778ba;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; padding: 20px; max-width: 1200px; margin: 0 auto;
+  }
+  h1 { color: var(--accent); font-size: 2em; border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin: 30px 0 15px; }
+  h2 { color: var(--accent2); font-size: 1.5em; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 25px 0 12px; }
+  h3 { color: var(--purple); font-size: 1.2em; margin: 20px 0 8px; }
+  h4 { color: var(--orange); font-size: 1.05em; margin: 15px 0 6px; }
+  p { margin: 8px 0; }
+  table {
+    width: 100%; border-collapse: collapse; margin: 12px 0;
+    background: var(--surface); border-radius: 6px; overflow: hidden;
+  }
+  th { background: #21262d; color: var(--accent); text-align: left; padding: 10px 12px; font-weight: 600; white-space: nowrap; }
+  td { padding: 8px 12px; border-top: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: #1c2128; }
+  code {
+    background: #1c2128; color: var(--pink); padding: 2px 6px; border-radius: 3px;
+    font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  }
+  pre {
+    background: #1c2128; border: 1px solid var(--border); border-radius: 6px;
+    padding: 15px; overflow-x: auto; margin: 12px 0;
+    font-family: 'Consolas', 'Courier New', monospace; font-size: 0.85em;
+    line-height: 1.5; color: var(--text);
+  }
+  blockquote {
+    border-left: 3px solid var(--accent); padding: 8px 15px; margin: 10px 0;
+    background: rgba(88,166,255,0.05); color: var(--text-muted); font-size: 0.9em;
+  }
+  blockquote strong { color: var(--text); }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; font-weight: 600;
+  }
+  .badge-green { background: rgba(63,185,80,0.15); color: var(--accent2); }
+  .badge-red { background: rgba(248,81,73,0.15); color: var(--red); }
+  .badge-orange { background: rgba(210,153,34,0.15); color: var(--orange); }
+  .badge-blue { background: rgba(88,166,255,0.15); color: var(--accent); }
+  .highlight-row td { background: rgba(63,185,80,0.08); }
+  .warn-row td { background: rgba(248,81,73,0.08); }
+  .header-meta {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 15px 20px; margin: 15px 0;
+  }
+  .header-meta span { margin-right: 25px; color: var(--text-muted); }
+  .header-meta strong { color: var(--text); }
+  .flow-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 15px 20px; margin: 10px 0;
+  }
+  .flow-box h4 { margin-top: 0; }
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; margin: 20px 0; }
+  .toc a { color: var(--accent); text-decoration: none; display: block; padding: 3px 0; }
+  .toc a:hover { text-decoration: underline; }
+  .pattern-up { color: var(--accent2); font-weight: bold; }
+  .pattern-down { color: var(--red); font-weight: bold; }
+  .pattern-flat { color: var(--text-muted); }
+  .score-high { color: var(--accent2); font-weight: bold; }
+  .score-mid { color: var(--orange); }
+  .score-low { color: var(--text-muted); }
+  .score-veto { color: var(--red); font-weight: bold; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 30px 0; }
+  @media (max-width: 768px) {
+    body { padding: 10px; font-size: 14px; }
+    table { font-size: 0.85em; }
+    th, td { padding: 6px 8px; }
+    pre { font-size: 0.75em; padding: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Empire Monitor 完全仕様書 v2</h1>
+
+<div class="header-meta">
+  <span><strong>Version:</strong> 3.3 v2</span>
+  <span><strong>Generated:</strong> 2026-03-11</span>
+  <span><strong>System:</strong> 仮想通貨870銘柄リアルタイム監視</span>
+  <span><strong>取引所:</strong> MEXC先物</span>
+</div>
+
+<div class="toc">
+  <h3>目次</h3>
+  <a href="#sec1">1. 市場環境認識（ドミナンス・マトリクス）</a>
+  <a href="#sec2">2. Tier 1 / Tier 2: なぜ2段階か</a>
+  <a href="#sec3">3. Bot ステータスの全種類と意味</a>
+  <a href="#sec4">4. トリガー発動後の動作フロー</a>
+  <a href="#sec5">5. 処理フロー図（詳細版）</a>
+  <a href="#sec6">6. 全Bot設定一覧と詳細</a>
+  <a href="#sec7">7. バックテスト成績（全Bot）</a>
+  <a href="#sec8">8. データソース</a>
+  <a href="#sec9">9. ペーパートレードモード</a>
+  <a href="#sec10">10. アーキテクチャ</a>
+  <a href="#sec11">11. 既知の問題・Iron Rules</a>
+</div>
+
+<hr>
+
+<!-- ===== Section 1 ===== -->
+<h2 id="sec1">1. 市場環境認識（L01: ドミナンス・マトリクス）</h2>
+
+<h3>1.1 前提: なぜ市場を6つに分類するのか</h3>
+
+<p>このBotは市場を6つの状態（パターン）に分類します。判定に使う3つの指標:</p>
+
+<table>
+<tr><th>指標</th><th>何を見ているか</th><th class="pattern-up">↑ の条件</th><th class="pattern-down">↓ の条件</th><th class="pattern-flat">→ の条件</th></tr>
+<tr><td><strong>BTC価格</strong> 24h変動率</td><td>市場全体の方向</td><td>+1.0%以上</td><td>-1.0%以下</td><td>-1.0%〜+1.0%</td></tr>
+<tr><td><strong>BTC.D</strong>（ドミナンス）変化</td><td>資金がBTCに集中か、アルトに流れているか</td><td>+0.3%pt以上</td><td>-0.3%pt以下</td><td>-0.3%pt〜+0.3%pt</td></tr>
+<tr><td><strong>Total MC</strong> 24h変動率</td><td>市場全体にお金が入っているか出ているか</td><td>+1.0%以上</td><td>-1.0%以下</td><td>-1.0%〜+1.0%</td></tr>
+</table>
+
+<blockquote>
+<strong>閾値の出典:</strong> <code>src/signals/regime.py</code> L22-L24<br>
+<code>THRESHOLD_BTC = 1.0</code> / <code>THRESHOLD_TOTAL = 1.0</code> / <code>THRESHOLD_DOM = 0.3</code>
+</blockquote>
+
+<p><strong>なぜこの3指標か:</strong></p>
+<ul>
+<li><strong>BTCが上がっているか下がっているか</strong> = 市場全体の方向。BTCは仮想通貨市場の基軸であり、全体の温度計</li>
+<li><strong>BTC.Dが上がっているか下がっているか</strong> = 資金がBTCに集中しているか、アルトに流れているか</li>
+<li><strong>Total MCが上がっているか下がっているか</strong> = 市場全体にお金が入っているか出ているか（フィアットとの出入り）</li>
+</ul>
+
+<h3>1.2 6パターン定義</h3>
+
+<table>
+<tr><th>Pattern</th><th>BTC</th><th>BTC.D</th><th>Total MC</th><th>市場の状態</th><th>何が起きているか</th><th>推奨行動</th><th>Trade</th></tr>
+<tr><td><strong>A</strong></td><td class="pattern-up">↑</td><td class="pattern-up">↑</td><td class="pattern-up">↑</td><td>BTC独走上昇</td><td>市場に資金流入しているが、BTCに集中</td><td>静観。アルトを買っても負ける</td><td><span class="badge badge-red">NO</span></td></tr>
+<tr class="highlight-row"><td><strong>B</strong></td><td class="pattern-up">↑</td><td class="pattern-down">↓</td><td class="pattern-up">↑</td><td>アルト祭り</td><td>資金流入し、BTCから溢れてアルトに分散</td><td><strong>アルトを積極的に買う。最大チャンス</strong></td><td><span class="badge badge-green">YES</span></td></tr>
+<tr class="warn-row"><td><strong>C</strong></td><td class="pattern-down">↓</td><td class="pattern-up">↑</td><td class="pattern-down">↓</td><td>全面安（パニック）</td><td>資金流出中。アルトから先に逃げている</td><td><strong>何も買わない。全ポジション決済</strong></td><td><span class="badge badge-red">EXIT</span></td></tr>
+<tr class="highlight-row"><td><strong>D</strong></td><td class="pattern-down">↓</td><td class="pattern-down">↓</td><td class="pattern-flat">→</td><td>先行買い場</td><td>BTCが下がっているが資金量は変わらない</td><td><strong>実需のあるアルトを仕込む</strong></td><td><span class="badge badge-green">YES</span></td></tr>
+<tr><td><strong>E</strong></td><td class="pattern-flat">→</td><td class="pattern-up">↑</td><td class="pattern-flat">→</td><td>じわ下げ</td><td>BTCは横ばいだがアルトが少しずつ売られている</td><td>静観。アルトは弱い環境</td><td><span class="badge badge-red">NO</span></td></tr>
+<tr class="highlight-row"><td><strong>F</strong></td><td class="pattern-flat">→</td><td class="pattern-down">↓</td><td class="pattern-flat">→</td><td>レンジ・アルト循環</td><td>方向感なし。セクター間で資金循環</td><td><strong>短期の乖離トレードのみ</strong></td><td><span class="badge badge-green">YES</span></td></tr>
+</table>
+
+<blockquote>
+<strong>トレード可否:</strong> <code>regime.py</code> L141-142 <code>should_trade()</code> → <code>pattern in ['B', 'D', 'F']</code><br>
+<strong>緊急Exit:</strong> <code>regime.py</code> L144-145 <code>is_emergency_exit()</code> → <code>pattern == 'C'</code><br>
+<strong>分類不能時:</strong> デフォルト → <code>'F'</code>（レンジ・様子見）
+</blockquote>
+
+<h3>1.3 データソースと妥当性チェック</h3>
+
+<table>
+<tr><th>データ</th><th>ソース</th><th>妥当性チェック範囲</th><th>異常値時の動作</th></tr>
+<tr><td>BTC価格</td><td>MEXC API ticker</td><td>$1,000 〜 $500,000</td><td>トリガー計算から除外</td></tr>
+<tr><td>BTC.D</td><td>CoinGecko <code>/api/v3/global</code></td><td>30.0% 〜 80.0%</td><td>前回正常値を維持</td></tr>
+<tr><td>Fear&amp;Greed</td><td>alternative.me <code>/fng/</code></td><td>0 〜 100</td><td>トリガー計算から除外</td></tr>
+</table>
+
+<h3>1.4 Fear &amp; Greed → Bot活性マップ</h3>
+
+<table>
+<tr><th>Fear値</th><th>状態</th><th>活性化するBot</th></tr>
+<tr><td class="score-veto">0-9</td><td>極度の恐怖</td><td><strong>Bot-Alpha発火</strong></td></tr>
+<tr><td>10-20</td><td>恐怖</td><td>Bot-Alpha発火圏内(near)</td></tr>
+<tr><td>21-24</td><td>恐怖</td><td>Sniper, FearDip, SectorLead, ShortSqueeze</td></tr>
+<tr><td class="score-mid">25-45</td><td>不安</td><td><strong>Bot-Surge発火</strong></td></tr>
+<tr><td>46-49</td><td>中立</td><td>多くのBotが非活性</td></tr>
+<tr><td class="score-high">50-75</td><td>楽観</td><td><strong>Bot-MeanRevert, Bot-WeakShort発火</strong></td></tr>
+<tr><td>76-100</td><td>極度の楽観</td><td>Bot-MeanRevert上限圏</td></tr>
+</table>
+
+<hr>
+
+<!-- ===== Section 2 ===== -->
+<h2 id="sec2">2. Tier 1 / Tier 2: なぜ2段階に分けるのか</h2>
+
+<h3>2.1 ファンネル構造の意味</h3>
+
+<div class="flow-box">
+<pre style="background: transparent; border: none; padding: 0; margin: 0;">
+   MEXC先物全銘柄（約870銘柄）
+          │
+          ▼
+   ┌────────────────────────────┐
+   │  <strong style="color: var(--accent)">Tier 1: 基本スクリーニング</strong>    │  ← 「この銘柄は今、注目する価値があるか？」
+   │  - 聖域（過去安値圏）に近いか   │
+   │  - 出来高が増えているか         │
+   │  - BTCと違う動きをしているか    │
+   │  通過条件: score > 20          │
+   └────────────┬───────────────┘
+                │  約150-225銘柄が通過
+                ▼
+   ┌────────────────────────────┐
+   │  <strong style="color: var(--accent)">Tier 2: 需給・健全性チェック</strong>  │  ← 「安全にトレードできるか？」
+   │  - 板が厚いか（スリッページ防止）│
+   │  - FR偏りがないか              │
+   │  - 清算リスクが低いか          │
+   │  通過条件: score > 10          │
+   │  VETO: 板厚 &lt; $100K → 即除外 │
+   └────────────┬───────────────┘
+                │  約65-88銘柄が通過
+                ▼
+           Bot シグナル判定</pre>
+</div>
+
+<p><strong>つまり:</strong></p>
+<ul>
+<li><strong>Tier1のみ通過</strong> = 「面白い動きだが、流動性リスクがある」</li>
+<li><strong>Tier1+Tier2通過</strong> = 「面白い動きで、かつ安全にトレードできる」</li>
+<li><strong>どちらも通過しない</strong> = 「今は触る必要なし」</li>
+</ul>
+
+<h3>2.2 Tier 1 スコア詳細</h3>
+
+<table>
+<tr><th>Logic</th><th>名称</th><th>何を見ているか</th><th>計算式（実コード）</th><th>配点</th><th>高スコアの意味</th></tr>
+<tr><td><strong>L02</strong></td><td>聖域距離</td><td>過去200日安値からの距離</td><td><code>min(dist_pct * 2, 30)</code></td><td>0〜30</td><td>安値から遠い＝健全な上昇トレンド</td></tr>
+<tr><td><strong>L03</strong></td><td>出来高流入</td><td>直近出来高 vs 20期間平均</td><td><code>min(ratio * 10, 25)</code> ※ratio≥2.0x時</td><td>0〜25</td><td>普段の何倍もの資金が流入中</td></tr>
+<tr><td><strong>L09</strong></td><td>5分足急変</td><td>直近5分の価格変動幅</td><td><code>min(abs(change) * 3, 20)</code> ※≥5.0%時</td><td>0〜20</td><td>何かイベントが起きた</td></tr>
+<tr><td><strong>L17</strong></td><td>BTC低相関</td><td>BTCとの7日間相関係数</td><td><code>(1 - corr) * 25</code> ※corr&lt;0.5時</td><td>0〜25</td><td>独自材料で動いている</td></tr>
+<tr><td><strong>L_alpha</strong></td><td>アルファ乖離</td><td>BTC非連動+超過リターン</td><td><code>min(alpha * 5, 30)</code> ※corr&lt;0.5+α≥3%</td><td>0〜30</td><td>超過リターンの可能性</td></tr>
+</table>
+
+<blockquote>
+<strong>通過閾値:</strong> <code>tier1_engine.py</code> L133 <code>total_score > 20</code><br>
+<strong>L02 VETO:</strong> 聖域割れ → <code>score = -100</code>、即除外<br>
+<strong>理論最大スコア:</strong> 30 + 25 + 20 + 25 + 30 = <strong>130</strong>
+</blockquote>
+
+<h3>2.3 Tier 2 スコア詳細</h3>
+
+<table>
+<tr><th>Logic</th><th>名称</th><th>何を見ているか</th><th>計算式（実コード）</th><th>配点</th><th>高スコアの意味</th></tr>
+<tr><td><strong>L08</strong></td><td>FR/OI分析</td><td>Funding Rateの偏り</td><td>FR&lt;-0.01 → <span class="score-high">+20</span> / FR&gt;0.05 → <span class="score-veto">-10</span></td><td>-10〜+20</td><td>ショートが溜まっている＝踏み上げ期待</td></tr>
+<tr><td><strong>L10</strong></td><td>流動性</td><td>板の厚さ</td><td><code>min(depth/$100K*10, 20)</code> / &lt;$100K → <span class="score-veto">VETO(-100)</span></td><td>-100〜+20</td><td>安全に約定できる</td></tr>
+<tr><td><strong>L13</strong></td><td>清算リスク</td><td>FR極端+高OI</td><td>FR&lt;-0.02+OI&gt;0 → <span class="score-veto">-15</span> / 正常 → <span class="score-high">+5</span></td><td>-15〜+5</td><td>Flash Crash耐性あり</td></tr>
+</table>
+
+<blockquote>
+<strong>通過閾値:</strong> <code>tier2_engine.py</code> L65 <code>total_score > 10</code><br>
+<strong>L10 VETO:</strong> 板厚 &lt; $100,000 → <code>score = -100</code>、即除外<br>
+<strong>理論最大スコア:</strong> 20 + 20 + 5 = <strong>45</strong>
+</blockquote>
+
+<h3>2.4 スコアの読み方ガイド</h3>
+
+<h4>Tier 1 スコア（合計）の解釈:</h4>
+<table>
+<tr><th>スコア範囲</th><th>意味</th><th>推奨</th></tr>
+<tr><td class="score-high">100以上</td><td>非常に強いシグナル。複数指標が同時に好条件</td><td>最優先で注目</td></tr>
+<tr><td class="score-high">80-99</td><td>強いシグナル。主要指標が好条件</td><td>注目度高い</td></tr>
+<tr><td class="score-mid">60-79</td><td>中程度。一部の指標が反応</td><td>ウォッチリスト入り</td></tr>
+<tr><td class="score-mid">40-59</td><td>弱い。注目するが即座のエントリーは不推奨</td><td>様子見</td></tr>
+<tr><td class="score-low">21-39</td><td>最低限の通過。ほぼ中立</td><td>低優先</td></tr>
+<tr><td>≤ 20</td><td>通過せず</td><td>無視</td></tr>
+<tr><td class="score-veto">-100</td><td>聖域割れ（L02 VETO）</td><td>絶対に触らない</td></tr>
+</table>
+
+<hr>
+
+<!-- ===== Section 3 ===== -->
+<h2 id="sec3">3. Bot ステータスの全種類と意味</h2>
+
+<h3>3.1 ステータス一覧</h3>
+
+<table>
+<tr><th>ステータス</th><th>英語キー</th><th>意味</th><th>次のアクション</th></tr>
+<tr><td><span class="badge badge-blue">待機中</span></td><td><code>waiting</code></td><td>発動条件を満たしていない。市場を監視し続けている</td><td>なし。条件が揃うまで待つ</td></tr>
+<tr><td><span class="badge badge-orange">発火圏内</span></td><td><code>near</code></td><td>一部の条件が揃い始めている</td><td>注意して見る。もう少しで発動</td></tr>
+<tr><td><span class="badge badge-green">稼働中/発火</span></td><td><code>fired</code> / <code>active</code></td><td>全条件を満たし、銘柄スキャン・シグナル生成中</td><td>シグナルがTelegramに届く</td></tr>
+</table>
+
+<blockquote>
+<strong>出典:</strong> <code>report_scheduler.py</code> L221-228
+</blockquote>
+
+<h3>3.2 各Bot ステータス遷移条件</h3>
+
+<h4>Bot-Alpha（極限一撃モード）</h4>
+<div class="flow-box">
+<p><span class="badge badge-blue">待機中</span> → <span class="badge badge-orange">発火圏内</span>: <code>Fear &lt; 15</code></p>
+<p><span class="badge badge-orange">発火圏内</span> → <span class="badge badge-green">稼働中</span>: <strong>3条件同時成立</strong></p>
+<ol>
+<li>Fear &lt; 10 (<code>bot_alpha_engine.py</code> L34)</li>
+<li>BTC 24h ≤ -1.0% (<code>bot_alpha_engine.py</code> L35)</li>
+<li>BTC.D変化 ≤ -0.5%pt (<code>bot_alpha_engine.py</code> L36)</li>
+</ol>
+<p><span class="badge badge-green">稼働中</span> → シグナル: BTC相関 &lt; 0.5 AND α ≥ 3.0% → <strong>Long</strong>, 3x, TP8%/SL3%</p>
+</div>
+
+<h4>Bot-Surge（日常循環モード）</h4>
+<div class="flow-box">
+<p><span class="badge badge-blue">待機中</span> → <span class="badge badge-green">稼働中</span>: <strong>2条件同時成立</strong></p>
+<ol>
+<li>Fear 25〜45 (<code>bot_surge_engine.py</code> L92)</li>
+<li>BTC 24h ≤ 0% (<code>bot_surge_engine.py</code> L93)</li>
+</ol>
+<p>シグナル経路1: <code>abs(btc_divergence) > 3.0%</code> AND <code>RSI > 50</code></p>
+<p>シグナル経路2: セクターカスケード（リーダーイベント後 lag_days × 80-120%）</p>
+</div>
+
+<h4>Bot-MeanRevert（過熱ショート）</h4>
+<div class="flow-box">
+<p><span class="badge badge-blue">待機中</span> → <span class="badge badge-green">稼働中</span>:</p>
+<ol>
+<li>Fear 50〜80</li>
+<li>MA20上方乖離 &gt; 15%</li>
+<li>直近2日出来高 &gt; 20日平均 × 1.2（売り圧力兆候）</li>
+</ol>
+<p>→ <strong>Short</strong>, 2x, TP6%/SL3%</p>
+</div>
+
+<h4>Bot-WeakShort（弱いアルトショート）</h4>
+<div class="flow-box">
+<p><span class="badge badge-blue">待機中</span> → <span class="badge badge-green">稼働中</span>:</p>
+<ol>
+<li>Fear 50〜75</li>
+<li>BTC日次 ≥ +1.0%</li>
+</ol>
+<p>ターゲット: BTCリターン - アルトリターン ≥ 3.0% → <strong>Short</strong>, 2x, TP5%/SL2.5%</p>
+</div>
+
+<h4>Bot-Sniper（精密狙撃）</h4>
+<div class="flow-box">
+<p><span class="badge badge-blue">待機中</span> → <span class="badge badge-green">稼働中</span>: <strong>4条件同時</strong></p>
+<ol>
+<li>Fear &lt; 30</li>
+<li>BTC日次 ≤ -3.0%</li>
+<li>出来高 ≥ 5.0x平均</li>
+<li>BTC相関 &lt; 0.3</li>
+</ol>
+<p>→ <strong>Long</strong>, 10x, TP15%/SL5%</p>
+</div>
+
+<h4>Bot-Scalp（BB+RSI短期回転）</h4>
+<div class="flow-box">
+<p><strong>常時稼働</strong>（Fear制限なし）</p>
+<p>Long: BB(20,2σ)下限タッチ + RSI(14) ≤ 30</p>
+<p>Short: BB(20,2σ)上限タッチ + RSI(14) ≥ 70</p>
+<p>→ 10x, TP8%/SL3%</p>
+</div>
+
+<hr>
+
+<!-- ===== Section 4 ===== -->
+<h2 id="sec4">4. トリガー発動後の動作フロー</h2>
+
+<h3>4.1 トリガーとは</h3>
+
+<p><strong>トリガー発動とは:</strong> 市場で「普段と違う大きな変化」が起きたことを検知する仕組みです。</p>
+
+<div class="flow-box" style="border-left: 3px solid var(--orange);">
+<p><strong>重要な区別:</strong></p>
+<p>トリガー = 「<strong>今すぐレポートを見てください</strong>」というアラート</p>
+<p>トリガー ≠ 「今すぐ買ってください」という指示</p>
+</div>
+
+<h3>4.2 5つのトリガー条件</h3>
+
+<table>
+<tr><th>#</th><th>トリガー</th><th>閾値</th><th>何が起きたか</th><th>CD</th></tr>
+<tr><td>1</td><td>BTC 1h価格変動</td><td>±5.0%</td><td>フラッシュクラッシュ or 急騰</td><td>2h</td></tr>
+<tr><td>2</td><td>BTC 4h価格変動</td><td>±8.0%</td><td>大規模な方向転換</td><td>2h</td></tr>
+<tr><td>3</td><td>Fear&amp;Greed変動</td><td>±10pt</td><td>市場心理の急変</td><td>2h</td></tr>
+<tr><td>4</td><td>BTC.D日次変動</td><td>±1.5%pt</td><td>大規模な資金移動</td><td>2h</td></tr>
+<tr><td>5</td><td>OI 1h変動</td><td>±15.0%</td><td>大量清算の発生</td><td>2h</td></tr>
+</table>
+
+<blockquote>
+<strong>閾値出典:</strong> <code>config/settings.yaml</code> L305-310<br>
+<strong>クールダウン:</strong> 条件ごとに独立管理（<code>cooldown_seconds: 7200</code>）<br>
+異なるトリガーは同時に発火可能
+</blockquote>
+
+<h3>4.3 発動後の動作</h3>
+
+<div class="flow-box">
+<pre style="background: transparent; border: none; padding: 0; margin: 0;">
+トリガー条件検出
+    │
+    ├── 妥当性チェック（異常値でないか確認）
+    │   BTC価格: $1K-$500K 範囲外 → トリガー除外
+    │   BTC.D: 30-80% 範囲外 → トリガー除外
+    │   Fear: 0-100 範囲外 → トリガー除外
+    │
+    ├── クールダウンチェック（同トリガーが2h以内に発火済みか）
+    │
+    └── <strong style="color: var(--accent2)">緊急レポート送信</strong>
+        ├── Telegram通知
+        │   - トリガー理由
+        │   - BTC価格, Fear, BTC.D, レジーム
+        │   - Tier1/Tier2通過銘柄一覧（Top20）
+        │   - Bot状態, ポジション, フィードバック統計
+        └── 次サイクルで通常スキャン続行</pre>
+</div>
+
+<hr>
+
+<!-- ===== Section 5 ===== -->
+<h2 id="sec5">5. 処理フロー図（詳細版）</h2>
+
+<div class="flow-box">
+<h4 style="color: var(--accent)">Step 1: 市場環境判定（毎サイクル: 120秒ごと）</h4>
+<p>MEXC API → BTC 24h変化率 | CoinGecko → BTC.D変化 | alternative.me → Fear&amp;Greed</p>
+<p>→ Pattern A〜F 判定 → 緊急トリガー5条件チェック</p>
+</div>
+
+<div class="flow-box">
+<h4 style="color: var(--accent)">Step 2: Tier1 スクリーニング</h4>
+<p>スキャン対象: 変化率3%以上 or 出来高$1M以上 or ウォッチリスト銘柄</p>
+<p>L02(0-30) + L03(0-25) + L09(0-20) + L17(0-25) + L_alpha(0-30) = tier1_score</p>
+<p>→ score > 20 で通過 → 約150-225銘柄</p>
+</div>
+
+<div class="flow-box">
+<h4 style="color: var(--accent)">Step 3: Tier2 スコアリング（Tier1通過銘柄のみ）</h4>
+<p>L08(-10〜+20) + L10(-100〜+20) + L13(-15〜+5) = tier2_score</p>
+<p>→ score > 10 かつ L10(板厚) VETO なし → 約65-88銘柄</p>
+</div>
+
+<div class="flow-box">
+<h4 style="color: var(--accent)">Step 4: Bot シグナル判定（各Bot独立）</h4>
+<table>
+<tr><th>Bot</th><th>発火条件</th><th>方向</th><th>Lev / TP / SL</th></tr>
+<tr><td>Alpha</td><td>Fear&lt;10 + BTC≤-1% + BTC.D≤-0.5%pt</td><td>Long</td><td>3x / 8% / 3%</td></tr>
+<tr><td>Surge</td><td>Fear 25-45 + BTC≤0%</td><td>Long</td><td>2x / 5% / 2%</td></tr>
+<tr><td>MeanRevert</td><td>Fear 50-80 + MA20乖離&gt;15%</td><td>Short</td><td>2x / 6% / 3%</td></tr>
+<tr><td>WeakShort</td><td>Fear 50-75 + BTC≥+1%</td><td>Short</td><td>2x / 5% / 2.5%</td></tr>
+<tr><td>Sniper</td><td>Fear&lt;30 + BTC≤-3% + Vol≥5x + Corr&lt;0.3</td><td>Long</td><td>10x / 15% / 5%</td></tr>
+<tr><td>Scalp</td><td>常時（BB+RSI極値）</td><td>L/S</td><td>10x / 8% / 3%</td></tr>
+</table>
+<p>→ シグナル発生したBotのみTelegram通知</p>
+</div>
+
+<div class="flow-box">
+<h4 style="color: var(--accent)">Step 5: レポート・記録</h4>
+<p><strong>ライブ:</strong> Tier2通過→通知, Botシグナル→通知, DD監視(-3%警告/-5%危険)</p>
+<p><strong>ペーパー(--dry-run):</strong> paper_signalsテーブル記録, TP/SL自動検出, 📝通知</p>
+<p><strong>定期:</strong> 日次レポート(9:00 JST), ヘルスチェック(毎時), gc.collect()</p>
+<p>→ 次のサイクルへ（120秒後）</p>
+</div>
+
+<hr>
+
+<!-- ===== Section 6 ===== -->
+<h2 id="sec6">6. 全Bot設定一覧と詳細</h2>
+
+<h3>6.1 主要Bot</h3>
+<table>
+<tr><th>Bot</th><th>Fear条件</th><th>追加条件</th><th>方向</th><th>Lev</th><th>Pos%</th><th>TP%</th><th>SL%</th><th>MaxHold</th></tr>
+<tr class="highlight-row"><td><strong>Alpha</strong></td><td>&lt;10</td><td>BTC≤-1%, BTC.D≤-0.5%pt</td><td>Long</td><td>3x</td><td>30</td><td>8</td><td>3</td><td>-</td></tr>
+<tr class="highlight-row"><td><strong>Surge</strong></td><td>25-45</td><td>BTC≤0%</td><td>Long</td><td>2x</td><td>20</td><td>5</td><td>2</td><td>-</td></tr>
+<tr><td><strong>MeanRevert</strong></td><td>50-80</td><td>MA20乖離&gt;15%</td><td><span class="score-veto">Short</span></td><td>2x</td><td>15</td><td>6</td><td>3</td><td>5d</td></tr>
+<tr><td><strong>WeakShort</strong></td><td>50-75</td><td>BTC≥+1%, 乖離≥3%</td><td><span class="score-veto">Short</span></td><td>2x</td><td>15</td><td>5</td><td>2.5</td><td>5d</td></tr>
+<tr><td><strong>Sniper</strong></td><td>&lt;30</td><td>BTC≤-3%, Vol≥5x, Corr&lt;0.3</td><td>Long</td><td>10x</td><td>5</td><td>15</td><td>5</td><td>5d</td></tr>
+<tr><td><strong>Scalp</strong></td><td>なし</td><td>BB(20,2σ)+RSI極値</td><td>L/S</td><td>10x</td><td>5</td><td>8</td><td>3</td><td>3d</td></tr>
+</table>
+
+<h3>6.2 その他全Bot</h3>
+<table>
+<tr><th>Bot</th><th>Fear</th><th>方向</th><th>Lev</th><th>TP/SL%</th><th>MaxHold</th></tr>
+<tr><td>Momentum</td><td>20-60</td><td>Long</td><td>2x</td><td>10/4</td><td>7d</td></tr>
+<tr><td>Rebound</td><td>≤25</td><td>Long</td><td>3x</td><td>12/5</td><td>10d</td></tr>
+<tr><td>Stability</td><td>15-55</td><td>Long</td><td>2x</td><td>6/2.5</td><td>5d</td></tr>
+<tr><td>Trend</td><td>45-75</td><td>Long</td><td>2x</td><td>8/3</td><td>7d</td></tr>
+<tr><td>Cascade</td><td>20-65</td><td>Long</td><td>2x</td><td>10/4</td><td>5d</td></tr>
+<tr><td>Breakout</td><td>20-55</td><td>L/S</td><td>2x</td><td>10/4</td><td>7d</td></tr>
+<tr><td>BTCFollow</td><td>≤30</td><td>Long</td><td>3x</td><td>15/5</td><td>10d</td></tr>
+<tr><td>Event</td><td>なし</td><td>L/S</td><td>10x</td><td>20/8</td><td>5d</td></tr>
+<tr><td>VolExhaust</td><td>25-55</td><td>Long</td><td>3x</td><td>8/4</td><td>7d</td></tr>
+<tr><td>FearFlat</td><td>≤30</td><td>Long</td><td>3x</td><td>10/3</td><td>10d</td></tr>
+<tr><td>DomShift</td><td>40-75</td><td>Long</td><td>2x</td><td>12/5</td><td>7d</td></tr>
+<tr><td>GapTrap</td><td>なし</td><td>-</td><td>3x</td><td>5/3</td><td>3d</td></tr>
+<tr><td>SectorSync</td><td>30-70</td><td>Long</td><td>2x</td><td>10/4</td><td>7d</td></tr>
+<tr><td>FearDip</td><td>≤25</td><td>Long</td><td>3x</td><td>12/5</td><td>10d</td></tr>
+<tr><td>SectorLead</td><td>≤25</td><td>Long</td><td>3x</td><td>10/4</td><td>7d</td></tr>
+<tr><td>ShortSqueeze</td><td>≤25</td><td>Long</td><td>3x</td><td>10/4</td><td>7d</td></tr>
+</table>
+
+<h3>6.3 セクターラグテーブル（Bot-Surge使用）</h3>
+<table>
+<tr><th>セクター</th><th>リーダー</th><th>フォロワー</th><th>ラグ日数</th></tr>
+<tr><td rowspan="2"><strong>Solana</strong></td><td rowspan="2">SOL</td><td>JUP</td><td>2.0日</td></tr>
+<tr><td>JTO</td><td>4.75日</td></tr>
+<tr><td rowspan="2"><strong>AI</strong></td><td rowspan="2">TAO</td><td>FIL</td><td>1.75日</td></tr>
+<tr><td>AR</td><td>2.0日</td></tr>
+<tr><td rowspan="2"><strong>BTCeco</strong></td><td rowspan="2">PUPS</td><td>ORDI</td><td>0.75日</td></tr>
+<tr><td>DOG</td><td>1.0日</td></tr>
+<tr><td><strong>DeFi</strong></td><td>ONDO</td><td>OM</td><td>3.0日</td></tr>
+<tr><td><strong>Gaming</strong></td><td>FLOKI</td><td>PENGU</td><td>1.0日</td></tr>
+</table>
+
+<hr>
+
+<!-- ===== Section 7 ===== -->
+<h2 id="sec7">7. バックテスト成績（全Bot）</h2>
+
+<h3>7.1 全Bot成績一覧（2024-01-01 〜 2025-12-31）</h3>
+
+<table>
+<tr><th>Bot</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>方向</th><th>評価</th></tr>
+<tr class="highlight-row"><td><strong>Scalp</strong></td><td>475</td><td>39.8</td><td>1.52</td><td class="score-high">+1066.6</td><td>-31.0</td><td>3.24</td><td>L/S</td><td>高頻度・高リターンだがMDD大</td></tr>
+<tr class="highlight-row"><td><strong>MeanRevert</strong></td><td>370</td><td>55.4</td><td>2.15</td><td class="score-high">+472.4</td><td>-5.9</td><td class="score-high">4.95</td><td>Short</td><td><strong>最高Sharpe</strong>。安定逆張り</td></tr>
+<tr class="highlight-row"><td><strong>Surge</strong></td><td>71</td><td>59.2</td><td>3.02</td><td>+70.4</td><td>-5.1</td><td>2.85</td><td>Long</td><td>高WR・高PF。堅実</td></tr>
+<tr class="highlight-row"><td><strong>WeakShort</strong></td><td>103</td><td>55.3</td><td>2.17</td><td>+54.2</td><td>-5.2</td><td>2.53</td><td>Short</td><td>安定したショート</td></tr>
+<tr class="highlight-row"><td><strong>Sniper</strong></td><td>10</td><td>60.0</td><td>5.13</td><td>+40.7</td><td>-4.1</td><td>1.35</td><td>Long</td><td>発火少ないが高精度</td></tr>
+<tr><td>Stability</td><td>106</td><td>39.6</td><td>1.29</td><td>+16.1</td><td>-9.2</td><td>0.89</td><td>Long</td><td>保守的</td></tr>
+<tr><td>Trend</td><td>138</td><td>31.9</td><td>1.10</td><td>+13.2</td><td>-14.4</td><td>0.46</td><td>Long</td><td>微プラス</td></tr>
+<tr><td>BTCFollow</td><td>1</td><td>100.0</td><td>999.0</td><td>+11.1</td><td>-0.2</td><td>0.70</td><td>Long</td><td>データ不足（1トレード）</td></tr>
+<tr><td>Rebound</td><td>30</td><td>33.3</td><td>1.11</td><td>+7.5</td><td>-17.7</td><td>0.27</td><td>Long</td><td>MDD大きめ</td></tr>
+<tr><td>Momentum</td><td>268</td><td>31.0</td><td>1.00</td><td>+0.6</td><td>-39.8</td><td>0.15</td><td>Long</td><td>±0。MDD巨大</td></tr>
+<tr><td>Breakout</td><td>21</td><td>28.6</td><td>0.94</td><td>-1.4</td><td>-12.5</td><td>-0.05</td><td>L/S</td><td>微マイナス</td></tr>
+<tr class="warn-row"><td>Cascade</td><td>99</td><td>27.3</td><td>0.74</td><td class="score-veto">-24.0</td><td>-28.0</td><td>-0.70</td><td>Long</td><td><strong>マイナス。要改善</strong></td></tr>
+<tr><td>Alpha</td><td>0</td><td>-</td><td>-</td><td>±0</td><td>0</td><td>0</td><td>Long</td><td>期間中Fear&lt;10未発生</td></tr>
+</table>
+
+<h3>7.2 成績指標の読み方</h3>
+
+<table>
+<tr><th>指標</th><th>意味</th><th>良い基準</th></tr>
+<tr><td><strong>Trades</strong></td><td>期間中のトレード回数</td><td>30以上で統計的に有意</td></tr>
+<tr><td><strong>WR%</strong></td><td>勝率（利確で終了した割合）</td><td>50%以上が理想。40%でもPF次第でOK</td></tr>
+<tr><td><strong>PF</strong></td><td>プロフィットファクター（総利益÷総損失）</td><td>1.5以上が望ましい。2.0以上は優秀</td></tr>
+<tr><td><strong>Return%</strong></td><td>初期資金100万円に対するリターン</td><td>プラスであること</td></tr>
+<tr><td><strong>MDD%</strong></td><td>最大ドローダウン（ピークからの最大下落）</td><td>-10%以内が理想。-30%超は危険</td></tr>
+<tr><td><strong>Sharpe</strong></td><td>シャープレシオ（リスク調整後リターン）</td><td>1.0以上で良好、2.0以上で優秀</td></tr>
+</table>
+
+<h3>7.3 コストモデル</h3>
+<table>
+<tr><th>項目</th><th>値</th></tr>
+<tr><td>Taker手数料（片道）</td><td>0.06%</td></tr>
+<tr><td>スリッページ想定（片道）</td><td>0.05%</td></tr>
+<tr><td><strong>往復合計</strong></td><td><strong>0.22%</strong></td></tr>
+</table>
+
+<hr>
+
+<!-- ===== Section 8 ===== -->
+<h2 id="sec8">8. データソース</h2>
+
+<h3>8.1 使用しているデータ</h3>
+<table>
+<tr><th>ソース</th><th>用途</th><th>エンドポイント</th></tr>
+<tr><td><strong>MEXC先物API</strong> (ccxt経由)</td><td>価格, 出来高, 板情報, FR, OI, 銘柄一覧</td><td>ccxt async</td></tr>
+<tr><td><strong>CoinGecko API</strong></td><td>BTC.D, Total MC</td><td><code>/api/v3/global</code></td></tr>
+<tr><td><strong>alternative.me API</strong></td><td>Fear &amp; Greed Index</td><td><code>/fng/</code></td></tr>
+</table>
+
+<h3>8.2 使用していないデータ</h3>
+<table>
+<tr><th>カテゴリ</th><th>例</th><th>理由</th></tr>
+<tr><td>オンチェーンデータ</td><td>Nansen, Arkham, Glassnode, DefiLlama</td><td>API有料 / 実装コスト高</td></tr>
+<tr><td>DEXデータ</td><td>DexScreener, Uniswap, Jupiter</td><td>CEX(MEXC先物)に特化</td></tr>
+<tr><td>ソーシャルデータ</td><td>Twitter/X, Telegram, Discord</td><td>ノイズが多く定量化困難</td></tr>
+<tr><td>ニュースフィード</td><td>CoinDesk, The Block</td><td>Iron Rules: AI定性判断を排除</td></tr>
+<tr><td>マクロ指標</td><td>DXY, 米国債利回り</td><td>L18(GLM)として設計済みだが未実装</td></tr>
+</table>
+
+<blockquote>
+<strong>将来追加検討:</strong> オンチェーン(L14 CVM, L15 WSR, L16 SSD)、マクロ(L18 GLM)は設計済みだがデータソース確保が課題
+</blockquote>
+
+<hr>
+
+<!-- ===== Section 9 ===== -->
+<h2 id="sec9">9. ペーパートレードモード</h2>
+
+<h3>起動方法</h3>
+<pre>python main.py --dry-run</pre>
+
+<h3>PaperTracker動作</h3>
+<table>
+<tr><th>メソッド</th><th>機能</th></tr>
+<tr><td><code>record_signal()</code></td><td>シグナル記録（bot_type, symbol, side, entry_price, lev, TP, SL）</td></tr>
+<tr><td><code>update_tracking(prices)</code></td><td>毎サイクルでTP/SLヒット自動検出 → DB更新</td></tr>
+<tr><td><code>get_summary()</code></td><td>統計取得（オープン数, 勝率, 合計PnL）</td></tr>
+<tr><td><code>get_open_signals()</code></td><td>未決済シグナル一覧</td></tr>
+</table>
+
+<p><strong>コスト控除:</strong> クローズ時に往復0.22%を自動控除 | <strong>Telegram:</strong> 📝マーク付き通知</p>
+
+<hr>
+
+<!-- ===== Section 10 ===== -->
+<h2 id="sec10">10. アーキテクチャ</h2>
+
+<h3>メインループ（engine.py）</h3>
+<pre>
+while running:
+    1. レジーム更新（CoinGecko/MEXC → パターン判定）   [毎時]
+    2. 銘柄リスト更新（MEXC先物シンボル取得）            [毎時]
+    3. Tier 1 スクリーニング（全銘柄）
+    4. Tier 2 バリデーション（Tier1通過銘柄）
+    5. Bot-Alpha / Bot-Surge シグナル判定
+    6. アラート送信 or ペーパートレード記録
+    7. ポジション管理・DD監視
+    8. デイリーサマリー（9:00 JST）
+    9. レポートスケジューラー（daily/emergency）
+   10. ヘルスチェック（毎時）
+   11. gc.collect()
+   12. sleep(120s - elapsed)
+</pre>
+
+<h3>耐障害性</h3>
+<table>
+<tr><th>機能</th><th>実装</th></tr>
+<tr><td>APIリトライ</td><td>指数バックオフ（2/4/8/16/32秒、最大5回）</td></tr>
+<tr><td>CoinGecko Rate Limit</td><td>429応答時 10×(attempt+1)秒wait</td></tr>
+<tr><td>メモリ管理</td><td>サイクル毎 <code>gc.collect()</code></td></tr>
+<tr><td>ログ</td><td><code>RotatingFileHandler</code>（10MB×5ファイル）</td></tr>
+<tr><td>例外処理</td><td>サイクル内例外→ログ→次サイクル続行</td></tr>
+</table>
+
+<hr>
+
+<!-- ===== Section 11 ===== -->
+<h2 id="sec11">11. 既知の問題・Iron Rules</h2>
+
+<h3>修正済みバグ</h3>
+<table>
+<tr><th>バグ</th><th>症状</th><th>修正</th></tr>
+<tr><td>BTC.D異常値</td><td>CoinGecko APIがBTC.D=6.0%返却 → 緊急レポート誤発火</td><td>30-80%範囲チェック + btc_d_change実差分に修正</td></tr>
+</table>
+
+<h3>Iron Rules（絶対遵守）</h3>
+<ol>
+<li><strong>AIはTier 3コメンタリーのみ</strong> — 価格判定・計算にAIを関与させない</li>
+<li><strong>数値データはCCXT経由の生値のみ</strong> — Source of Truth</li>
+<li><strong>データ欠損はNone</strong> — 推測値で埋めない</li>
+<li><strong>Tier 1→2→3のファンネル構造を厳守</strong></li>
+</ol>
+
+<h3>テスト状況</h3>
+<p><strong>統合テスト:</strong> <code>scripts/test_system.py</code> v3.3 — <span class="badge badge-green">106/106 PASS</span></p>
+
+<hr>
+
+<h2>付録: 21ロジック→実装マッピング</h2>
+
+<table>
+<tr><th>Logic</th><th>Tier</th><th>状態</th><th>ファイル</th><th>備考</th></tr>
+<tr><td>L01</td><td>meta</td><td><span class="badge badge-green">完了</span></td><td>regime.py</td><td>6パターン分類</td></tr>
+<tr><td>L02</td><td>1</td><td><span class="badge badge-green">完了</span></td><td>tier1_engine.py</td><td>聖域VETO</td></tr>
+<tr><td>L03</td><td>1</td><td><span class="badge badge-green">完了</span></td><td>tier1_engine.py</td><td>出来高スパイク</td></tr>
+<tr><td>L04</td><td>1</td><td><span class="badge badge-orange">設計のみ</span></td><td>-</td><td>ETH/BTC相対強度</td></tr>
+<tr><td>L08</td><td>2</td><td><span class="badge badge-green">完了</span></td><td>tier2_engine.py</td><td>FR+OI</td></tr>
+<tr><td>L09</td><td>1</td><td><span class="badge badge-green">完了</span></td><td>tier1_engine.py</td><td>急変検知</td></tr>
+<tr><td>L10</td><td>2</td><td><span class="badge badge-green">完了</span></td><td>tier2_engine.py</td><td>VETO権</td></tr>
+<tr><td>L13</td><td>2</td><td><span class="badge badge-green">完了</span></td><td>tier2_engine.py</td><td>清算リスク</td></tr>
+<tr><td>L17</td><td>1</td><td><span class="badge badge-green">完了</span></td><td>tier1_engine.py</td><td>相関シフト</td></tr>
+<tr><td>L06,L07,L12,L14-L16,L18-L21</td><td>2-3</td><td><span class="badge badge-orange">部分/未実装</span></td><td>-</td><td>設計済み、データソース確保待ち</td></tr>
+</table>
+
+<p style="text-align: center; color: var(--text-muted); margin-top: 30px; font-size: 0.85em;">
+完了(8) / 部分実装(10) / 未実装(1) — Generated 2026-03-11
+</p>
+
+</body>
+</html>

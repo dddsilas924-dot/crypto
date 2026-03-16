@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Monitor - スコアリング解説ガイド</title>
+<style>
+:root {
+  --bg: #1a1a2e;
+  --bg2: #16213e;
+  --bg3: #0f3460;
+  --accent: #e94560;
+  --green: #00d4aa;
+  --yellow: #ffc107;
+  --red: #ff4757;
+  --text: #e0e0e0;
+  --muted: #8892b0;
+  --card: #1e2a4a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; line-height: 1.7; }
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+h1 { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 10px; margin: 30px 0 20px; }
+h2 { color: var(--green); margin: 25px 0 15px; }
+h3 { color: var(--yellow); margin: 15px 0 10px; }
+.card { background: var(--card); border-radius: 8px; padding: 20px; margin: 15px 0; border-left: 3px solid var(--accent); }
+.card.green { border-left-color: var(--green); }
+.card.yellow { border-left-color: var(--yellow); }
+.card.red { border-left-color: var(--red); }
+table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #2a2a4e; }
+th { background: var(--bg3); color: var(--green); font-weight: 600; }
+tr:hover { background: rgba(233,69,96,0.1); }
+.flow { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+.flow-box { background: var(--bg3); padding: 12px 18px; border-radius: 8px; text-align: center; font-weight: 600; }
+.flow-box.highlight { background: var(--accent); color: white; }
+.flow-arrow { font-size: 24px; color: var(--muted); }
+.score-bar { height: 24px; border-radius: 12px; background: #2a2a4e; margin: 8px 0; position: relative; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 12px; }
+.score-fill.green { background: linear-gradient(90deg, #00d4aa, #00ff88); }
+.score-fill.yellow { background: linear-gradient(90deg, #ffc107, #ffdd57); }
+.score-fill.red { background: linear-gradient(90deg, #ff4757, #ff6b81); }
+code { background: var(--bg3); padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+.badge.pass { background: rgba(0,212,170,0.2); color: var(--green); }
+.badge.fail { background: rgba(255,71,87,0.2); color: var(--red); }
+.tooltip { position: relative; cursor: help; border-bottom: 1px dashed var(--muted); }
+.tooltip:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 0; background: var(--bg3); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 0.85em; white-space: nowrap; z-index: 10; }
+.sample-notif { background: #0d1b2a; border: 1px solid #2a2a4e; border-radius: 8px; padding: 15px; font-family: monospace; font-size: 0.9em; white-space: pre-line; line-height: 1.5; }
+/* CSS-only tabs */
+.tabs { margin: 20px 0; }
+.tabs input[type="radio"] { display: none; }
+.tabs .tab-labels { display: flex; gap: 0; }
+.tabs .tab-labels label { padding: 10px 20px; background: var(--bg3); cursor: pointer; border-radius: 8px 8px 0 0; color: var(--muted); font-weight: 600; transition: all 0.2s; }
+.tabs .tab-labels label:hover { color: var(--text); }
+.tabs .tab-content { display: none; background: var(--card); border-radius: 0 8px 8px 8px; padding: 20px; }
+#tab-long:checked ~ .tab-labels label[for="tab-long"] { background: var(--card); color: var(--green); }
+#tab-short:checked ~ .tab-labels label[for="tab-short"] { background: var(--card); color: var(--red); }
+#tab-long:checked ~ .content-long { display: block; }
+#tab-short:checked ~ .content-short { display: block; }
+.exclusive-note { color: var(--red); font-weight: 600; font-size: 0.9em; }
+.score-detail td { vertical-align: top; }
+.score-detail .intent { color: var(--muted); font-size: 0.85em; display: block; margin-top: 4px; }
+.score-detail tr:hover .intent { color: var(--text); }
+.deduction { background: rgba(255,71,87,0.08); }
+.cap-note { background: var(--bg3); border-radius: 6px; padding: 12px 16px; margin: 15px 0; text-align: center; font-weight: 600; }
+@media (max-width: 768px) {
+  .container { padding: 10px; }
+  .flow { flex-direction: column; }
+  table { font-size: 0.85em; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Empire Monitor スコアリング解説ガイド</h1>
+<p style="color:var(--muted)">870銘柄 → 自動選抜 → 激アツ通知 の全フロー</p>
+
+<!-- Section 1: 全体フロー -->
+<h2>1. 全体フロー概要</h2>
+<div class="flow">
+  <div class="flow-box">870銘柄<br><small>MEXC先物</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Tier1<br><small>5指標</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">200-300銘柄</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Tier2<br><small>3指標</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">50-100銘柄</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box highlight">激アツ監視<br><small>上位20</small></div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box">Bot判定</div>
+  <div class="flow-arrow">→</div>
+  <div class="flow-box highlight">シグナル</div>
+</div>
+<div class="card">
+  <p><strong>設計思想:</strong> 固定銘柄リストではなく、Tier1→Tier2を通過したスコア上位銘柄が自動的に監視対象になります。市場状況に応じて監視銘柄が動的に変化します。</p>
+</div>
+
+<!-- Section 2: Tier1 -->
+<h2>2. Tier1 解説（全銘柄軽量スクリーニング）</h2>
+<p>全870銘柄に対して5つの指標でスクリーニング。<strong>通過条件:</strong> L02がパス + 合計スコア &gt; 20</p>
+
+<table>
+  <tr><th>ロジック</th><th>名称</th><th>何を見ているか</th><th>閾値</th><th>最大スコア</th></tr>
+  <tr>
+    <td><code>L02</code></td>
+    <td class="tooltip" data-tip="200日安値(聖域価格)からの乖離率。聖域割れ=-100で即不通過">聖域乖離</td>
+    <td>現在価格が200日安値(聖域)より上か</td>
+    <td>聖域価格 &gt; 200日安値</td>
+    <td>30pt</td>
+  </tr>
+  <tr>
+    <td><code>L03</code></td>
+    <td class="tooltip" data-tip="直近1分出来高 / 20期間平均。2倍以上で通過">出来高スパイク</td>
+    <td>直近の出来高が平均の何倍か</td>
+    <td>≥ 2.0倍</td>
+    <td>25pt</td>
+  </tr>
+  <tr>
+    <td><code>L09</code></td>
+    <td class="tooltip" data-tip="5分間の価格変動率。±5%以上で急騰/急落判定">即時エントリー</td>
+    <td>5分間の価格変動</td>
+    <td>|変動| ≥ 5%</td>
+    <td>20pt</td>
+  </tr>
+  <tr>
+    <td><code>L17</code></td>
+    <td class="tooltip" data-tip="BTC vs 個別銘柄の相関係数。低相関=独自の動き">BTC非相関</td>
+    <td>BTCとの相関が低いか</td>
+    <td>相関 &lt; 0.5</td>
+    <td>25pt</td>
+  </tr>
+  <tr>
+    <td><code>L_alpha</code></td>
+    <td class="tooltip" data-tip="BTC非相関 + 対BTCリターン差 ≥ 3%">Alpha乖離</td>
+    <td>BTC非相関 + アルファ ≥ 3%</td>
+    <td>corr &lt; 0.5 &amp; α ≥ 3%</td>
+    <td>30pt</td>
+  </tr>
+</table>
+
+<div class="card green">
+  <h3>通過の意味</h3>
+  <p>Tier1通過 = 「出来高・モメンタム・独自性のいずれかで目立っている銘柄」。聖域(200日安値)を割っている銘柄は即除外されます。</p>
+</div>
+<div class="card red">
+  <h3>不通過の例</h3>
+  <ul>
+    <li>聖域割れ: 価格が200日安値を下回っている（L02不通過 = -100pt）</li>
+    <li>出来高枯渇: 出来高が平均以下で流動性不足</li>
+    <li>BTC追従: 相関1.0に近く独自の動きがない</li>
+  </ul>
+</div>
+
+<!-- Section 3: Tier2 -->
+<h2>3. Tier2 解説（需給・健全性検証）</h2>
+<p>Tier1通過銘柄に対して深掘り検証。<strong>通過条件:</strong> L10がVETOでない + 合計スコア &gt; 10</p>
+
+<table>
+  <tr><th>ロジック</th><th>名称</th><th>データソース</th><th>閾値</th><th>スコア</th></tr>
+  <tr>
+    <td><code>L08</code></td>
+    <td class="tooltip" data-tip="Funding Rate: -0.01以下=踏み上げ兆候(+20), 0.05以上=過熱(-10)">FR/OI分析</td>
+    <td>MEXC Funding Rate API</td>
+    <td>FR &lt; -0.01: squeeze<br>FR &gt; 0.05: overheated</td>
+    <td>-10 ~ +20</td>
+  </tr>
+  <tr>
+    <td><code>L10</code></td>
+    <td class="tooltip" data-tip="板の厚み(bid+ask深度)。$100K未満はVETO(取引不可判定)">板の厚み</td>
+    <td>MEXC Orderbook API (20段)</td>
+    <td>≥ $100,000</td>
+    <td>VETO or 0~20</td>
+  </tr>
+  <tr>
+    <td><code>L13</code></td>
+    <td class="tooltip" data-tip="極端なFR + 高OI = 大量清算リスク。-15pt減点">清算リスク</td>
+    <td>FR + OI組み合わせ</td>
+    <td>FR &lt; -0.02 &amp; 高OI</td>
+    <td>-15 ~ +5</td>
+  </tr>
+</table>
+
+<div class="card yellow">
+  <h3>tier2_score &gt; 10 の意味</h3>
+  <p>「流動性が十分あり、需給バランスが偏っている（取引チャンスがある）銘柄」。FRがマイナスなら踏み上げ可能性、板が厚ければ安全に出入り可能。</p>
+</div>
+
+<!-- Section 4: スコアの読み方 -->
+<h2>4. スコアの読み方</h2>
+
+<h3>Tier1スコア</h3>
+<table>
+  <tr><th>範囲</th><th>意味</th></tr>
+  <tr><td>60pt以上</td><td>複数ロジック高得点。出来高+Alpha乖離の組み合わせが多い</td></tr>
+  <tr><td>30-60pt</td><td>1-2ロジックで加点。注目には値するが決定的ではない</td></tr>
+  <tr><td>20-30pt</td><td>ギリギリ通過。追加条件（Tier2）で判断</td></tr>
+</table>
+
+<h3>Tier2スコア</h3>
+<table>
+  <tr><th>範囲</th><th>意味</th></tr>
+  <tr><td>25pt以上</td><td>FR踏み上げ+板厚十分。需給面で優秀</td></tr>
+  <tr><td>10-25pt</td><td>最低通過。板はOKだがFRシグナルなし</td></tr>
+  <tr><td>0以下</td><td>不通過。板不足またはFR過熱警告</td></tr>
+</table>
+
+<h3>激アツスコア（Hot Score）</h3>
+<p>Tier2スコア + 多時間足テクニカル分析を組み合わせた総合評価（最大100点）</p>
+<div style="margin: 15px 0;">
+  <div style="display:flex; align-items:center; gap:10px; margin: 8px 0;">
+    <span class="badge pass">80-100</span>
+    <div class="score-bar" style="flex:1"><div class="score-fill green" style="width:90%"></div></div>
+    <span>激アツ🔥🔥🔥 最優先候補、複数条件合致</span>
+  </div>
+  <div style="display:flex; align-items:center; gap:10px; margin: 8px 0;">
+    <span class="badge pass">60-79</span>
+    <div class="score-bar" style="flex:1"><div class="score-fill yellow" style="width:65%"></div></div>
+    <span>アツい🔥 注目候補、一部条件未達</span>
+  </div>
+  <div style="display:flex; align-items:center; gap:10px; margin: 8px 0;">
+    <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:0.85em;background:rgba(136,146,176,0.2);color:var(--muted)">40-59</span>
+    <div class="score-bar" style="flex:1"><div class="score-fill" style="width:40%;background:#555"></div></div>
+    <span>様子見👀</span>
+  </div>
+  <div style="display:flex; align-items:center; gap:10px; margin: 8px 0;">
+    <span class="badge fail">&lt;40</span>
+    <div class="score-bar" style="flex:1"><div class="score-fill red" style="width:20%"></div></div>
+    <span>まだ早い⏳ 現時点では見送り</span>
+  </div>
+</div>
+
+<!-- 4-A / 4-B: ロング・ショート詳細テーブル（CSS-onlyタブ） -->
+<div class="tabs">
+  <input type="radio" id="tab-long" name="score-tab" checked>
+  <input type="radio" id="tab-short" name="score-tab">
+  <div class="tab-labels">
+    <label for="tab-long">📈 4-A. ロング候補スコア詳細</label>
+    <label for="tab-short">📉 4-B. ショート候補スコア詳細</label>
+  </div>
+
+  <!-- ===== ロング候補 ===== -->
+  <div class="tab-content content-long">
+    <h3>ロング候補（Fear &lt; 50 / Surgeゾーン）加点</h3>
+    <table class="score-detail">
+      <tr><th>スコア項目</th><th>加点</th><th>検知意図と根拠</th></tr>
+      <tr>
+        <td>Tier2スコア上位10%</td>
+        <td><strong>+20</strong></td>
+        <td>【極大の流動性・主役判定】板が最も厚く、大口資金が集中。逃げ道（出口）が完全に担保された市場の主役。
+          <span class="intent">板厚$100K以上 + FR踏み上げ兆候 + 清算リスク低 の三拍子</span></td>
+      </tr>
+      <tr>
+        <td>Tier2スコア上位20%</td>
+        <td><strong>+15</strong></td>
+        <td>【十分な流動性担保】主役には一歩譲るが、安全に資金を投下し撤退できる需給環境が確認された状態。
+          <span class="exclusive-note">※上位10%とは排他（累積しない）</span></td>
+      </tr>
+      <tr>
+        <td>1h RSI &lt; 30</td>
+        <td><strong>+15</strong></td>
+        <td>【短期の売られすぎ（パニック）】直近1時間での極端な売り込み。反発のためのエネルギー（スプリング）が極限まで縮んだ状態。
+          <span class="intent">Wilder RSI 14期間。30未満は統計的に約2.7%の出現率</span></td>
+      </tr>
+      <tr>
+        <td>4h RSI &lt; 35</td>
+        <td><strong>+10</strong></td>
+        <td>【中期の底打ち示唆】半日スパンでの下落トレンドの終焉。1h RSIと複合発火で「騙しの反発」を排除し、強い底固めを証明。
+          <span class="intent">4h足は1h足のノイズを平滑化。複合で信頼性UP</span></td>
+      </tr>
+      <tr>
+        <td>1h 出来高 &gt;= 2.0倍</td>
+        <td><strong>+15</strong></td>
+        <td>【短期の大口流入（Inflow）】通常の2倍以上の商い。底値圏で「実需の買い」が入った動かぬ証拠。
+          <span class="intent">20期間平均比。出来高は嘘をつかない原則</span></td>
+      </tr>
+      <tr>
+        <td>4h 出来高 &gt;= 1.5倍</td>
+        <td><strong>+10</strong></td>
+        <td>【継続的な資金流入】一過性のスパイクではなく、半日単位で持続的に資金が向かう「強い底支え」の確認。</td>
+      </tr>
+      <tr>
+        <td>1h EMA(5) &gt; EMA(20)</td>
+        <td><strong>+10</strong></td>
+        <td>【短期トレンドの転換】1時間足の短期線が中期線を上抜き（ゴールデンクロス）。明確に上昇の波へ乗るタイミング。</td>
+      </tr>
+      <tr>
+        <td>BB下限付近 (1h)</td>
+        <td><strong>+10</strong></td>
+        <td>【ボラティリティの極限値】-2&sigma;下限。統計的に価格がバンド内に回帰しやすい「反発の限界点」での拾い。
+          <span class="intent">BB(20, 2.0)。下限タッチ→反発は平均回帰の王道パターン</span></td>
+      </tr>
+      <tr>
+        <td>日足 EMA(20) 上向き</td>
+        <td><strong>+10</strong></td>
+        <td>【大局のトレンド（背骨）】日足の大きな流れが「上」。長期トレンドに逆らわない安全な押し目買いの担保。</td>
+      </tr>
+      <tr>
+        <td>MACDシグナルクロス上</td>
+        <td><strong>+10</strong></td>
+        <td>【モメンタムの初動】1h〜4hで買いの勢いが売りを逆転した明確なサイン。
+          <span class="intent">MACD(12,26,9)。ヒストグラムがプラス転換</span></td>
+      </tr>
+    </table>
+
+    <div class="cap-note">理論最大: 120点 → <strong>100でキャップ</strong></div>
+
+    <h3 style="margin-top:20px">ロング候補 減点</h3>
+    <table class="score-detail">
+      <tr><th>スコア項目</th><th>減点</th><th>回避するリスク</th></tr>
+      <tr class="deduction">
+        <td>日足 RSI &gt; 70</td>
+        <td><strong style="color:var(--red)">-15</strong></td>
+        <td>【大局の高値掴み防止】日足レベルで過熱。大口の利確による急落リスクを排除。
+          <span class="intent">日足RSI70超えからの反転は平均5-10%の下落を伴う</span></td>
+      </tr>
+      <tr class="deduction">
+        <td>出来高 &lt; 0.5倍</td>
+        <td><strong style="color:var(--red)">-10</strong></td>
+        <td>【閑散相場・罠の回避】取引が極端に薄く、大口の価格操作にハメられやすい。逃げ道が塞がれるため絶対回避。</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ===== ショート候補 ===== -->
+  <div class="tab-content content-short">
+    <h3>ショート候補（Fear &gt; 50 / MeanRevertゾーン）加点</h3>
+    <table class="score-detail">
+      <tr><th>スコア項目</th><th>加点</th><th>検知意図と根拠</th></tr>
+      <tr>
+        <td>Tier2スコア上位10%</td>
+        <td><strong>+20</strong></td>
+        <td>【極大の流動性・主役判定】ロングと同一。ショートでも出口（買い戻し）の流動性が不可欠。
+          <span class="intent">流動性不足のショートは踏み上げで致命傷になる</span></td>
+      </tr>
+      <tr>
+        <td>Tier2スコア上位20%</td>
+        <td><strong>+15</strong></td>
+        <td>【十分な流動性担保】
+          <span class="exclusive-note">※上位10%とは排他（累積しない）</span></td>
+      </tr>
+      <tr>
+        <td>1h RSI &gt; 70</td>
+        <td><strong>+15</strong></td>
+        <td>【短期の買われすぎ（過熱）】直近1時間での極端な買い上げ。天井圏でのショートエントリーチャンス。
+          <span class="intent">RSI70超えは統計的に約2.7%の出現率。反転確率が高い</span></td>
+      </tr>
+      <tr>
+        <td>4h RSI &gt; 65</td>
+        <td><strong>+10</strong></td>
+        <td>【中期の天井示唆】半日スパンでの上昇トレンドの限界。1h RSIと複合で「騙しの上昇」を排除。</td>
+      </tr>
+      <tr>
+        <td>1h 出来高 &gt;= 2.0倍</td>
+        <td><strong>+15</strong></td>
+        <td>【短期のセリングクライマックス前兆】出来高急増 + RSI過熱 = 大口の利確売りが迫る合図。
+          <span class="intent">天井圏での出来高急増は「最後の買い手」が尽きるサイン</span></td>
+      </tr>
+      <tr>
+        <td>4h 出来高 &gt;= 1.5倍</td>
+        <td><strong>+10</strong></td>
+        <td>【継続的な過熱】持続的な買いが入り切った後の「燃え尽き」を検知。</td>
+      </tr>
+      <tr>
+        <td>1h EMA(5) &lt; EMA(20)</td>
+        <td><strong>+10</strong></td>
+        <td>【短期トレンドの崩壊】デッドクロス。上昇から下落への転換を確認。</td>
+      </tr>
+      <tr>
+        <td>BB上限付近 (1h)</td>
+        <td><strong>+10</strong></td>
+        <td>【ボラティリティの上限値】+2&sigma;上限。統計的にバンド内に回帰しやすい「天井圏」でのショート。
+          <span class="intent">BB上限タッチ→反落は平均回帰の王道パターン</span></td>
+      </tr>
+      <tr>
+        <td>日足 EMA(20) 下向き</td>
+        <td><strong>+10</strong></td>
+        <td>【大局の下降トレンド】日足の大きな流れが「下」。順張りショートの安全性を担保。</td>
+      </tr>
+      <tr>
+        <td>MACDシグナルクロス下</td>
+        <td><strong>+10</strong></td>
+        <td>【モメンタムの崩壊初動】売りの勢いが買いを逆転。下落加速のサイン。
+          <span class="intent">MACD(12,26,9)。ヒストグラムがマイナス転換</span></td>
+      </tr>
+    </table>
+
+    <div class="cap-note">理論最大: 120点 → <strong>100でキャップ</strong></div>
+
+    <h3 style="margin-top:20px">ショート候補 減点</h3>
+    <table class="score-detail">
+      <tr><th>スコア項目</th><th>減点</th><th>回避するリスク</th></tr>
+      <tr class="deduction">
+        <td>日足 RSI &lt; 30</td>
+        <td><strong style="color:var(--red)">-15</strong></td>
+        <td>【大局の底値ショート防止】日足レベルで売られすぎ。ショートスクイーズによる踏み上げリスクを排除。
+          <span class="intent">底値ショートは最も危険なポジション。大口の買い戻しで一気に踏まれる</span></td>
+      </tr>
+      <tr class="deduction">
+        <td>出来高 &lt; 0.5倍</td>
+        <td><strong style="color:var(--red)">-10</strong></td>
+        <td>【閑散相場・罠の回避】ロングと同一理由。板が薄いとショートカバーの買い戻しが困難。</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- スコア帯解説 -->
+<div class="card" style="margin-top: 20px;">
+  <h3>スコア帯の解説</h3>
+  <table>
+    <tr><th>帯</th><th>レベル</th><th>意味</th></tr>
+    <tr><td style="color:var(--green); font-weight:700">80-100</td><td>激アツ🔥🔥🔥</td><td>複数時間足で条件合致、流動性も十分。即時Telegram通知</td></tr>
+    <tr><td style="color:var(--yellow); font-weight:700">60-79</td><td>アツい🔥</td><td>主要条件は満たすが一部未達。Telegram通知（2hクールダウン）</td></tr>
+    <tr><td style="color:var(--muted); font-weight:700">40-59</td><td>様子見👀</td><td>方向感は出ているがエントリーには早い。ログのみ</td></tr>
+    <tr><td style="color:var(--red); font-weight:700">0-39</td><td>まだ早い⏳</td><td>条件不足、待機推奨。ログのみ</td></tr>
+  </table>
+</div>
+
+<!-- Section 5: Bot連携 -->
+<h2>5. Bot連携の仕組み</h2>
+
+<table>
+  <tr><th>Bot名</th><th>Fear帯</th><th>追加条件</th><th>レバ</th></tr>
+  <tr><td>Alpha</td><td>0-10 (Extreme Fear)</td><td>BTC ≤ -1%, BTC.D ≤ -0.5%</td><td>3x</td></tr>
+  <tr><td>Surge</td><td>25-45</td><td>BTC ≤ 0%</td><td>2x</td></tr>
+  <tr><td>MeanRevert</td><td>50-80</td><td>MA20乖離 &gt; 15%</td><td>2x</td></tr>
+  <tr><td>WeakShort</td><td>50-75</td><td>BTC ≥ +1%</td><td>2x</td></tr>
+  <tr><td>Sniper</td><td>0-30</td><td>BTC ≤ -3%, corr &lt; 0.3</td><td>10x</td></tr>
+  <tr><td>Scalp</td><td>常時</td><td>BB+RSI逆張り</td><td>10x</td></tr>
+</table>
+
+<div class="card">
+  <p><strong>複数Bot重複時:</strong> Alpha &gt; Sniper &gt; Surge &gt; MeanRevert &gt; WeakShort の優先順位。同一銘柄に複数Botがマッチする場合、最も優先度の高いBotのシグナルが採用されます。</p>
+</div>
+
+<!-- Section 6: 激アツ通知の読み方 -->
+<h2>6. 激アツ通知の読み方</h2>
+
+<div class="sample-notif">
+🔥🔥🔥 <b>激アツシグナル: TURBO</b>
+━━━━━━━━━━━━━━━━━━━
+
+💰 現在価格: $0.004523
+📍 エントリーゾーン: $0.004380 〜 $0.004523
+📊 方向: 📈 LONG
+🎯 激アツ度: 85/100
+
+📊 時間足分析:
+│ 1h  │ 28.3  │ 下限割れ │ GC    │ 2.1x │
+│ 4h  │ 33.5  │ バンド内 │ GC    │ 1.6x │
+│ 1d  │ 42.1  │ バンド内 │ GC    │ 1.2x │
+
+📈 エントリー根拠:
+• Fear&Greed: 35 → ロング優位環境
+• 1h RSI 28.3 → 売られすぎゾーン
+• 1h出来高 2.1倍 → 流動性十分
+• BB下限割れ → 反発期待
+• Tier2総合スコア: 45pt
+
+🎯 利確プラン:
+• TP1: $0.004662 (3.1%) → 40%決済
+• TP2: $0.004754 (5.1%) → 30%決済
+• TP3: $0.004893 (8.2%) → 残り30%決済
+※TP1到達後、SLを建値に移動
+
+🛑 損切り:
+• SL: $0.004428 (2.1%)
+• RR比: 1.50
+</div>
+
+<div class="card green">
+  <h3>TP分割利確の意味</h3>
+  <ul>
+    <li><strong>TP1 (40%):</strong> 最も到達しやすい利確ポイント。まず利益を確保</li>
+    <li><strong>TP2 (30%):</strong> トレンドが続けば追加利益。TP1到達後SLを建値に移動するため、ここからはリスクフリー</li>
+    <li><strong>TP3 (30%):</strong> 大幅な動きを捕捉。到達率は低いが、RRが最も良い</li>
+  </ul>
+</div>
+
+<div class="card yellow">
+  <h3>RR比の見方</h3>
+  <p><strong>RR比 = リワード / リスク</strong>。1.5以上が推奨。1.5未満は ⚠️RR不足 と表示されます。</p>
+  <p>例: TP1まで+3%、SLまで-2% → RR = 3/2 = 1.5</p>
+</div>
+
+<div class="card">
+  <h3>トレーリングストップの動作</h3>
+  <p>TP1到達後にSLを建値（エントリー価格）に移動。以降、価格が上昇するごとにSLも引き上げ（トレーリング2%）。これにより、TP1以降は損失リスクなしで利益を伸ばせます。</p>
+</div>
+
+<p style="text-align:center; color:var(--muted); margin-top:40px; padding:20px;">
+  Generated by Empire Monitor | Last updated: 2026-03-12
+</p>
+
+</div>
+</body>
+</html>

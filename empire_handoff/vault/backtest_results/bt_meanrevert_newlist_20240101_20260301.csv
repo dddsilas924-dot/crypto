@@ -1,0 +1,2 @@
+symbol,entry_date,entry_price,side,leverage,exit_date,exit_price,exit_reason,holding_days,pnl_pct,pnl_leveraged_pct,pnl_amount
+AVICI/USDT:USDT,2026-01-16,4.62,short,2,2026-01-16,4.2504,TP,0,7.78,15.56,23340.0

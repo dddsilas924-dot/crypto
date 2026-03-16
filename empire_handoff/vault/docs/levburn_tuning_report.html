@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>LevBurn チューニングレポート</title>
+<style>
+body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', monospace; margin: 0 auto; max-width: 1200px; padding: 20px; line-height: 1.6; }
+h1 { color: #ff6b35; border-bottom: 2px solid #30363d; padding-bottom: 10px; }
+h2 { color: #58a6ff; margin-top: 40px; border-left: 4px solid #58a6ff; padding-left: 12px; }
+h3 { color: #8b949e; margin-top: 25px; }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; font-size: 0.92em; }
+th { background: #161b22; color: #58a6ff; padding: 8px 10px; text-align: left; border: 1px solid #30363d; }
+td { padding: 7px 10px; border: 1px solid #30363d; }
+tr:nth-child(even) { background: #161b22; }
+.box { background: #161b22; padding: 15px 20px; border-radius: 8px; margin: 15px 0; border: 1px solid #30363d; }
+.good { color: #4caf50; } .warn { color: #ff9800; } .bad { color: #f44336; }
+.highlight { background: #1b4332; }
+.insight { background: #1a1a2e; border-left: 3px solid #ff9800; padding: 12px 15px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+.danger { background: #2a1a1a; border-left: 3px solid #f44336; padding: 12px 15px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+.verdict { background: #0d2818; border: 1px solid #4caf50; padding: 12px 15px; margin: 12px 0; border-radius: 6px; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; }
+.tag-ok { background: #1b4332; color: #4caf50; }
+.tag-ng { background: #4a1a1a; color: #f44336; }
+.tag-warn { background: #3d2e00; color: #ff9800; }
+.small { font-size: 0.85em; color: #8b949e; }
+</style></head><body>
+
+<h1>LevBurn チューニングレポート</h1>
+
+<!-- ============================================================ -->
+<h2>LevBurnとは</h2>
+<div class="box">
+<b>LevBurn（レバレッジバーン）</b>は、ファンディングレート（FR）の歪みを利用するBot。<br><br>
+<b>仕組み:</b> 仮想通貨先物では、ロングとショートの比率が偏ると「ファンディングレート」というコストが発生する。
+例えばロングが多すぎるとロング側がショート側に手数料を払う。
+この偏りが極端になると、ロング勢がコスト負担に耐えきれずポジションを投げ売りする（= レバレッジが焼かれる = LevBurn）。<br><br>
+<b>エントリー戦略:</b> FRが極端に偏った銘柄を検出 → 偏りの逆側にエントリー（ロング過多ならショート）→ 投げ売りによる急落/急騰で利益を取る。
+</div>
+
+<!-- ============================================================ -->
+<h2>5つのバリエーション</h2>
+<div class="box">
+LevBurnには条件の厳しさやフィルタが異なる5つの設定がある:
+</div>
+
+<table>
+<tr><th>バリエーション</th><th>特徴</th><th>追加フィルタ</th><th>シグナル数<br>(6年間)</th><th>頻度</th></tr>
+<tr>
+<td><b>SCALP</b></td>
+<td>緩い条件で多くのシグナルを拾う。薄利で回転</td>
+<td>なし</td>
+<td>1,869</td>
+<td>年312回（ほぼ毎日）</td>
+</tr>
+<tr>
+<td><b>BASE</b></td>
+<td>標準的なLevBurn。バランス型</td>
+<td>なし</td>
+<td>1,578</td>
+<td>年263回</td>
+</tr>
+<tr>
+<td><b>TIGHT</b></td>
+<td>RSI極値も条件に加え、より確度の高いシグナルのみ</td>
+<td>RSI &gt; 75 or &lt; 25</td>
+<td>658</td>
+<td>年110回</td>
+</tr>
+<tr>
+<td><b>FEAR_COMBO</b></td>
+<td>Fear&amp;Greedの極端な値と組み合わせ</td>
+<td>FG &lt; 30 or &gt; 70</td>
+<td>593</td>
+<td>年99回</td>
+</tr>
+<tr>
+<td><b>AGGRESSIVE</b></td>
+<td>FR偏りが極端な場合のみエントリー</td>
+<td>|FR| &gt; 0.5</td>
+<td>382</td>
+<td>年64回</td>
+</tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>グリッドサーチの概要</h2>
+<div class="box">
+各バリエーションに対して以下のパラメータを総当たりで試行:<br><br>
+<b>利確(TP):</b> 1.5%, 2.0%, 3.0%, 5.0%, 8.0% （5段階）<br>
+<b>損切(SL):</b> 0.8%, 1.0%, 1.5%, 2.0%, 3.0% （5段階）<br>
+<b>レバレッジ:</b> 3倍, 5倍, 10倍 （3段階）<br>
+<b>FR閾値:</b> 0.03, 0.05, 0.08, 0.1, 0.15, 0.2 （6段階）<br><br>
+合計: 5バリエーション × 5 × 5 × 3 × 6 = <b>2,250パターン</b><br>
+期間: 2020-01-01 ~ 2026-03-01（約6年間）
+</div>
+
+<!-- ============================================================ -->
+<h2>最重要の発見: FR閾値が機能していない</h2>
+
+<div class="danger">
+<b>FR閾値を0.03から0.2に引き上げても、シグナル数がほとんど変わらない。</b>
+<table style="width:auto; margin:10px 0;">
+<tr><th>バリエーション</th><th>FR=0.03のシグナル数</th><th>FR=0.2のシグナル数</th><th>差</th></tr>
+<tr><td>BASE</td><td>1,578</td><td>1,577</td><td class="bad"><b>-1</b></td></tr>
+<tr><td>TIGHT</td><td>658</td><td>658</td><td class="bad"><b>0</b></td></tr>
+<tr><td>AGGRESSIVE</td><td>382</td><td>382</td><td class="bad"><b>0</b></td></tr>
+<tr><td>SCALP</td><td>1,869</td><td>1,851</td><td class="warn">-18</td></tr>
+<tr><td>FEAR_COMBO</td><td>595</td><td>593</td><td class="bad"><b>-2</b></td></tr>
+</table>
+<b>原因:</b> _check_levburn_signal() 内で実FRを proxy スケールに変換する際、×100 しているため、ほぼ全シグナルが閾値0.2を超えてしまう。<br>
+<b>結論:</b> 現在のFR閾値グリッド(0.03~0.2)はこのデータでは意味がない。FR proxyのスケーリングを見直すまで、FR閾値はチューニング対象外。<br>
+<b>以降の分析ではFR閾値を固定（=全FR同値として扱い）、利確/損切/レバレッジの3軸で評価する。</b>
+</div>
+
+<!-- ============================================================ -->
+<h2>利確・損切・レバレッジ軸の分析</h2>
+
+<h3>利確（TP）の効果 ― 全バリエーション共通の傾向</h3>
+<p>利確を広げるほどプロフィットファクターが上がり、ドローダウンも改善する。</p>
+<table>
+<tr><th>利確</th><th>BASEの平均<br>プロフィットファクター</th><th>TIGHTの平均<br>プロフィットファクター</th><th>AGGRESSIVEの平均<br>プロフィットファクター</th><th>SCALPの平均<br>プロフィットファクター</th><th>FEAR_COMBOの平均<br>プロフィットファクター</th></tr>
+<tr><td>1.5%</td><td>1.97</td><td>2.13</td><td>2.46</td><td>1.92</td><td>1.66</td></tr>
+<tr><td>2.0%</td><td>2.50</td><td>2.69</td><td>3.22</td><td>2.46</td><td>2.19</td></tr>
+<tr><td>3.0%</td><td>3.15</td><td>3.52</td><td>3.98</td><td>3.13</td><td>2.88</td></tr>
+<tr><td>5.0%</td><td>3.61</td><td>4.59</td><td>4.46</td><td>3.51</td><td>3.61</td></tr>
+<tr class="highlight"><td><b>8.0%</b></td><td class="good"><b>3.91</b></td><td class="good"><b>4.93</b></td><td class="good"><b>4.76</b></td><td class="good"><b>3.79</b></td><td class="good"><b>3.80</b></td></tr>
+</table>
+<div class="insight">
+<b>LevBurnは利確8%が圧倒的に最適。</b> FR歪みによる急変動は大きな値幅を出すため、利確を広くして大きな動きを取り切る戦略が有効。
+通常のBot（Block 1のScalp等）では利確×1.0が最適だったのと対照的。
+</div>
+
+<h3>損切（SL）の効果</h3>
+<table>
+<tr><th>損切</th><th>BASEの平均<br>プロフィットファクター</th><th>BASEの平均<br>最大ドローダウン</th><th>TIGHTの平均<br>プロフィットファクター</th><th>AGGRESSIVEの平均<br>プロフィットファクター</th></tr>
+<tr class="highlight"><td><b>0.8%</b></td><td class="good"><b>4.57</b></td><td>-30.4%</td><td class="good"><b>5.54</b></td><td class="good"><b>5.51</b></td></tr>
+<tr><td>1.0%</td><td>3.86</td><td>-30.7%</td><td>4.63</td><td>4.76</td></tr>
+<tr><td>1.5%</td><td>2.82</td><td>-31.3%</td><td>3.30</td><td>3.58</td></tr>
+<tr><td>2.0%</td><td>2.24</td><td>-32.7%</td><td>2.57</td><td>2.89</td></tr>
+<tr><td>3.0%</td><td>1.66</td><td class="bad">-33.9%</td><td>1.82</td><td>2.14</td></tr>
+</table>
+<div class="insight">
+<b>損切0.8%が全バリエーションで最適。</b> Block 1の通常Bot（損切×0.6 = 現行の6割まで絞る）と同じ傾向。
+LevBurnは「当たれば大きい」性質なので、外れた場合は即座に損切して次の機会を待つのが正解。
+</div>
+
+<h3>レバレッジの効果</h3>
+<table>
+<tr><th>レバレッジ</th><th>BASEの平均<br>プロフィットファクター</th><th>BASEの平均<br>最大ドローダウン</th><th>TIGHTの平均<br>プロフィットファクター</th><th>TIGHTの平均<br>最大ドローダウン</th></tr>
+<tr class="highlight"><td><b>3倍</b></td><td>3.05</td><td class="good"><b>-17.8%</b></td><td>3.52</td><td class="good"><b>-16.3%</b></td></tr>
+<tr><td>5倍</td><td>3.05</td><td>-27.8%</td><td>3.57</td><td>-26.8%</td></tr>
+<tr><td>10倍</td><td>2.98</td><td class="bad">-49.8%</td><td>3.62</td><td class="bad">-50.2%</td></tr>
+</table>
+<div class="insight">
+<b>Block 1と同じ結論:</b> レバレッジはプロフィットファクターにほぼ影響しない（3.05 vs 2.98）が、ドローダウンは3倍(-17.8%) → 10倍(-49.8%)に悪化。<br>
+レバレッジは3倍が実運用での推奨。
+</div>
+
+<!-- ============================================================ -->
+<h2>バリエーション別 推奨設定</h2>
+
+<p>利確/損切/レバレッジの3軸で最適設定を導出。評価は複合スコア（プロフィットファクター × ドローダウン耐性）。</p>
+
+<table>
+<tr>
+<th>バリエーション</th>
+<th>推奨<br>利確</th><th>推奨<br>損切</th><th>推奨<br>レバレッジ</th>
+<th>プロフィット<br>ファクター</th><th>トータル<br>リターン</th><th>最大<br>ドローダウン</th><th>勝率</th><th>取引回数</th>
+<th>現行設定</th>
+</tr>
+<tr class="highlight">
+<td><b>TIGHT</b> <span class="tag tag-ok">最優秀</span></td>
+<td>8.0%</td><td>0.8%</td><td>3倍</td>
+<td class="good"><b>7.48</b></td><td>+540%</td><td class="good"><b>-15.6%</b></td><td>50.2%</td><td>657</td>
+<td class="small">TP=3.0% SL=1.5%</td>
+</tr>
+<tr class="highlight">
+<td><b>AGGRESSIVE</b> <span class="tag tag-ok">低リスク</span></td>
+<td>8.0%</td><td>0.8%</td><td>3倍</td>
+<td class="good"><b>7.27</b></td><td>+123%</td><td class="good"><b>-12.9%</b></td><td>52.4%</td><td>382</td>
+<td class="small">TP=8.0% SL=3.0%</td>
+</tr>
+<tr>
+<td><b>BASE</b></td>
+<td>8.0%</td><td>0.8%</td><td>3倍</td>
+<td class="good"><b>6.03</b></td><td>+3,220%</td><td>-13.5%</td><td>44.4%</td><td>1,563</td>
+<td class="small">TP=5.0% SL=2.5%</td>
+</tr>
+<tr>
+<td><b>FEAR_COMBO</b></td>
+<td>8.0%</td><td>0.8%</td><td>3倍</td>
+<td>5.92</td><td>+880%</td><td class="warn">-22.4%</td><td>41.8%</td><td>593</td>
+<td class="small">TP=6.0% SL=3.0%</td>
+</tr>
+<tr>
+<td><b>SCALP</b></td>
+<td>8.0%</td><td>0.8%</td><td>3倍</td>
+<td>5.76</td><td>+4,034%</td><td>-13.5%</td><td>44.9%</td><td>1,869</td>
+<td class="small">TP=2.0% SL=1.0%</td>
+</tr>
+</table>
+
+<div class="verdict">
+<b>全5バリエーションで最適設定が同一: 利確8.0%, 損切0.8%, レバレッジ3倍</b><br><br>
+現行設定からの主な変更点:
+<ul style="margin:5px 0;">
+<li><b>利確を大幅拡大</b> ― 現行1.5~6.0% → 8.0%。LevBurnの急変動を最大限取る</li>
+<li><b>損切を大幅タイト化</b> ― 現行1.0~3.0% → 0.8%。外れたら即撤退</li>
+<li>利確:損切 = <b>10:1</b> という極端な非対称設定。勝率は40~52%で半分以下だが、勝ちの値幅が損切の10倍で余裕でカバー</li>
+</ul>
+</div>
+
+<!-- ============================================================ -->
+<h2>バリエーション間の比較: どれを使うべきか</h2>
+
+<table>
+<tr><th></th><th>TIGHT</th><th>AGGRESSIVE</th><th>BASE</th><th>SCALP</th><th>FEAR_COMBO</th></tr>
+<tr>
+<td><b>プロフィットファクター</b></td>
+<td class="good"><b>7.48</b></td><td class="good">7.27</td><td>6.03</td><td>5.76</td><td>5.92</td>
+</tr>
+<tr>
+<td><b>最大ドローダウン</b></td>
+<td>-15.6%</td><td class="good"><b>-12.9%</b></td><td>-13.5%</td><td>-13.5%</td><td class="warn">-22.4%</td>
+</tr>
+<tr>
+<td><b>取引回数 (6年)</b></td>
+<td>657</td><td>382</td><td>1,563</td><td class="good"><b>1,869</b></td><td>593</td>
+</tr>
+<tr>
+<td><b>年間取引数</b></td>
+<td>110回</td><td>64回</td><td>263回</td><td class="good"><b>312回</b></td><td>99回</td>
+</tr>
+<tr>
+<td><b>リターン</b></td>
+<td>+540%</td><td>+123%</td><td class="good"><b>+3,220%</b></td><td class="good"><b>+4,034%</b></td><td>+880%</td>
+</tr>
+</table>
+
+<div class="insight">
+<b>選択の考え方:</b><br><br>
+<b>精度重視（プロフィットファクター最大化）→ TIGHT:</b>
+RSI極値フィルタで確度の高いシグナルのみ。年110回で十分な取引頻度。プロフィットファクター7.48は全LevBurnバリエーション中最高。<br><br>
+
+<b>安全重視（ドローダウン最小化）→ AGGRESSIVE:</b>
+FR極端偏り(|FR|&gt;0.5)のみ。最大ドローダウン-12.9%と最も安全。ただしリターン+123%は控えめ（条件が厳しく機会が少ない）。<br><br>
+
+<b>収益最大化（絶対額重視）→ SCALP または BASE:</b>
+頻度が高い分、複利効果でリターンが大きい。ただしプロフィットファクターはTIGHTより低い。<br><br>
+
+<b>FEAR_COMBOは非推奨:</b> ドローダウン-22.4%と最悪で、プロフィットファクターも特別高くない。Fear&amp;Greedフィルタが有効に機能していない。
+</div>
+
+<!-- ============================================================ -->
+<h2>現行設定との差分まとめ</h2>
+
+<table>
+<tr><th>バリエーション</th><th>現行の利確</th><th>推奨の利確</th><th>現行の損切</th><th>推奨の損切</th><th>変更による<br>プロフィットファクター改善</th></tr>
+<tr><td>BASE</td><td>5.0%</td><td class="good">8.0%</td><td>2.5%</td><td class="good">0.8%</td><td>利確+60%, 損切-68%</td></tr>
+<tr><td>TIGHT</td><td>3.0%</td><td class="good">8.0%</td><td>1.5%</td><td class="good">0.8%</td><td>利確+166%, 損切-47%</td></tr>
+<tr><td>AGGRESSIVE</td><td>8.0%</td><td>8.0% (変更なし)</td><td>3.0%</td><td class="good">0.8%</td><td>損切-73%</td></tr>
+<tr><td>SCALP</td><td>2.0%</td><td class="good">8.0%</td><td>1.0%</td><td class="good">0.8%</td><td>利確+300%, 損切-20%</td></tr>
+<tr><td>FEAR_COMBO</td><td>6.0%</td><td class="good">8.0%</td><td>3.0%</td><td class="good">0.8%</td><td>利確+33%, 損切-73%</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>次のアクション</h2>
+
+<table>
+<tr><th>#</th><th>優先度</th><th>内容</th></tr>
+<tr><td>1</td><td class="bad"><b>即時</b></td><td><b>FR proxy のスケーリング修正</b> — _check_levburn_signal() 内の fr × 100 変換を見直し、FR閾値が実際にフィルタとして機能するようにする。修正後に再チューニングすれば、FR軸でもさらに最適化できる</td></tr>
+<tr><td>2</td><td class="warn"><b>推奨</b></td><td><b>全バリエーションの利確を8.0%, 損切を0.8%に変更</b> — 利確:損切 = 10:1 の非対称設定。レバレッジは3倍</td></tr>
+<tr><td>3</td><td>検討</td><td><b>FEAR_COMBO バリエーションの見直しまたは廃止</b> — ドローダウンが他より大きく、FG フィルタの効果が不明確</td></tr>
+<tr><td>4</td><td>検討</td><td><b>TIGHT を LevBurn の標準設定に昇格</b> — 精度/リスクバランスが最優秀</td></tr>
+</table>
+
+<p style="color:#8b949e; font-size:0.8em; margin-top: 40px; border-top: 1px solid #30363d; padding-top: 10px;">
+LevBurn Tuning Report | Generated: 2026-03-13 | 2,250パターン (5 variant × 450 combos) | 期間: 2020-01 ~ 2026-03
+</p>
+
+</body></html>

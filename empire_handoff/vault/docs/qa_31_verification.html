@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Monitor - 31項目検証テスト</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --orange: #db6d28;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --cyan: #39d353;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', 'Noto Sans JP', -apple-system, sans-serif;
+    line-height: 1.7;
+    padding: 0;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a1f35 0%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2rem;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  /* Container */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+
+  /* Summary Cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .summary-card:hover { transform: translateY(-2px); }
+  .summary-card .count {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .summary-card .label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .summary-card .icon {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+  .card-green .count { color: var(--green); }
+  .card-yellow .count { color: var(--yellow); }
+  .card-blue .count { color: var(--accent); }
+  .card-purple .count { color: var(--purple); }
+  .card-red .count { color: var(--red); }
+
+  /* Progress Bar */
+  .progress-bar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  .progress-bar-wrap h3 {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .progress-bar {
+    height: 28px;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    background: #21262d;
+  }
+  .progress-bar .seg {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    transition: width 0.5s ease;
+  }
+  .seg-green { background: var(--green); }
+  .seg-yellow { background: var(--yellow); }
+  .seg-blue { background: var(--accent); }
+  .seg-purple { background: var(--purple); }
+  .seg-red { background: var(--red); }
+  .progress-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .progress-legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+  .progress-legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* Category Sections */
+  .category {
+    margin-bottom: 36px;
+  }
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .category-header h2 {
+    font-size: 1.15rem;
+    color: var(--accent);
+  }
+  .category-header .badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 12px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  /* QA Cards */
+  .qa-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .qa-card:hover { border-color: var(--accent); }
+  .qa-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .qa-card-header:hover { background: rgba(88, 166, 255, 0.04); }
+  .qa-num {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .qa-title {
+    flex: 1;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .qa-status {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .qa-toggle {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .qa-card.open .qa-toggle { transform: rotate(180deg); }
+  .qa-body {
+    display: none;
+    padding: 0 20px 16px 70px;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+  .qa-card.open .qa-body { display: block; }
+  .qa-body .field {
+    margin-bottom: 10px;
+  }
+  .qa-body .field-label {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .qa-body .field-value {
+    color: var(--text);
+  }
+  .qa-body .code-ref {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.82rem;
+    color: var(--cyan);
+    display: inline-block;
+    margin: 2px 0;
+    word-break: break-all;
+  }
+  .qa-body .diff {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .diff-before, .diff-after {
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+  .diff-before {
+    background: rgba(248, 81, 73, 0.08);
+    border: 1px solid rgba(248, 81, 73, 0.2);
+  }
+  .diff-after {
+    background: rgba(63, 185, 80, 0.08);
+    border: 1px solid rgba(63, 185, 80, 0.2);
+  }
+  .diff-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .diff-before .diff-label { color: var(--red); }
+  .diff-after .diff-label { color: var(--green); }
+
+  /* Backtest Table */
+  .bt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-top: 8px;
+  }
+  .bt-table th {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .bt-table th:first-child { text-align: left; }
+  .bt-table td {
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    text-align: right;
+    font-family: 'Cascadia Code', monospace;
+    font-size: 0.82rem;
+  }
+  .bt-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .bt-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+  .bt-table .positive { color: var(--green); }
+  .bt-table .negative { color: var(--red); }
+  .bt-table .highlight-row { background: rgba(63, 185, 80, 0.06); }
+
+  /* Next Steps */
+  .next-steps {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 40px;
+  }
+  .next-steps h2 {
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-size: 1.15rem;
+  }
+  .priority-group {
+    margin-bottom: 16px;
+  }
+  .priority-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  .priority-high { background: rgba(248, 81, 73, 0.15); color: var(--red); }
+  .priority-mid { background: rgba(210, 153, 34, 0.15); color: var(--yellow); }
+  .priority-low { background: rgba(88, 166, 255, 0.15); color: var(--accent); }
+  .step-item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0 6px 14px;
+    font-size: 0.9rem;
+  }
+  .step-num {
+    color: var(--text-dim);
+    font-weight: 700;
+    min-width: 20px;
+  }
+  .step-item .metric {
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-family: 'Cascadia Code', monospace;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .summary-grid { grid-template-columns: repeat(3, 1fr); }
+    .qa-body .diff { grid-template-columns: 1fr; }
+    .qa-body { padding-left: 20px; }
+  }
+  @media (max-width: 480px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>Empire Monitor 31項目検証テスト</h1>
+  <div class="subtitle">レポート改善後の回答精度確認 &mdash; 2026-03-11</div>
+</div>
+
+<div class="container">
+
+<!-- Summary Cards -->
+<div class="summary-grid">
+  <div class="summary-card card-green">
+    <div class="icon">✅</div>
+    <div class="count">21</div>
+    <div class="label">完全実装</div>
+  </div>
+  <div class="summary-card card-yellow">
+    <div class="icon">🔶</div>
+    <div class="count">5</div>
+    <div class="label">部分実装</div>
+  </div>
+  <div class="summary-card card-blue">
+    <div class="icon">📊</div>
+    <div class="count">3</div>
+    <div class="label">データあり</div>
+  </div>
+  <div class="summary-card card-purple">
+    <div class="icon">📋</div>
+    <div class="count">1</div>
+    <div class="label">設計済み</div>
+  </div>
+  <div class="summary-card card-red">
+    <div class="icon">❌</div>
+    <div class="count">1</div>
+    <div class="label">未実装</div>
+  </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="progress-bar-wrap">
+  <h3>実装カバレッジ</h3>
+  <div class="progress-bar">
+    <div class="seg seg-green" style="width:67.7%">21</div>
+    <div class="seg seg-yellow" style="width:16.1%">5</div>
+    <div class="seg seg-blue" style="width:9.7%">3</div>
+    <div class="seg seg-purple" style="width:3.2%">1</div>
+    <div class="seg seg-red" style="width:3.2%">1</div>
+  </div>
+  <div class="progress-legend">
+    <span><span class="dot" style="background:var(--green)"></span>完全実装 67.7%</span>
+    <span><span class="dot" style="background:var(--yellow)"></span>部分実装 16.1%</span>
+    <span><span class="dot" style="background:var(--accent)"></span>データあり 9.7%</span>
+    <span><span class="dot" style="background:var(--purple)"></span>設計済み 3.2%</span>
+    <span><span class="dot" style="background:var(--red)"></span>未実装 3.2%</span>
+  </div>
+</div>
+
+<!-- ===== Category: 市場環境判定 (Q1-Q3) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>🌐 市場環境判定</h2>
+    <span class="badge">Q1 - Q3</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q1</div>
+      <div class="qa-title">パターン分類の判定基準は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">BTC 24h変化率±1%、BTC.D変化±0.3%pt、TotalMC変化率±1%の3変数で6パターン（A-F）に分類。3変数それぞれをup/flat/downに分類し、組み合わせでパターン決定。該当なしはF（レンジ）。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/regime.py:22-24 — THRESHOLD_BTC=1.0, THRESHOLD_DOM=0.3, THRESHOLD_TOTAL=1.0</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>テンプレート文字列がなくアクション指示が不明確</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>src/core/commentary.py:17-33 に6パターン全てのテンプレート＋アクション指示を追加</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q2</div>
+      <div class="qa-title">パターンCへの遷移時の動作は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">遷移検知でオープンポジション件数を確認し、あれば send_pattern_c_alert() を送信。結論にも「全面安。全ポジション決済推奨。新規エントリー禁止。」が自動挿入。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/core/engine.py:144-148, src/core/commentary.py:326-327</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>遷移アラートのみで解説なし</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>Commentary._build_conclusion() で結論テンプレート自動挿入</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q3</div>
+      <div class="qa-title">Fear&amp;Greedの取得元と更新頻度は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">alternative.me API から取得。メモリキャッシュ有効（5分TTL）。regime_update_interval=3600秒（1時間）ごとに更新。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/regime.py:103 — API URL, src/core/engine.py:169-172 — interval</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>レポートにFear値のみ表示</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>alert.py:150-156 _fear_label() で6段階ラベル付き表示</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: スコアリング (Q4-Q5) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>📐 スコアリング</h2>
+    <span class="badge">Q4 - Q5</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q4</div>
+      <div class="qa-title">Tier1のスコア構成と満点は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">L02(聖域: 0-30) + L03(出来高: 0-25) + L09(即時: 0-20) + L17(非相関: 0-25) + L_alpha(乖離: 0-30) = <b>最大130pt</b>。通過閾値 &gt;20pt。聖域割れは-100で即除外。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/tier1_engine.py:53(L02), :72(L03), :89(L09), :98(L17), :110(L_alpha), :133(pass&gt;20)</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>合計スコアのみ表示</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>alert.py:248-276 _score_breakdown() でロジック別内訳表示</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q5</div>
+      <div class="qa-title">Tier2のスコア構成と満点は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">L08(FR/OI: -10~+20) + L10(流動性: -100~+20) + L13(清算: -15~+5) = <b>最大45pt</b>。通過閾値 &gt;10pt。L10 VETO（板厚&lt;$100K）は-100で即除外。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/tier2_engine.py:19(L08), :38(L10), :48(L13), :65(pass&gt;10)</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>Tier2スコアのみ表示</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>commentary.py tier2_symbol_comment() でFR/流動性/清算の内訳表示</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: Bot エンジン (Q6-Q9) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>🤖 Bot エンジン（実装済み）</h2>
+    <span class="badge">Q6 - Q9</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q6</div>
+      <div class="qa-title">Bot-Alphaの発火条件は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">Fear&lt;10 AND BTC日次≤-1.0% AND BTC.D変化≤-0.5% の3条件同時成立。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/bot_alpha_engine.py:34-36</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>発火条件不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>commentary.py:86-89 テンプレート + alert.py:178-188 distance表示</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q7</div>
+      <div class="qa-title">Bot-Alphaのターゲット選定基準は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">相関&lt;0.5 AND Alpha≥3.0%。スコア: (1-corr)*50 + min(alpha*5, 50)。降順で上位をエントリー。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/bot_alpha_engine.py:62, :81-85</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>ターゲット選定ロジック不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>レポートに候補Top5表示 (alert.py:50-53)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q8</div>
+      <div class="qa-title">Bot-Surgeの発火条件は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">Fear 25-45 AND BTC日次リターン≤0%。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/bot_surge_engine.py — check_activation()</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>発火条件不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>commentary.py:92-94 テンプレート + alert.py:192-202 distance表示</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q9</div>
+      <div class="qa-title">Bot-Surgeのセクター波及テーブルは？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">Solana(JUP 2d, JTO 4.75d), AI(空), BTCeco, DeFi, Gaming の5セクター。settings.yamlにもsector_lag設定あり。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/bot_surge_engine.py — SECTOR_LAG_TABLES, config/settings.yaml:47-55</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>セクターテーブルの詳細不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>Bot-Surgeアラートにセクター波及詳細表示 (alert.py:81-84)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: データ・インフラ (Q10-Q12) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>🗄️ データ・インフラ</h2>
+    <span class="badge">Q10 - Q12</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q10</div>
+      <div class="qa-title">取引コスト（手数料）はいくら想定？</div>
+      <div class="qa-status">🔶</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">ラウンドトリップ0.22%（片道0.11%相当）。PnL計算時に自動控除。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/core/paper_tracker.py:126 付近 — 0.22%コスト控除</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>コスト値がコード内にハードコードで不可視</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>変更なし。レポートへのコスト表示は未対応。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q11</div>
+      <div class="qa-title">聖域価格の算出方法は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">200日足のlow最安値。DBのsanctuaryテーブルにマスタ保存。未登録時はohlcv_1d tail(200).min()フォールバック。データ不足はバイパス(score=5)。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/tier1_engine.py:39-40, src/data/database.py:34-41</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>聖域の算出方法不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>commentary.py tier2_symbol_comment() で「聖域+XX」内訳表示</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q12</div>
+      <div class="qa-title">板厚（オーダーブック深度）の取得方法は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">MEXC APIのfetch_order_book() limit=20レベル。bid_depth + ask_depth (USD換算)。スプレッド%も計算。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/fetchers/ohlcv.py:79-98 — fetch_orderbook()</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>板厚データの取得方法不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>変更なし（既存）。Tier2 L10で$100K閾値チェック。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: VETO・安全機構 (Q13-Q14) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>🛡️ VETO・安全機構</h2>
+    <span class="badge">Q13 - Q14</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q13</div>
+      <div class="qa-title">VETOシステムの3層構造は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">
+          <b>Layer 1:</b> L10流動性VETO (tier2_engine.py — depth&lt;$100K → -100)<br>
+          <b>Layer 2:</b> データ異常VETO (veto.py — 価格≤0/負値/出来高≤0/OHLCV欠損/スプレッド超過)<br>
+          <b>Layer 3:</b> 手動VETO (settings.yaml veto.manual_symbols)
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/core/veto.py:7-16, src/signals/tier2_engine.py:32-36</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>VETOシステム未実装（L10のみ既存）</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>src/core/veto.py 新規作成（139行）。engine.pyで初期化済み。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q14</div>
+      <div class="qa-title">緊急レポートのトリガー条件は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">5条件（いずれか成立で発火）:<br>
+          1. BTC 1h ±5% &nbsp; 2. BTC 4h ±8% &nbsp; 3. Fear ±10pt &nbsp; 4. BTC.D ±1.5%pt &nbsp; 5. OI 1h ±15%<br>
+          各条件に独立クールダウン7200秒（2時間）。
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/core/report_scheduler.py:21-28, config/settings.yaml:315-320</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>トリガー発火しても意味・アクションが不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>commentary.py:211-261 TRIGGER_ANALYSIS で意味/執行/監視/回避を自動付与</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: レポート構成 (Q15-Q19) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>📄 レポート構成</h2>
+    <span class="badge">Q15 - Q19</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q15</div>
+      <div class="qa-title">レポートの送信タイミングは？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">3トリガー: <b>startup</b>(起動時1回) / <b>daily</b>(9:00 JST毎日) / <b>emergency</b>(5条件チェック毎サイクル、CD 2h)</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/core/report_scheduler.py:42-46(startup), :48-58(daily), :77-157(emergency)</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>3種は既存だがフォーマットが旧式</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>alert.py:330-412 send_market_report() で5セクション新フォーマット</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q16</div>
+      <div class="qa-title">レポートの5セクション構成は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">
+          <b>§1</b> 結論 (1行) &nbsp;
+          <b>§2</b> 市場前提 (BTC/F&amp;G/BTC.D/Pattern) &nbsp;
+          <b>§3</b> Tier1/Tier2候補 (セクター+上位20+スコア内訳+Bot候補) &nbsp;
+          <b>§4</b> Bot Status (6Bot×5段階+distance) &nbsp;
+          <b>§5</b> どらの解説<br>
+          + ポジション / フィードバック精度 / スコアガイドフッター
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/execution/alert.py:330-412 — send_market_report()</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>セクション分けなし、スコア合計のみ</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>5セクション＋ポジション＋フィードバック＋スコアガイド</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q17</div>
+      <div class="qa-title">Botステータスの5段階表示は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">⚪待機 / 🟡接近 / 🔴発火 / 🟢稼働 / ⛔ブロック。Fear値・BTC変化率からステータスを自動判定し、閾値までの距離を表示。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/execution/alert.py:159-162(_STATUS_ICON), :164-170(_bot_status_line), :172-246(_build_bot_status_section)</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>Botステータス表示なし</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>6Bot (Alpha/Surge/MeanRevert/WeakShort/Sniper/Scalp) の5段階表示</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q18</div>
+      <div class="qa-title">コミュニティレポートの仕様は？</div>
+      <div class="qa-status">🔶</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">Bot詳細・ポジション除外の簡易版。結論+市場前提+注目銘柄Top10+Fear解説+スコアガイド。community_chat_id設定時のみ送信。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/execution/alert.py:414-464, config/settings.yaml:306-308</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>コミュニティレポート未実装</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>send_community_report() 実装済み。ただし chat_id未設定、enabled=false</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q19</div>
+      <div class="qa-title">スコアガイドフッターの内容は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">閾値バンド: 90+即監視 / 80+強候補 / 70+条件付き / 60-見送り<br>T1: max130 (聖域30+出来高25+変動20+低相関25+α乖離30)<br>T2: max45 (FR20+流動性20+清算5)<br>合計175pt満点 / T2通過≥10pt / VETO=-100即除外</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/core/commentary.py:268-277 — score_guide_footer()</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>スコアの読み方ガイドなし</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>レポート末尾に自動付与</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: Bot 未実装 (Q20-Q23) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>🔧 Bot エンジン（未実装）</h2>
+    <span class="badge">Q20 - Q23</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q20</div>
+      <div class="qa-title">Bot-MeanRevertのエンジン実装状況は？</div>
+      <div class="qa-status">📋</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">エンジンファイル未実装。settings.yamlにパラメータ定義あり（fear_min:50, fear_max:80, ma20_dev_min:15%）。レポートではFear値からステータス推定表示。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">config/settings.yaml:138-146 (params), alert.py:204-214 (status推定)</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>MeanRevertの存在すら不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>commentary.pyテンプレート + alert.pyステータス表示。エンジンは未実装。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q21</div>
+      <div class="qa-title">Bot-WeakShortのエンジン実装状況は？</div>
+      <div class="qa-status">🔶</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">エンジンファイル未実装。settings.yamlにパラメータ定義あり（fear_min:50, fear_max:75, btc_gain_min:1.0, divergence_min:3.0）。レポートではFear+BTC変化率からステータス推定。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">config/settings.yaml:170-179, alert.py:216-229</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>WeakShortの存在すら不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>テンプレート + ステータス表示あり。エンジンは未実装。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q22</div>
+      <div class="qa-title">Bot-Sniperのエンジン実装状況は？</div>
+      <div class="qa-status">🔶</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">エンジンファイル未実装。settings.yamlにパラメータ定義あり（fear_max:30, btc_drop:-3.0, vol_spike:5.0, corr_max:0.3, leverage:10x）。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">config/settings.yaml:268-277, alert.py:231-241</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>Sniperの存在すら不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>テンプレート + ステータス表示あり。エンジンは未実装。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q23</div>
+      <div class="qa-title">Bot-Scalpのエンジン実装状況は？</div>
+      <div class="qa-status">🔶</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">エンジンファイル未実装。settings.yamlにパラメータ定義あり（BB(20,2σ)+RSI(14), leverage:10x）。レポートでは常時active表示。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">config/settings.yaml:279-289, alert.py:244</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>Scalpの存在すら不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>テンプレート + 常時active表示。エンジンは未実装。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: バックテスト (Q24-Q25) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>📊 バックテスト結果</h2>
+    <span class="badge">Q24 - Q25</span>
+  </div>
+
+  <div class="qa-card open">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q24</div>
+      <div class="qa-title">バックテスト結果の概要は？</div>
+      <div class="qa-status">📊</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">11Bot × 2年間（2024/01-2026/03）のバックテスト結果:</div>
+      </div>
+      <table class="bt-table">
+        <thead>
+          <tr><th>Bot</th><th>Trades</th><th>WR%</th><th>Avg PnL%</th><th>Total Return%</th><th>Max DD%</th></tr>
+        </thead>
+        <tbody>
+          <tr class="highlight-row"><td>meanrevert</td><td>372</td><td class="positive">55.4</td><td class="positive">+17.64</td><td class="positive">+6,561.6</td><td class="negative">-32.2</td></tr>
+          <tr class="highlight-row"><td>surge</td><td>81</td><td class="positive">60.5</td><td class="positive">+4.03</td><td class="positive">+326.4</td><td class="negative">-4.4</td></tr>
+          <tr class="highlight-row"><td>weakshort</td><td>103</td><td class="positive">55.3</td><td class="positive">+2.86</td><td class="positive">+294.7</td><td class="negative">-5.4</td></tr>
+          <tr><td>rebound</td><td>45</td><td>40.0</td><td class="positive">+3.65</td><td class="positive">+164.2</td><td class="negative">-15.7</td></tr>
+          <tr><td>stability</td><td>170</td><td>37.6</td><td class="positive">+0.62</td><td class="positive">+104.9</td><td class="negative">-5.4</td></tr>
+          <tr><td>trend</td><td>143</td><td>32.2</td><td class="positive">+0.64</td><td class="positive">+91.1</td><td class="negative">-6.4</td></tr>
+          <tr><td>momentum</td><td>297</td><td>32.0</td><td class="positive">+0.27</td><td class="positive">+80.2</td><td class="negative">-8.4</td></tr>
+          <tr><td>btcfollow</td><td>1</td><td class="positive">100.0</td><td class="positive">+44.34</td><td class="positive">+44.3</td><td>N/A</td></tr>
+          <tr><td>alpha</td><td>6</td><td>50.0</td><td class="positive">+6.84</td><td class="positive">+41.0</td><td class="negative">-9.7</td></tr>
+          <tr><td>breakout</td><td>22</td><td>31.8</td><td class="positive">+0.47</td><td class="positive">+10.3</td><td class="negative">-8.4</td></tr>
+          <tr><td>cascade</td><td>104</td><td class="negative">28.8</td><td class="negative">-1.09</td><td class="negative">-113.7</td><td class="negative">-8.4</td></tr>
+        </tbody>
+      </table>
+      <div class="field" style="margin-top:10px">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">vault/backtest_results/bt_*.csv — 11ファイル</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q25</div>
+      <div class="qa-title">Walkforward検証の対象Botは？</div>
+      <div class="qa-status">📊</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">4Bot: alpha, surge, meanrevert, weakshort。walkforwardディレクトリに個別CSVあり。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">vault/backtest_results/walkforward/ — wf_alpha.csv, wf_surge.csv, wf_meanrevert.csv, wf_weakshort.csv</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: システム基盤 (Q26-Q28) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>⚙️ システム基盤</h2>
+    <span class="badge">Q26 - Q28</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q26</div>
+      <div class="qa-title">データベースのテーブル構成は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">SQLite (data/empire_monitor.db)。主要テーブル: ohlcv / sanctuary / sector / watchlist / positions / paper_signals</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/data/database.py:25-50</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q27</div>
+      <div class="qa-title">ペーパートレードの仕組みは？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">dry_run=true時、Bot-Alpha/Surgeのシグナルをpaper_signalsに記録。毎サイクルでTP/SL比較→自動決済。PnL計算は0.22%コスト控除済み。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/core/engine.py:412-469, src/core/paper_tracker.py</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q28</div>
+      <div class="qa-title">BTC.Dの妥当性チェック範囲は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">30.0% ≤ BTC.D ≤ 80.0%。範囲外は異常値として前回値を維持。regime.pyとreport_scheduler.pyの両方で同一ガード。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/regime.py:33-34 — VALID_BTC_D_MIN=30.0, VALID_BTC_D_MAX=80.0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Category: 全体像 (Q29-Q31) ===== -->
+<div class="category">
+  <div class="category-header">
+    <h2>🗺️ 全体像</h2>
+    <span class="badge">Q29 - Q31</span>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q29</div>
+      <div class="qa-title">実装済みのBotエンジンは何本？</div>
+      <div class="qa-status">❌</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value"><b>2本のみ:</b> Bot-Alpha (112行) と Bot-Surge (210行)。残り19Botはsettings.yamlにパラメータ定義のみ。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">src/signals/bot_alpha_engine.py (112行), src/signals/bot_surge_engine.py (210行)</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>実装状況不明</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>6Botのステータス表示を追加。19Botエンジンは未実装のまま。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q30</div>
+      <div class="qa-title">レポートのHTML出力対応は？</div>
+      <div class="qa-status">✅</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">scripts/generate_report_html.py で3フェーズHTML生成 (before/after/diff)。ダークテーマCSS、7セクション構成。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">scripts/generate_report_html.py (1007行)</div>
+      </div>
+      <div class="diff">
+        <div class="diff-before"><div class="diff-label">改善前</div>HTML出力なし</div>
+        <div class="diff-after"><div class="diff-label">改善後</div>3フェーズHTML生成スクリプト新規作成</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="qa-card">
+    <div class="qa-card-header" onclick="this.parentElement.classList.toggle('open')">
+      <div class="qa-num">Q31</div>
+      <div class="qa-title">全21Botの設定一覧はどこ？</div>
+      <div class="qa-status">📊</div>
+      <div class="qa-toggle">▼</div>
+    </div>
+    <div class="qa-body">
+      <div class="field">
+        <div class="field-label">回答</div>
+        <div class="field-value">config/settings.yaml に全21Bot (alpha, surge, momentum, rebound, stability, trend, cascade, meanrevert, breakout, btcfollow, weakshort, volexhaust, fearflat, domshift, gaptrap, sectorsync, feardip, sectorlead, shortsqueeze, sniper, scalp, event) の設定パラメータが定義。</div>
+      </div>
+      <div class="field">
+        <div class="field-label">根拠</div>
+        <div class="code-ref">config/settings.yaml:57-298, vault/docs/bot_lineup_final.md</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Next Steps ===== -->
+<div class="next-steps">
+  <h2>🚀 次のステップ（未実装項目）</h2>
+
+  <div class="priority-group">
+    <div class="priority-label priority-high">優先度: 高</div>
+    <div class="step-item"><span class="step-num">1.</span> <b>Bot-MeanRevertエンジン実装</b> <span class="metric">WR 55.4% / Return +6,561% / 372 trades</span></div>
+    <div class="step-item"><span class="step-num">2.</span> <b>Bot-WeakShortエンジン実装</b> <span class="metric">WR 55.3% / Return +294% / 103 trades</span></div>
+    <div class="step-item"><span class="step-num">3.</span> <b>Bot-Sniperエンジン実装</b> <span class="metric">WR 60.0% / Return +40.7% / 10x leverage</span></div>
+  </div>
+
+  <div class="priority-group">
+    <div class="priority-label priority-mid">優先度: 中</div>
+    <div class="step-item"><span class="step-num">4.</span> <b>Bot-Scalpエンジン実装</b> <span class="metric">BB+RSI常時稼働 / 475 trades</span></div>
+    <div class="step-item"><span class="step-num">5.</span> <b>コミュニティレポート有効化</b> <span class="metric">chat_id設定 + enabled=true</span></div>
+    <div class="step-item"><span class="step-num">6.</span> <b>レポートへの取引コスト表示</b> <span class="metric">0.22% round-trip の明示</span></div>
+  </div>
+
+  <div class="priority-group">
+    <div class="priority-label priority-low">優先度: 低</div>
+    <div class="step-item"><span class="step-num">7.</span> <b>残り15Botエンジン実装</b> <span class="metric">BT成績順に順次</span></div>
+    <div class="step-item"><span class="step-num">8.</span> <b>OI集計の実装</b> <span class="metric">engine.py:369 total_oi=0 ハードコード解消</span></div>
+    <div class="step-item"><span class="step-num">9.</span> <b>Walkforward結果のレポート統合</b> <span class="metric">4Bot分のWF結果を自動表示</span></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  Empire Monitor &mdash; 31項目検証テスト &mdash; Generated 2026-03-11 by Claude
+</div>
+
+<script>
+// Q24 (backtest table) is open by default, others closed
+// Click any header to toggle
+</script>
+</body>
+</html>

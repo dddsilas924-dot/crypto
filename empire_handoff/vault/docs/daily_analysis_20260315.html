@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Analysis — 2026-03-15</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--border:#1e293b;--accent:#3b82f6;--accent2:#8b5cf6;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;--gold:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b,#0f172a);border-bottom:1px solid var(--border);padding:28px 20px;text-align:center}
+.header h1{font-size:1.8rem;background:linear-gradient(135deg,var(--red),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .sub{color:var(--muted);font-size:.85rem;margin-top:4px}
+.container{max-width:1300px;margin:0 auto;padding:20px}
+.section{margin:24px 0}
+.section h2{font-size:1.05rem;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid var(--border)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px}
+table.t{width:100%;border-collapse:collapse;font-size:.82rem}
+table.t th{padding:6px 8px;background:rgba(59,130,246,.08);color:var(--accent);border-bottom:2px solid rgba(59,130,246,.2);font-weight:600;text-align:center;font-size:.72rem;text-transform:uppercase}
+table.t th:first-child{text-align:left}
+table.t td{padding:5px 8px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted)}
+table.t td:first-child{text-align:left;color:var(--text);font-weight:500}
+table.t tr:hover td{background:rgba(59,130,246,.04);color:var(--text)}
+.good{color:var(--green)!important;font-weight:600}.bad{color:var(--red)!important}.warn{color:var(--orange)!important}.best{color:var(--gold)!important;font-weight:700}
+.hl td{background:rgba(239,68,68,.04)!important}
+.hl-good td{background:rgba(16,185,129,.04)!important}
+.note{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--orange)}
+.alert{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--red)}
+.insight{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--green)}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin:12px 0}
+.metric{background:rgba(0,0,0,.25);border-radius:6px;padding:10px;text-align:center}
+.metric .mv{font-size:1.3rem;font-weight:700}.metric .ml{font-size:.68rem;color:var(--dim);text-transform:uppercase;margin-top:2px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+.bar-row{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:.78rem}
+.bar-label{width:45px;text-align:right;color:var(--dim);font-family:monospace}
+.bar{height:16px;border-radius:3px;display:flex;align-items:center;padding:0 6px;font-size:.68rem;color:#fff;font-weight:600;min-width:20px}
+.footer{text-align:center;padding:20px;color:var(--dim);font-size:.72rem;border-top:1px solid var(--border);margin-top:30px}
+.cause-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;font-weight:700;font-size:.85rem;margin-right:8px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Daily Analysis — 2026-03-15</h1>
+  <div class="sub">Fear&Greed: 13（極限恐怖）| 全BOT赤字 | 累計 -387.68%</div>
+</div>
+
+<div class="container">
+
+<!-- ====== SUMMARY ====== -->
+<div class="section">
+  <h2>Executive Summary</h2>
+  <div class="alert">
+    <strong>壊滅的な1日。-387.68%、WR23.3%。</strong>全234トレード中229件(98%)がLONG、うちWR23.6%。
+    Fear=13（極限恐怖）の下落市場でLONGを連打し続けた結果。
+  </div>
+  <div class="mg">
+    <div class="metric"><div class="mv" style="color:var(--red)">-387.68%</div><div class="ml">Total PnL</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">23.3%</div><div class="ml">Win Rate</div></div>
+    <div class="metric"><div class="mv">234</div><div class="ml">Trades</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">13</div><div class="ml">Fear&Greed</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">98.7%</div><div class="ml">LONG比率</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">7連敗</div><div class="ml">Max Streak</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">168</div><div class="ml">COS単独</div></div>
+    <div class="metric"><div class="mv">18</div><div class="ml">稼働BOT数</div></div>
+  </div>
+</div>
+
+<!-- ====== ROOT CAUSE ====== -->
+<div class="section">
+  <h2>根本原因分析</h2>
+  <div class="card">
+    <h3 style="margin-bottom:12px;font-size:.95rem"><span class="cause-num">1</span> LONG偏り — FR方向とマクロトレンドの矛盾</h3>
+    <div class="two-col">
+      <div>
+        <table class="t">
+          <thead><tr><th>Direction</th><th>Trades</th><th>WR%</th><th>PnL</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="bad">LONG</td><td>229</td><td class="bad">23.6%</td><td class="bad">-374.26%</td></tr>
+            <tr><td>SHORT</td><td>3</td><td class="bad">0.0%</td><td class="bad">-13.42%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="alert" style="margin:0">
+        <strong>FR < 0 (ショート過密) → システム:「LONGで焼こう」</strong><br>
+        しかし Fear=13 の極限恐怖市場 → 実際は全面下落<br><br>
+        <strong>FRプロキシが「ショートが溜まってる」と判断しても、マクロが下落トレンドならLONGは焼かれる。</strong>
+        FR方向判定は局所的な需給しか見ておらず、マクロ環境（Fear/BTC方向）を加味していない。
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:12px;font-size:.95rem"><span class="cause-num">2</span> COS_USDT 1銘柄に168トレード集中（72%）</h3>
+    <table class="t">
+      <thead><tr><th>Symbol</th><th>Trades</th><th>W</th><th>L</th><th>WR%</th><th>PnL</th><th>集中度</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td class="bad">COS_USDT</td><td>168</td><td>47</td><td>121</td><td class="bad">28.0%</td><td class="bad">-195.20%</td><td class="bad">72%</td></tr>
+        <tr class="hl"><td>RESOLV_USDT</td><td>28</td><td>3</td><td>25</td><td class="bad">10.7%</td><td class="bad">-96.30%</td><td>12%</td></tr>
+        <tr class="hl"><td>TOWNS_USDT</td><td>28</td><td>3</td><td>25</td><td class="bad">10.7%</td><td class="bad">-74.52%</td><td>12%</td></tr>
+        <tr><td>AGT_USDT</td><td>3</td><td>0</td><td>3</td><td class="bad">0.0%</td><td>-13.42%</td><td>1%</td></tr>
+        <tr><td>DENT_USDT</td><td>5</td><td>1</td><td>4</td><td>20.0%</td><td>-8.24%</td><td>2%</td></tr>
+      </tbody>
+    </table>
+    <div class="alert" style="margin-top:8px">
+      <strong>18個のBOTが全員COS_USDTでLONG。</strong>BOT別の銘柄制限は効いている（1BOT=1ポジション）が、
+      18BOT × 1ポジション = 実質18同時ポジション。全部LONGで全部SL → 集中損失。<br>
+      <strong>BOT横断での銘柄合計上限が必要。</strong>
+    </div>
+    <div style="margin-top:8px;font-size:.82rem;color:var(--muted)">
+      COS内訳（18 BOT）:
+    </div>
+    <table class="t" style="margin-top:4px">
+      <thead><tr><th>BOT</th><th>Trades</th></tr></thead>
+      <tbody>
+        <tr><td>[LSA] レバ焼き秒スキャ・攻撃型</td><td>32</td></tr>
+        <tr><td>[LA1] レバ焼き秒スキャ・攻撃型1倍</td><td>27</td></tr>
+        <tr><td>[LA3] レバ焼き秒スキャ・攻撃型3倍</td><td>25</td></tr>
+        <tr><td>[LSM] レバ焼き秒スキャ・マイクロ</td><td>24</td></tr>
+        <tr><td>[LS1] レバ焼き秒スキャ</td><td>17</td></tr>
+        <tr><td style="color:var(--dim)">その他13 BOT</td><td>43</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:12px;font-size:.95rem"><span class="cause-num">3</span> 連敗構造 — 同一銘柄のエントリー→SLループ</h3>
+    <div class="two-col">
+      <div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:8px">aggressive 連敗分布 (今日)</p>
+        <div class="bar-row"><div class="bar-label">7連敗</div><div class="bar" style="width:140px;background:var(--red)">1回</div></div>
+        <div class="bar-row"><div class="bar-label">5連敗</div><div class="bar" style="width:100px;background:var(--red)">2回</div></div>
+        <div class="bar-row"><div class="bar-label">4連敗</div><div class="bar" style="width:80px;background:var(--orange)">2回</div></div>
+        <div class="bar-row"><div class="bar-label">3連敗</div><div class="bar" style="width:60px;background:var(--orange)">1回</div></div>
+        <div class="bar-row"><div class="bar-label">2連敗</div><div class="bar" style="width:40px;background:var(--dim)">4回</div></div>
+      </div>
+      <div class="alert" style="margin:0">
+        BOT別銘柄制限（1BOT=1銘柄1件）は効いている。しかし<strong>SL後にクールダウンなくすぐ再エントリー</strong>するため、
+        同一銘柄で「エントリー→SL→エントリー→SL」のループが高速で回っている。<br><br>
+        <strong>lossskip(負け後スキップ)ロジックが未適用。</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== DAY COMPARISON ====== -->
+<div class="section">
+  <h2>3日間比較 — なぜ3/14だけプラスだったか</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>日付</th><th>Trades</th><th>WR%</th><th>PnL</th><th>LONG件数</th><th>LONG WR</th><th>SHORT件数</th><th>SHORT WR</th><th>結論</th></tr></thead>
+      <tbody>
+        <tr><td>3/13</td><td>19</td><td class="bad">26.3%</td><td class="bad">-69.97%</td><td>18</td><td class="bad">28%</td><td>1</td><td class="bad">0%</td><td class="bad">LONG偏り</td></tr>
+        <tr class="hl-good"><td style="color:var(--green)">3/14</td><td>133</td><td class="good">46.6%</td><td class="good">+141.30%</td><td>58</td><td>43%</td><td class="best">75</td><td class="good">49%</td><td class="good">SHORTが出た</td></tr>
+        <tr class="hl"><td style="color:var(--red)">3/15</td><td>234</td><td class="bad">23.3%</td><td class="bad">-387.68%</td><td class="bad">229</td><td class="bad">24%</td><td>3</td><td class="bad">0%</td><td class="bad">LONG偏り(極端)</td></tr>
+      </tbody>
+    </table>
+    <div class="insight">
+      <strong>3/14だけSHORTが75件出ていた（全体の56%）。</strong>SHORTのWR49%でプラスを稼いだ。<br>
+      3/13と3/15はLONG95%以上 → Fear低下の下落市場で全滅。<br><br>
+      <strong>結論: SHORTが出るかどうかで全てが決まる。FR方向がマクロと一致した日だけ勝てる。</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ====== HOURLY ====== -->
+<div class="section">
+  <h2>時間帯別パフォーマンス (今日)</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Hour</th><th>Trades</th><th>Wins</th><th>PnL</th><th>Visual</th></tr></thead>
+      <tbody>
+        <tr><td>00:00</td><td>15</td><td>3</td><td class="bad">-22.38%</td><td><div class="bar" style="width:22px;background:var(--red)"></div></td></tr>
+        <tr><td>01:00</td><td>8</td><td>3</td><td class="bad">-3.18%</td><td><div class="bar" style="width:3px;background:var(--red)"></div></td></tr>
+        <tr><td>02:00</td><td>17</td><td>3</td><td class="bad">-43.34%</td><td><div class="bar" style="width:43px;background:var(--red)"></div></td></tr>
+        <tr class="hl"><td>03:00</td><td>26</td><td>4</td><td class="bad">-60.80%</td><td><div class="bar" style="width:61px;background:var(--red)">worst</div></td></tr>
+        <tr><td>04:00</td><td>14</td><td>4</td><td class="bad">-11.30%</td><td><div class="bar" style="width:11px;background:var(--red)"></div></td></tr>
+        <tr><td>05:00</td><td>12</td><td>3</td><td class="bad">-9.68%</td><td><div class="bar" style="width:10px;background:var(--red)"></div></td></tr>
+        <tr class="hl-good"><td style="color:var(--green)">06:00</td><td>6</td><td>3</td><td class="good">+9.98%</td><td><div class="bar" style="width:10px;background:var(--green)"></div></td></tr>
+        <tr class="hl-good"><td style="color:var(--green)">07:00</td><td>22</td><td>13</td><td class="good">+53.52%</td><td><div class="bar" style="width:54px;background:var(--green)">best</div></td></tr>
+        <tr class="hl"><td>08:00</td><td>13</td><td>2</td><td class="bad">-49.58%</td><td><div class="bar" style="width:50px;background:var(--red)"></div></td></tr>
+        <tr class="hl"><td>09:00</td><td>15</td><td>1</td><td class="bad">-57.60%</td><td><div class="bar" style="width:58px;background:var(--red)"></div></td></tr>
+        <tr><td>13:00</td><td>7</td><td>0</td><td class="bad">-28.06%</td><td><div class="bar" style="width:28px;background:var(--red)"></div></td></tr>
+        <tr><td>14:00</td><td>16</td><td>4</td><td class="bad">-24.68%</td><td><div class="bar" style="width:25px;background:var(--red)"></div></td></tr>
+        <tr><td>15:00</td><td>20</td><td>4</td><td class="bad">-41.46%</td><td><div class="bar" style="width:41px;background:var(--red)"></div></td></tr>
+        <tr><td>16:00</td><td>19</td><td>6</td><td class="bad">-13.12%</td><td><div class="bar" style="width:13px;background:var(--red)"></div></td></tr>
+        <tr><td>17:00</td><td>7</td><td>1</td><td class="bad">-31.24%</td><td><div class="bar" style="width:31px;background:var(--red)"></div></td></tr>
+        <tr class="hl"><td>18:00</td><td>9</td><td>0</td><td class="bad">-40.12%</td><td><div class="bar" style="width:40px;background:var(--red)">0勝</div></td></tr>
+        <tr><td>19:00</td><td>6</td><td>0</td><td class="bad">-14.64%</td><td><div class="bar" style="width:15px;background:var(--red)"></div></td></tr>
+      </tbody>
+    </table>
+    <div class="note">07:00のみプラス(+53%)。それ以外は全時間帯で赤字。03:00(-60%), 09:00(-57%), 08:00(-49%)が最悪。深夜〜早朝の下落局面でLONG連打。</div>
+  </div>
+</div>
+
+<!-- ====== BOT PERFORMANCE ====== -->
+<div class="section">
+  <h2>BOT別パフォーマンス (今日)</h2>
+  <div class="card" style="overflow-x:auto">
+    <table class="t">
+      <thead><tr><th>BOT</th><th>Lev</th><th>Trades</th><th>W</th><th>L</th><th>WR%</th><th>Avg Win</th><th>Avg Loss</th><th>PnL</th></tr></thead>
+      <tbody>
+        <tr><td>[L31] レバ焼き秒スキャ・3倍</td><td>3x</td><td>2</td><td>1</td><td>1</td><td>50.0%</td><td>+3.84%</td><td>-2.16%</td><td class="good">+1.68%</td></tr>
+        <tr><td>[L11] レバ焼き秒スキャ・1倍</td><td>1x</td><td>5</td><td>1</td><td>4</td><td class="bad">20.0%</td><td>+1.28%</td><td>-0.72%</td><td class="bad">-1.60%</td></tr>
+        <tr><td>[AG1] レバ焼きAgg 1倍</td><td>1x</td><td>6</td><td>1</td><td>4</td><td class="bad">20.0%</td><td>+2.78%</td><td>-1.22%</td><td class="bad">-2.10%</td></tr>
+        <tr><td>[LM1] マイクロ1倍</td><td>1x</td><td>7</td><td>1</td><td>6</td><td class="bad">14.3%</td><td>+0.28%</td><td>-0.42%</td><td class="bad">-2.24%</td></tr>
+        <tr><td>[LF1] FR極端1倍</td><td>1x</td><td>6</td><td>1</td><td>5</td><td class="bad">16.7%</td><td>+1.78%</td><td>-1.02%</td><td class="bad">-3.32%</td></tr>
+        <tr><td>[LM3] マイクロ3倍</td><td>3x</td><td>3</td><td>0</td><td>3</td><td class="bad">0.0%</td><td>-</td><td>-1.26%</td><td class="bad">-3.78%</td></tr>
+        <tr><td>[LF3] FR極端3倍</td><td>3x</td><td>4</td><td>1</td><td>3</td><td>25.0%</td><td>+5.34%</td><td>-3.06%</td><td class="bad">-3.84%</td></tr>
+        <tr><td>[AF1] レバ焼きAgg 1倍FR</td><td>1x</td><td>4</td><td>0</td><td>4</td><td class="bad">0.0%</td><td>-</td><td>-1.22%</td><td class="bad">-4.88%</td></tr>
+        <tr><td>[LA1] 攻撃型1倍</td><td>1x</td><td>41</td><td>11</td><td>30</td><td class="bad">26.8%</td><td>+2.78%</td><td>-1.22%</td><td class="bad">-6.02%</td></tr>
+        <tr><td>[LS1] 秒スキャ</td><td>10x</td><td>18</td><td>6</td><td>12</td><td>33.3%</td><td>+12.80%</td><td>-7.20%</td><td class="bad">-9.60%</td></tr>
+        <tr><td>[AG3] Agg 3倍</td><td>3x</td><td>5</td><td>0</td><td>4</td><td class="bad">0.0%</td><td>-</td><td>-3.66%</td><td class="bad">-14.64%</td></tr>
+        <tr><td>[AF3] Agg 3倍FR</td><td>3x</td><td>4</td><td>0</td><td>4</td><td class="bad">0.0%</td><td>-</td><td>-3.66%</td><td class="bad">-14.64%</td></tr>
+        <tr><td>[LSF] FR極端</td><td>10x</td><td>8</td><td>2</td><td>6</td><td>25.0%</td><td>+17.80%</td><td>-10.20%</td><td class="bad">-25.60%</td></tr>
+        <tr><td>[A7F] Agg 7倍FR</td><td>7x</td><td>3</td><td>0</td><td>3</td><td class="bad">0.0%</td><td>-</td><td>-8.54%</td><td class="bad">-25.62%</td></tr>
+        <tr><td>[A7X] Agg 7倍</td><td>7x</td><td>3</td><td>0</td><td>3</td><td class="bad">0.0%</td><td>-</td><td>-8.54%</td><td class="bad">-25.62%</td></tr>
+        <tr><td>[LA3] 攻撃型3倍</td><td>3x</td><td>39</td><td>9</td><td>30</td><td class="bad">23.1%</td><td>+8.34%</td><td>-3.66%</td><td class="bad">-34.74%</td></tr>
+        <tr class="hl"><td class="bad">[LSA] 攻撃型</td><td>7x</td><td>48</td><td>11</td><td>37</td><td class="bad">22.9%</td><td>+19.46%</td><td>-8.54%</td><td class="bad">-101.92%</td></tr>
+        <tr class="hl"><td class="bad">[LSM] マイクロ</td><td>20x</td><td>28</td><td>9</td><td>19</td><td>32.1%</td><td>+5.60%</td><td>-8.40%</td><td class="bad">-109.20%</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <strong>全18BOTが赤字（L31の+1.68%を除く）。</strong>高レバ(7x/10x/20x)ほど損失が大きい。
+      新BOT(agg_*, evo_*)は3-6件と少ないが全て赤字。Evolvedはシグナル0件（未発火）。
+    </div>
+  </div>
+</div>
+
+<!-- ====== CUMULATIVE ====== -->
+<div class="section">
+  <h2>累計パフォーマンス (3日間)</h2>
+  <div class="card">
+    <div class="mg">
+      <div class="metric"><div class="mv" style="color:var(--red)">-316.35%</div><div class="ml">累計PnL</div></div>
+      <div class="metric"><div class="mv" style="color:var(--red)">31.5%</div><div class="ml">累計WR</div></div>
+      <div class="metric"><div class="mv">384</div><div class="ml">累計Closed</div></div>
+      <div class="metric"><div class="mv" style="color:var(--green)">121</div><div class="ml">Win</div></div>
+      <div class="metric"><div class="mv" style="color:var(--red)">263</div><div class="ml">Loss</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== RECOMMENDATIONS ====== -->
+<div class="section">
+  <h2>改善提案 — 優先度順</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Priority</th><th>課題</th><th>対策</th><th>期待効果</th></tr></thead>
+      <tbody>
+        <tr class="hl">
+          <td class="bad">P0</td>
+          <td style="text-align:left"><strong>Fear < 20 でLONG連打</strong></td>
+          <td style="text-align:left">Fear < 20 では LONG を完全禁止 or 大幅制限。FRフィルターだけでは防げない</td>
+          <td style="text-align:left">今日の-374%のLONG損失を回避</td>
+        </tr>
+        <tr class="hl">
+          <td class="bad">P0</td>
+          <td style="text-align:left"><strong>全BOT合算の銘柄集中</strong></td>
+          <td style="text-align:left">BOT横断で同一銘柄の合計ポジション数を5件に制限</td>
+          <td style="text-align:left">COS 168件→5件に抑制</td>
+        </tr>
+        <tr>
+          <td class="warn">P1</td>
+          <td style="text-align:left"><strong>SL後の即再エントリー</strong></td>
+          <td style="text-align:left">SL後に同一銘柄+同方向を5分クールダウン</td>
+          <td style="text-align:left">連敗ループ抑止</td>
+        </tr>
+        <tr>
+          <td class="warn">P1</td>
+          <td style="text-align:left"><strong>Evolved未発火</strong></td>
+          <td style="text-align:left">evo_agg/evo_micro/evo_lev1のエンジン登録確認</td>
+          <td style="text-align:left">追加フィルターの効果検証開始</td>
+        </tr>
+        <tr>
+          <td>P2</td>
+          <td style="text-align:left"><strong>低流動性銘柄集中</strong></td>
+          <td style="text-align:left">COS/RESOLV/TOWNS等の出来高最低閾値</td>
+          <td style="text-align:left">スリッページ軽減</td>
+        </tr>
+        <tr>
+          <td>P2</td>
+          <td style="text-align:left"><strong>20xレバの壊滅</strong></td>
+          <td style="text-align:left">scalp_micro(20x)を無効化</td>
+          <td style="text-align:left">-109%の損失回避</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== STRUCTURAL PROBLEM ====== -->
+<div class="section">
+  <h2>構造的問題 — BT vs ペーパーの乖離</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Metric</th><th>Backtest (2年)</th><th>Paper (3日)</th><th>乖離原因</th></tr></thead>
+      <tbody>
+        <tr><td>WR (aggressive L+S)</td><td class="good">69.2%</td><td class="bad">22.9%</td><td style="text-align:left">銘柄セット違い + Fear環境</td></tr>
+        <tr><td>WR (FR filter)</td><td class="good">79.1%</td><td class="bad">0.0%</td><td style="text-align:left">3件のみ（統計不足）</td></tr>
+        <tr><td>LONG/SHORT比</td><td>L60/S40%</td><td class="bad">L98/S2%</td><td style="text-align:left">Fear13でFR全部マイナス→LONG偏り</td></tr>
+        <tr><td>銘柄分散</td><td>200銘柄</td><td class="bad">COS72%</td><td style="text-align:left">Tier1通過がCOS/RESOLV/TOWNSに集中</td></tr>
+      </tbody>
+    </table>
+    <div class="alert" style="margin-top:8px">
+      <strong>根本: バックテストは「平均的な市場」を前提にしているが、ペーパーは「Fear13の極限恐怖」で走った。</strong><br>
+      バックテストのSharpe9.92は、LONGとSHORTがバランスよく出る「普通の市場」での数値。
+      極限恐怖ではFR方向が片方に偏るため、バックテストの前提が崩れる。
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Daily Analysis 2026-03-15 | Fear&Greed: 13 | 234 Trades / 18 BOTs / 5 Symbols | Generated by Empire Monitor
+</div>
+
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高頻度Bot開発レポート: 5 HF Bot × 3 レバレッジ</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;padding:20px;max-width:1500px;margin:0 auto}
+h1{color:#58a6ff;font-size:1.8em;border-bottom:2px solid #30363d;padding-bottom:12px;margin-bottom:20px}
+h2{color:#79c0ff;font-size:1.3em;margin:20px 0 10px}
+h3{color:#d2a8ff;font-size:1.1em;margin:15px 0 8px}
+
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
+.summary-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px}
+.summary-card h4{font-size:.85em;margin-bottom:6px;color:#8b949e}
+.summary-card .value{font-size:1.5em;font-weight:700}
+.summary-card .sub{color:#8b949e;font-size:.82em;margin-top:4px}
+.green{color:#3fb950}.red{color:#f85149}.yellow{color:#d29922}.blue{color:#58a6ff}.purple{color:#d2a8ff}
+
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.85em}
+th{background:#21262d;color:#79c0ff;text-align:left;padding:7px 8px;border-bottom:2px solid #30363d;white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid #21262d;white-space:nowrap}
+tr:hover{background:#161b22}
+.right{text-align:right}.center{text-align:center}
+
+.section{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin:16px 0}
+.highlight{background:rgba(88,166,255,.08);border-left:3px solid #58a6ff;padding:10px 14px;margin:8px 0;border-radius:0 6px 6px 0}
+.good-box{background:rgba(63,185,80,.08);border:1px solid #3fb950;border-radius:8px;padding:16px;margin:12px 0}
+.warn-box{background:rgba(210,169,34,.08);border:1px solid #d29922;border-radius:8px;padding:16px;margin:12px 0}
+.bad-box{background:rgba(248,81,73,.08);border:1px solid #f85149;border-radius:8px;padding:16px;margin:12px 0}
+
+.verdict-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-weight:700;font-size:.8em}
+.verdict-go{background:rgba(63,185,80,.15);color:#3fb950;border:1px solid #3fb950}
+.verdict-stop{background:rgba(248,81,73,.15);color:#f85149;border:1px solid #f85149}
+.verdict-caution{background:rgba(210,169,34,.15);color:#d29922;border:1px solid #d29922}
+
+.bar-row{display:flex;align-items:center;margin:3px 0;gap:6px}
+.bar-label{width:120px;text-align:right;font-size:.82em;color:#8b949e}
+.bar-track{flex:1;background:#21262d;height:18px;border-radius:3px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:3px}
+.bar-val{position:absolute;right:6px;top:0;font-size:.75em;color:#fff;font-weight:600;line-height:18px}
+
+footer{text-align:center;color:#484f58;font-size:.8em;margin-top:30px;padding:16px;border-top:1px solid #21262d}
+</style>
+</head>
+<body>
+
+<h1>High-Frequency Bot Development Report</h1>
+<p style="color:#8b949e;margin-bottom:20px">期間: 2025-01-03 ~ 2026-03-12 (~14ヶ月) | 1h足 | コスト: 0.22% RT | 目標: 1日20回</p>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="summary-grid">
+  <div class="summary-card">
+    <h4>HF Bot数</h4>
+    <div class="value blue">5種</div>
+    <div class="sub">MeanRevert/Momentum/Spread/Break/FRArb</div>
+  </div>
+  <div class="summary-card">
+    <h4>合計T/day</h4>
+    <div class="value green">39.2回</div>
+    <div class="sub">目標20回を大幅超過</div>
+  </div>
+  <div class="summary-card">
+    <h4>PF > 1.0</h4>
+    <div class="value yellow">2/5</div>
+    <div class="sub">HF-FRArb + HF-MeanRevert</div>
+  </div>
+  <div class="summary-card">
+    <h4>WF通過</h4>
+    <div class="value yellow">1/5</div>
+    <div class="sub">HF-FRArb 3/4 GO</div>
+  </div>
+  <div class="summary-card">
+    <h4>最大課題</h4>
+    <div class="value red">0.22%コスト</div>
+    <div class="sub">高頻度で致命的</div>
+  </div>
+</div>
+
+<!-- SECTION 1: OVERVIEW -->
+<h2>1. 高頻度Bot概要 - 既存Bot(日足) vs HF Bot(1h足)</h2>
+<div class="section">
+<table>
+<tr>
+  <th>指標</th><th class="right">既存Bot (日足)</th><th class="right">HF Bot (1h足)</th><th>比較</th>
+</tr>
+<tr><td>時間軸</td><td class="right">日足 (1d)</td><td class="right">1時間足 (1h)</td><td>24倍の粒度</td></tr>
+<tr><td>トレード頻度</td><td class="right">0.5-1.5 /日</td><td class="right">2-16 /日</td><td>10-30倍</td></tr>
+<tr><td>平均保有時間</td><td class="right">3-5日</td><td class="right">0.6-3.7h</td><td>~100倍短い</td></tr>
+<tr><td>TP/SL幅</td><td class="right">6-10% / 3-5%</td><td class="right">1.5-2.5% / 0.8-1.5%</td><td>~3倍狭い</td></tr>
+<tr><td>コスト比率</td><td class="right">0.22% / 6% TP = 3.7%</td><td class="right red"><b>0.22% / 2% TP = 11%</b></td><td>3倍のコスト負担</td></tr>
+<tr><td>WF通過率</td><td class="right green">6/6 (100%)</td><td class="right yellow">1/5 (20%)</td><td>大幅に困難</td></tr>
+</table>
+
+<div class="bad-box">
+  <b>高頻度トレードの最大課題: 0.22% Round-Trip Cost</b><br>
+  日足ではTP 6%に対してコスト3.7%だが、1h足ではTP 2%に対してコスト11%。
+  <b>TP到達時の手取りが11%減少</b>するため、WR 55%+が黒字の最低条件。
+  現状WR 50%超えはHF-FRArb (50.4%) のみ。
+</div>
+
+<h3>1h足データソース</h3>
+<table>
+<tr><th>項目</th><th>値</th></tr>
+<tr><td>ソース</td><td>MEXC先物 (1h足)</td></tr>
+<tr><td>期間</td><td>2025-01-01 ~ 2026-03-12</td></tr>
+<tr><td>銘柄数</td><td>747 (全体), 44 (上位出来高・完全データ)</td></tr>
+<tr><td>レコード数</td><td>806,790 (取得+432,665)</td></tr>
+</table>
+</div>
+
+<!-- SECTION 2: EACH BOT DETAIL -->
+<h2>2. 各Bot詳細</h2>
+<div class="section">
+
+<h3>Bot 1: HF-FRArb (Funding Rate裁定プロキシ) <span class="verdict-badge verdict-go">WF GO</span></h3>
+<table>
+<tr><th>指標</th><th class="right">3x</th><th class="right">5x</th><th class="right">10x</th></tr>
+<tr><td>トレード数</td><td class="right">3,299</td><td class="right">3,299</td><td class="right">3,299</td></tr>
+<tr><td>WR</td><td class="right green">50.4%</td><td class="right green">50.4%</td><td class="right green">50.4%</td></tr>
+<tr><td>PF</td><td class="right green">1.07</td><td class="right green">1.07</td><td class="right green">1.08</td></tr>
+<tr><td>Return</td><td class="right green">+12.8%</td><td class="right green">+21.9%</td><td class="right green">+46.9%</td></tr>
+<tr><td>MDD</td><td class="right green">-6.8%</td><td class="right yellow">-11.2%</td><td class="right yellow">-21.5%</td></tr>
+<tr><td>Sharpe</td><td class="right">1.48</td><td class="right">1.49</td><td class="right">1.50</td></tr>
+<tr><td>T/day</td><td class="right">7.6</td><td class="right">7.6</td><td class="right">7.6</td></tr>
+<tr><td>Avg Hold</td><td class="right">0.6h</td><td class="right">0.6h</td><td class="right">0.6h</td></tr>
+</table>
+<div class="highlight">
+  <b>ロジック:</b> 8h連続モメンタム(+3%以上) + RSI極端(>70 or <30) → 逆張り。
+  FRが極端に偏った状態のプロキシ。WR 50.4%は0.22%コストを辛うじてカバー。
+  <b>WF: 3/4通過</b> (W1,W2,W3 PASS, W0 FAIL)。直近の改善傾向。
+</div>
+
+<h3>Bot 2: HF-MeanRevert (1h足平均回帰) <span class="verdict-badge verdict-stop">WF STOP</span></h3>
+<table>
+<tr><th>指標</th><th class="right">3x</th><th class="right">5x</th><th class="right">10x</th></tr>
+<tr><td>トレード数</td><td class="right">3,140</td><td class="right">3,140</td><td class="right">3,140</td></tr>
+<tr><td>WR</td><td class="right yellow">43.4%</td><td class="right yellow">43.4%</td><td class="right yellow">43.4%</td></tr>
+<tr><td>PF</td><td class="right yellow">1.06</td><td class="right yellow">1.07</td><td class="right yellow">1.09</td></tr>
+<tr><td>Return</td><td class="right green">+10.3%</td><td class="right green">+17.3%</td><td class="right green">+35.6%</td></tr>
+<tr><td>MDD</td><td class="right yellow">-20.9%</td><td class="right red">-32.4%</td><td class="right red">-54.8%</td></tr>
+</table>
+<div class="warn-box">
+  <b>ロジック:</b> RSI>70 or BB上限超え → ショート / RSI<30 or BB下限割れ → ロング。
+  微黒字だが<b>WF 1/4で不通過</b>。期間依存性が高く、安定性に欠ける。
+  日足版MeanRevert (PF 3.22) と比較して1h足版は大幅に弱い。
+</div>
+
+<h3>Bot 3: HF-Momentum (順張り) <span class="verdict-badge verdict-stop">赤字</span></h3>
+<table>
+<tr><th>指標</th><th class="right">5x</th></tr>
+<tr><td>トレード数</td><td class="right">6,835</td></tr>
+<tr><td>WR</td><td class="right red">37.7%</td></tr>
+<tr><td>PF</td><td class="right red">0.80</td></tr>
+<tr><td>Return</td><td class="right red">-76.0%</td></tr>
+<tr><td>T/day</td><td class="right">15.7</td></tr>
+</table>
+<div class="bad-box">
+  頻度は最高(15.7/日)だがWR 37.7%で大幅赤字。連続陽線/陰線の順張りは1h足レベルではノイズが多すぎる。
+</div>
+
+<h3>Bot 4: HF-Spread (ペアトレード) <span class="verdict-badge verdict-stop">赤字</span></h3>
+<table>
+<tr><th>指標</th><th class="right">5x</th></tr>
+<tr><td>トレード数</td><td class="right">919</td></tr>
+<tr><td>WR</td><td class="right red">40.7%</td></tr>
+<tr><td>PF</td><td class="right red">0.71</td></tr>
+<tr><td>Return</td><td class="right red">-32.6%</td></tr>
+<tr><td>T/day</td><td class="right">2.1</td></tr>
+</table>
+<div class="bad-box">
+  ペアトレードの片側近似でバックテスト。相関ペアの収束速度が1h足では遅く、コスト負け。
+  実装上の制約（片側のみ）も精度低下の原因。
+</div>
+
+<h3>Bot 5: HF-Break (ブレイクアウト) <span class="verdict-badge verdict-stop">赤字</span></h3>
+<table>
+<tr><th>指標</th><th class="right">5x</th></tr>
+<tr><td>トレード数</td><td class="right">2,842</td></tr>
+<tr><td>WR</td><td class="right red">34.4%</td></tr>
+<tr><td>PF</td><td class="right red">0.78</td></tr>
+<tr><td>Return</td><td class="right red">-46.1%</td></tr>
+<tr><td>T/day</td><td class="right">6.5</td></tr>
+</table>
+<div class="bad-box">
+  レンジブレイクの偽ブレイクが多い（WR 34.4%）。TP 2.5%に対してSL 1.0%のRR比は良いが、
+  偽ブレイク率の高さがコストと合わせて致命的。
+</div>
+</div>
+
+<!-- SECTION 3: AGGREGATE -->
+<h2>3. 合算ポートフォリオ (5Bot同時稼働)</h2>
+<div class="section">
+<table>
+<tr><th>Bot</th><th class="right">Trades</th><th class="right">T/day</th><th class="right">WR</th><th class="right">PF</th><th class="right">Return (5x)</th><th class="right">MDD</th></tr>
+<tr><td><b class="green">HF-FRArb</b></td><td class="right">3,299</td><td class="right">7.6</td><td class="right green">50.4%</td><td class="right green">1.07</td><td class="right green">+21.9%</td><td class="right">-11.2%</td></tr>
+<tr><td><b class="yellow">HF-MeanRevert</b></td><td class="right">3,140</td><td class="right">7.2</td><td class="right">43.4%</td><td class="right yellow">1.07</td><td class="right green">+17.3%</td><td class="right">-32.4%</td></tr>
+<tr><td class="red">HF-Momentum</td><td class="right">6,835</td><td class="right">15.7</td><td class="right red">37.7%</td><td class="right red">0.80</td><td class="right red">-76.0%</td><td class="right red">-80.4%</td></tr>
+<tr><td class="red">HF-Spread</td><td class="right">919</td><td class="right">2.1</td><td class="right red">40.7%</td><td class="right red">0.71</td><td class="right red">-32.6%</td><td class="right red">-33.6%</td></tr>
+<tr><td class="red">HF-Break</td><td class="right">2,842</td><td class="right">6.5</td><td class="right red">34.4%</td><td class="right red">0.78</td><td class="right red">-46.1%</td><td class="right red">-48.0%</td></tr>
+<tr style="border-top:2px solid #30363d"><td><b>合計</b></td><td class="right"><b>17,035</b></td><td class="right"><b>39.2</b></td><td></td><td></td><td></td><td></td></tr>
+</table>
+
+<div class="highlight">
+  <b>頻度目標は達成:</b> 39.2回/日（目標20回の2倍）。しかし5Bot中3Botが赤字のため、
+  全5Bot同時稼働は不採算。<b>HF-FRArb単体またはHF-FRArb + HF-MeanRevertの2Bot体制</b>が現実的。
+</div>
+
+<h3>推奨HFポートフォリオ (2Bot体制)</h3>
+<div class="good-box">
+  <table>
+  <tr><th>Bot</th><th>レバ</th><th>配分</th><th>T/day</th><th>期待Return</th></tr>
+  <tr><td><b>HF-FRArb</b></td><td>5x</td><td>70%</td><td>7.6</td><td>+21.9%</td></tr>
+  <tr><td><b>HF-MeanRevert</b></td><td>3x</td><td>30%</td><td>7.2</td><td>+10.3%</td></tr>
+  </table>
+  <br>
+  合計T/day: <b>14.8回/日</b><br>
+  加重Return: 21.9×0.7 + 10.3×0.3 = <span class="green" style="font-size:1.2em"><b>+18.4%</b></span> (14ヶ月)<br>
+  注: HF-MeanRevertはWF不通過のため、モニタリング必須
+</div>
+</div>
+
+<!-- SECTION 4: INTEGRATION -->
+<h2>4. 既存Bot(日足) + HF Bot(1h足) 統合評価</h2>
+<div class="section">
+<table>
+<tr><th>ポートフォリオ</th><th class="right">期待Return/年</th><th class="right">MDD</th><th class="right">T/day</th><th>リスク</th></tr>
+<tr>
+  <td><b>日足Bot群のみ</b> (MR-Tight+Hybrid+Adaptive+Surge+Tuned)</td>
+  <td class="right green">+297%/年</td>
+  <td class="right green">-9.3%</td>
+  <td class="right">0.5-1.5</td>
+  <td>低 (WF 6/6)</td>
+</tr>
+<tr>
+  <td><b>HF Bot群のみ</b> (FRArb+MeanRevert)</td>
+  <td class="right yellow">+16%/年</td>
+  <td class="right yellow">-11.2%</td>
+  <td class="right">14.8</td>
+  <td>中 (WF 1/2)</td>
+</tr>
+<tr style="background:#1a1f2b">
+  <td><b>統合</b> (日足80% + HF20%)</td>
+  <td class="right green">+241%/年</td>
+  <td class="right green">~-10%</td>
+  <td class="right">3-16</td>
+  <td>低-中</td>
+</tr>
+</table>
+
+<div class="warn-box">
+  <b>結論: HF Botは日足Botの補完としては弱い。</b><br>
+  日足Bot群の年率+297%に対して、HF Bot群は+16%/年。
+  Return貢献は限定的だが、<b>トレード頻度の分散</b>（日足の空白時間帯を埋める）には有効。
+  <br><br>
+  <b>統合推奨: 日足Bot 90% + HF-FRArb 10%</b><br>
+  HF-FRArb は唯一のWF通過Botであり、MDD -6.8%(3x)と低リスク。
+  日足Botがシグナルを出さない日でもHF-FRArbが7.6回/日で稼働し続ける。
+</div>
+</div>
+
+<!-- SECTION 5: WF RESULTS -->
+<h2>5. ウォークフォワード検証 (IS6M/OOS2M × 4窓)</h2>
+<div class="section">
+<table>
+<tr><th>Bot</th><th class="center">W0</th><th class="center">W1</th><th class="center">W2</th><th class="center">W3</th><th>結果</th></tr>
+<tr>
+  <td>HF-FRArb</td>
+  <td class="center red">OOS PF 0.89</td>
+  <td class="center green">OOS PF 1.19</td>
+  <td class="center green">OOS PF 1.01</td>
+  <td class="center green">OOS PF 1.33</td>
+  <td><span class="verdict-badge verdict-go">3/4 GO</span></td>
+</tr>
+<tr>
+  <td>HF-MeanRevert</td>
+  <td class="center red">OOS PF 0.80</td>
+  <td class="center red">OOS PF 0.95</td>
+  <td class="center red">OOS PF 0.90</td>
+  <td class="center green">OOS PF 1.66</td>
+  <td><span class="verdict-badge verdict-stop">1/4 STOP</span></td>
+</tr>
+<tr><td>HF-Momentum</td><td class="center" colspan="4">全期間PF<1のためWF対象外</td><td><span class="verdict-badge verdict-stop">N/A</span></td></tr>
+<tr><td>HF-Spread</td><td class="center" colspan="4">全期間PF<1のためWF対象外</td><td><span class="verdict-badge verdict-stop">N/A</span></td></tr>
+<tr><td>HF-Break</td><td class="center" colspan="4">全期間PF<1のためWF対象外</td><td><span class="verdict-badge verdict-stop">N/A</span></td></tr>
+</table>
+</div>
+
+<!-- SECTION 6: LESSONS -->
+<h2>6. 高頻度トレードの教訓</h2>
+<div class="section">
+<h3>なぜ3/5のHF Botが赤字か</h3>
+<div class="highlight">
+  <ol style="padding-left:20px;line-height:1.8">
+    <li><b>0.22% RTコストの壁:</b> TP 2%に対してコスト比率11%。WR 55%以上が黒字の最低条件だが、1h足のノイズで達成困難</li>
+    <li><b>偽シグナルの多さ:</b> 1h足レベルのRSI/BB/ブレイクは偽信号が多い。日足の方が信号品質が高い</li>
+    <li><b>トレンドの短命さ:</b> Momentumの3連続陽線はノイズである可能性が高い。真のトレンドは日足で検出した方が確実</li>
+    <li><b>ペアトレードの限界:</b> 片側近似バックテストの精度問題 + 1h足レベルの相関は不安定</li>
+  </ol>
+</div>
+
+<h3>HF-FRArbが唯一黒字の理由</h3>
+<div class="good-box">
+  <ul style="padding-left:20px;line-height:1.8">
+    <li><b>明確なエッジ:</b> 過度なモメンタム(8h +3%以上) + RSI極端値は統計的に反転しやすい</li>
+    <li><b>保有時間0.6h:</b> 極短保有でリスク最小化。方向性リスクを最小限に抑制</li>
+    <li><b>WR 50.4%:</b> TP/SL比率 (1.5:1) × WR 50.4% でギリギリ黒字。改善余地あり</li>
+  </ul>
+</div>
+
+<h3>改善提案</h3>
+<div class="highlight" style="border-left-color:#d29922">
+  <ul style="padding-left:20px;line-height:1.8">
+    <li><b>コスト削減:</b> maker注文化 (0.00% fee) でRT 0.10%に半減 → 全Botの収益改善</li>
+    <li><b>FR実データ:</b> 実際のFunding Rateデータ取得でHF-FRArbの精度向上</li>
+    <li><b>銘柄フィルタ:</b> 出来高上位30銘柄に限定してスプレッドコスト削減</li>
+    <li><b>時間帯フィルタ:</b> UTC 8-16時（アジア圏取引時間）のみでノイズ削減</li>
+  </ul>
+</div>
+</div>
+
+<footer>
+  Empire Monitor | HF Bot Development Report | Generated 2026-03-12<br>
+  Period: 2025-01-03 ~ 2026-03-12 (~14 months) | 1h bars | Cost: 0.22% RT<br>
+  5 HF Bots tested | 1 WF passed (HF-FRArb 3/4 GO) | Daily target: 20 trades → Achieved: 39.2
+</footer>
+</body>
+</html>

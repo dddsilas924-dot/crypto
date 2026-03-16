@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aggressive Depth × Mode バックテスト結果</title>
+<style>
+:root{--bg:#0a0e17;--card:#111827;--border:#1e293b;--accent:#3b82f6;--accent2:#8b5cf6;--green:#10b981;--red:#ef4444;--orange:#f59e0b;--cyan:#06b6d4;--text:#e2e8f0;--muted:#94a3b8;--dim:#64748b;--gold:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b,#0f172a);border-bottom:1px solid var(--border);padding:32px 20px;text-align:center}
+.header h1{font-size:1.9rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.header .sub{color:var(--muted);font-size:.85rem}
+.container{max-width:1400px;margin:0 auto;padding:20px}
+.section{margin:28px 0}
+.section h2{font-size:1.1rem;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+.section h3{font-size:.95rem;color:var(--muted);margin:14px 0 8px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px}
+table.t{width:100%;border-collapse:collapse;font-size:.82rem}
+table.t th{padding:7px 8px;background:rgba(59,130,246,.08);color:var(--accent);border-bottom:2px solid rgba(59,130,246,.2);font-weight:600;text-align:center;font-size:.72rem;text-transform:uppercase}
+table.t th:first-child{text-align:left}
+table.t td{padding:6px 8px;border-bottom:1px solid var(--border);text-align:center;color:var(--muted)}
+table.t td:first-child{text-align:left;color:var(--text);font-weight:500}
+table.t tr:hover td{background:rgba(59,130,246,.04);color:var(--text)}
+.good{color:var(--green)!important;font-weight:600}.bad{color:var(--red)!important}.warn{color:var(--orange)!important}.best{color:var(--gold)!important;font-weight:700}
+.hl td{background:rgba(16,185,129,.05)!important}
+.note{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--orange)}
+.insight{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--green)}
+.alert{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.18);border-radius:6px;padding:10px;margin:10px 0;font-size:.82rem;color:var(--red)}
+.mode-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:.68rem;font-weight:600}
+.mode-ls{background:#1e3a5f;color:#93c5fd}
+.mode-so{background:#7f1d1d;color:#fca5a5}
+.mode-fr{background:#065f46;color:#6ee7b7}
+.footer{text-align:center;padding:24px 20px;color:var(--dim);font-size:.72rem;border-top:1px solid var(--border);margin-top:40px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:1100px){.grid3{grid-template-columns:1fr}}
+.metric{background:rgba(0,0,0,.2);border-radius:6px;padding:8px;text-align:center}
+.metric .mv{font-size:1.3rem;font-weight:700}.metric .ml{font-size:.68rem;color:var(--dim);text-transform:uppercase}
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin:12px 0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Aggressive Depth × Mode バックテスト</h1>
+  <div class="sub">3レバ(1x/3x/7x) × 5深さ(1x~5x) × 3モード(L+S / SHORT_ONLY / FR_FILTER) = 45コンフィグ | 2年間 (2024-03~2026-03)</div>
+</div>
+
+<div class="container">
+
+<!-- ====== BEST CONFIGS ====== -->
+<div class="section">
+  <h2>Top 10 (Sharpe順)</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>#</th><th>Config</th><th>Lev</th><th>TP/SL</th><th>Mode</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td>1</td><td style="color:var(--gold)">lev1 1x</td><td>1x</td><td>3/1%</td><td><span class="mode-tag mode-ls">L+S</span></td><td>429</td><td>69.2</td><td>5.16</td><td class="good">313%</td><td class="good">-1.1%</td><td class="best">9.92</td></tr>
+        <tr class="hl"><td>2</td><td>lev1 1x</td><td>1x</td><td>3/1%</td><td><span class="mode-tag mode-so">SO</span></td><td>290</td><td>72.1</td><td>5.86</td><td class="good">222%</td><td class="good">-1.1%</td><td>8.60</td></tr>
+        <tr class="hl"><td>3</td><td>lev3 1x</td><td>3x</td><td>3/1%</td><td><span class="mode-tag mode-ls">L+S</span></td><td>429</td><td>69.2</td><td>5.12</td><td class="good">977%</td><td>-3.3%</td><td>8.23</td></tr>
+        <tr class="hl"><td>4</td><td>lev3 1x</td><td>3x</td><td>3/1%</td><td><span class="mode-tag mode-so">SO</span></td><td>290</td><td>72.1</td><td>5.92</td><td class="good">703%</td><td>-3.3%</td><td>7.44</td></tr>
+        <tr class="hl"><td>5</td><td style="color:var(--cyan)">lev1 1x</td><td>1x</td><td>3/1%</td><td><span class="mode-tag mode-fr">FR</span></td><td>177</td><td class="best">79.1</td><td class="best">8.34</td><td>153%</td><td class="best">-0.7%</td><td>7.41</td></tr>
+        <tr class="hl"><td>6</td><td>lev3 1x</td><td>3x</td><td>3/1%</td><td><span class="mode-tag mode-fr">FR</span></td><td>177</td><td class="best">79.1</td><td class="best">8.49</td><td class="good">496%</td><td>-1.3%</td><td>6.82</td></tr>
+        <tr><td>7</td><td>7x 1x</td><td>7x</td><td>3/1%</td><td><span class="mode-tag mode-ls">L+S</span></td><td>429</td><td>69.2</td><td>5.10</td><td class="good">2,305%</td><td>-7.0%</td><td>6.79</td></tr>
+        <tr><td>8</td><td>7x 1x</td><td>7x</td><td>3/1%</td><td><span class="mode-tag mode-so">SO</span></td><td>290</td><td>72.1</td><td>5.86</td><td class="good">1,666%</td><td>-7.5%</td><td>6.16</td></tr>
+        <tr><td>9</td><td>7x 1x</td><td>7x</td><td>3/1%</td><td><span class="mode-tag mode-fr">FR</span></td><td>177</td><td class="best">79.1</td><td class="best">8.50</td><td class="good">1,183%</td><td>-3.0%</td><td>5.97</td></tr>
+        <tr><td>10</td><td>lev1 2x</td><td>1x</td><td>6/2%</td><td><span class="mode-tag mode-ls">L+S</span></td><td>426</td><td>50.0</td><td>2.67</td><td>354%</td><td>-6.7%</td><td>5.64</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== MODE COMPARISON ====== -->
+<div class="section">
+  <h2>3モード比較 — depth 1x (現状TP/SL) でのモード別効果</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>Lev</th><th colspan="4"><span class="mode-tag mode-ls">L+S</span> LONG+SHORT（現状）</th><th colspan="4"><span class="mode-tag mode-so">SO</span> SHORT ONLY</th><th colspan="4"><span class="mode-tag mode-fr">FR</span> FR方向フィルター</th></tr>
+        <tr><th></th><th>Tr</th><th>WR%</th><th>PF</th><th>Sharpe</th><th>Tr</th><th>WR%</th><th>PF</th><th>Sharpe</th><th>Tr</th><th>WR%</th><th>PF</th><th>Sharpe</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl">
+          <td>1x</td>
+          <td>429</td><td>69.2</td><td>5.16</td><td class="best">9.92</td>
+          <td>290</td><td>72.1</td><td>5.86</td><td>8.60</td>
+          <td>177</td><td class="best">79.1</td><td class="best">8.34</td><td>7.41</td>
+        </tr>
+        <tr>
+          <td>3x</td>
+          <td>429</td><td>69.2</td><td>5.12</td><td>8.23</td>
+          <td>290</td><td>72.1</td><td>5.92</td><td>7.44</td>
+          <td>177</td><td class="best">79.1</td><td class="best">8.49</td><td>6.82</td>
+        </tr>
+        <tr>
+          <td>7x</td>
+          <td>429</td><td>69.2</td><td>5.10</td><td>6.79</td>
+          <td>290</td><td>72.1</td><td>5.86</td><td>6.16</td>
+          <td>177</td><td class="best">79.1</td><td class="best">8.50</td><td>5.97</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="insight">
+      <strong>FRフィルターはWR/PFで圧倒的:</strong> WR +10pp (69→79%), PF +3.2 (5.2→8.3)。<br>
+      Sharpeは L+S > SO > FR の順（リターン量でL+Sが勝るため）。<br>
+      <strong>リスク最小はFR (MDD -0.7%)</strong>。リターン最大はL+S (313%)。目的で選ぶ。
+    </div>
+  </div>
+</div>
+
+<!-- ====== LEVERAGE × DEPTH MATRIX ====== -->
+<div class="section">
+  <h2>全45コンフィグ — レバレッジ別マトリクス</h2>
+
+  <!-- Lev 1x -->
+  <div class="card">
+    <h3>Leverage 1x — リスク最小構成</h3>
+    <table class="t">
+      <thead><tr><th>Depth</th><th>TP/SL</th><th colspan="4"><span class="mode-tag mode-ls">L+S</span></th><th colspan="4"><span class="mode-tag mode-so">SHORT ONLY</span></th><th colspan="4"><span class="mode-tag mode-fr">FR FILTER</span></th></tr>
+        <tr><th></th><th></th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl"><td>1x</td><td>3/1%</td><td>429</td><td class="good">69.2</td><td class="good">313</td><td class="best">9.92</td><td>290</td><td class="good">72.1</td><td class="good">222</td><td>8.60</td><td>177</td><td class="best">79.1</td><td>153</td><td>7.41</td></tr>
+        <tr><td>2x</td><td>6/2%</td><td>426</td><td>50.0</td><td>354</td><td>5.64</td><td>288</td><td>53.5</td><td>275</td><td>5.48</td><td>176</td><td>61.4</td><td>217</td><td>5.26</td></tr>
+        <tr><td>3x</td><td>9/3%</td><td>421</td><td>39.7</td><td>276</td><td>3.27</td><td>284</td><td>41.9</td><td>224</td><td>3.38</td><td>176</td><td>44.3</td><td>162</td><td>3.17</td></tr>
+        <tr><td>4x</td><td>12/4%</td><td>413</td><td>35.6</td><td>222</td><td>2.29</td><td>276</td><td>35.5</td><td>148</td><td>1.93</td><td>176</td><td>36.4</td><td>116</td><td>1.90</td></tr>
+        <tr><td>5x</td><td>15/5%</td><td>410</td><td>32.7</td><td>130</td><td>1.47</td><td>273</td><td>31.1</td><td>56</td><td>0.91</td><td>175</td><td>30.9</td><td>50</td><td>0.94</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Lev 3x -->
+  <div class="card">
+    <h3>Leverage 3x — バランス構成</h3>
+    <table class="t">
+      <thead><tr><th>Depth</th><th>TP/SL</th><th colspan="4"><span class="mode-tag mode-ls">L+S</span></th><th colspan="4"><span class="mode-tag mode-so">SHORT ONLY</span></th><th colspan="4"><span class="mode-tag mode-fr">FR FILTER</span></th></tr>
+        <tr><th></th><th></th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl"><td>1x</td><td>3/1%</td><td>429</td><td class="good">69.2</td><td class="good">977</td><td>8.23</td><td>290</td><td class="good">72.1</td><td class="good">703</td><td>7.44</td><td>177</td><td class="best">79.1</td><td>496</td><td>6.82</td></tr>
+        <tr><td>2x</td><td>6/2%</td><td>426</td><td>50.0</td><td class="good">1,105</td><td>4.59</td><td>288</td><td>53.5</td><td>862</td><td>4.73</td><td>176</td><td>61.4</td><td>687</td><td>4.52</td></tr>
+        <tr><td>3x</td><td>9/3%</td><td>421</td><td>39.7</td><td>893</td><td>2.81</td><td>284</td><td>41.9</td><td>730</td><td>3.16</td><td>176</td><td>44.3</td><td>529</td><td>3.00</td></tr>
+        <tr><td>4x</td><td>12/4%</td><td>413</td><td>35.6</td><td>810</td><td>2.31</td><td>276</td><td>35.5</td><td>552</td><td>2.14</td><td>176</td><td>36.4</td><td>396</td><td>1.88</td></tr>
+        <tr><td>5x</td><td>15/5%</td><td>410</td><td>32.7</td><td>506</td><td>1.53</td><td>273</td><td>31.1</td><td>162</td><td>0.99</td><td>175</td><td>30.9</td><td>203</td><td>1.17</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Lev 7x -->
+  <div class="card">
+    <h3>Leverage 7x — 高リターン構成</h3>
+    <table class="t">
+      <thead><tr><th>Depth</th><th>TP/SL</th><th colspan="4"><span class="mode-tag mode-ls">L+S</span></th><th colspan="4"><span class="mode-tag mode-so">SHORT ONLY</span></th><th colspan="4"><span class="mode-tag mode-fr">FR FILTER</span></th></tr>
+        <tr><th></th><th></th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th><th>Tr</th><th>WR</th><th>Ret%</th><th>Sha</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl"><td>1x</td><td>3/1%</td><td>429</td><td class="good">69.2</td><td class="good">2,305</td><td>6.79</td><td>290</td><td class="good">72.1</td><td class="good">1,666</td><td>6.16</td><td>177</td><td class="best">79.1</td><td class="good">1,183</td><td>5.97</td></tr>
+        <tr><td>2x</td><td>6/2%</td><td>426</td><td>50.0</td><td class="good">2,605</td><td>3.68</td><td>288</td><td>53.5</td><td class="good">2,044</td><td>3.97</td><td>176</td><td>61.4</td><td class="good">1,628</td><td>3.78</td></tr>
+        <tr><td>3x</td><td>9/3%</td><td>421</td><td>39.7</td><td class="good">2,152</td><td>2.43</td><td>284</td><td>41.9</td><td class="good">1,732</td><td>2.76</td><td>176</td><td>44.3</td><td class="good">1,256</td><td>2.66</td></tr>
+        <tr><td>4x</td><td>12/4%</td><td>413</td><td>35.6</td><td class="good">1,919</td><td>2.23</td><td>276</td><td>35.5</td><td class="good">1,344</td><td>2.21</td><td>176</td><td>36.4</td><td>953</td><td>1.93</td></tr>
+        <tr><td>5x</td><td>15/5%</td><td>410</td><td>32.7</td><td class="good">1,366</td><td>1.71</td><td>273</td><td>31.1</td><td>519</td><td>1.34</td><td>175</td><td>30.9</td><td>509</td><td>1.37</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ====== DEPTH ANALYSIS ====== -->
+<div class="section">
+  <h2>深さ(Depth)の影響分析</h2>
+  <div class="card">
+    <h3>Sharpe Ratio の推移 — 深いほどSharpe低下</h3>
+    <table class="t">
+      <thead><tr><th>Depth</th><th>TP/SL</th><th colspan="3">Lev 1x</th><th colspan="3">Lev 3x</th><th colspan="3">Lev 7x</th></tr>
+        <tr><th></th><th></th><th>L+S</th><th>SO</th><th>FR</th><th>L+S</th><th>SO</th><th>FR</th><th>L+S</th><th>SO</th><th>FR</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl"><td class="best">1x</td><td>3/1%</td><td class="best">9.92</td><td>8.60</td><td>7.41</td><td>8.23</td><td>7.44</td><td>6.82</td><td>6.79</td><td>6.16</td><td>5.97</td></tr>
+        <tr><td>2x</td><td>6/2%</td><td>5.64</td><td>5.48</td><td>5.26</td><td>4.59</td><td>4.73</td><td>4.52</td><td>3.68</td><td>3.97</td><td>3.78</td></tr>
+        <tr><td>3x</td><td>9/3%</td><td>3.27</td><td>3.38</td><td>3.17</td><td>2.81</td><td>3.16</td><td>3.00</td><td>2.43</td><td>2.76</td><td>2.66</td></tr>
+        <tr><td>4x</td><td>12/4%</td><td>2.29</td><td>1.93</td><td>1.90</td><td>2.31</td><td>2.14</td><td>1.88</td><td>2.23</td><td>2.21</td><td>1.93</td></tr>
+        <tr><td>5x</td><td>15/5%</td><td>1.47</td><td>0.91</td><td>0.94</td><td>1.53</td><td>0.99</td><td>1.17</td><td>1.71</td><td>1.34</td><td>1.37</td></tr>
+      </tbody>
+    </table>
+    <div class="note">
+      <strong>全レバで depth 1x (TP3%/SL1%) が最強。</strong>深くするほどWRが下がりSharpeが急落。<br>
+      4x-5x depthはペーパーでは良かったが、2年BTでは1x depthに大差で負ける。<br>
+      <strong>2日のペーパー結果と2年のBT結果は逆（ペーパー: 深い方が良い ↔ BT: 浅い方が良い）。</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ====== FR FILTER IMPACT ====== -->
+<div class="section">
+  <h2>FRフィルターの効果分析</h2>
+  <div class="card">
+    <h3>モード別 WR × MDD の比較 (depth 1x)</h3>
+    <table class="t">
+      <thead><tr><th>Lev</th><th colspan="2"><span class="mode-tag mode-ls">L+S</span></th><th colspan="2"><span class="mode-tag mode-so">SO</span></th><th colspan="2"><span class="mode-tag mode-fr">FR</span></th><th>FR効果</th></tr>
+        <tr><th></th><th>WR%</th><th>MDD%</th><th>WR%</th><th>MDD%</th><th>WR%</th><th>MDD%</th><th>WR改善</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1x</td><td>69.2</td><td>-1.1</td><td>72.1</td><td>-1.1</td><td class="best">79.1</td><td class="best">-0.7</td><td class="good">+9.9pp</td></tr>
+        <tr><td>3x</td><td>69.2</td><td>-3.3</td><td>72.1</td><td>-3.3</td><td class="best">79.1</td><td class="best">-1.3</td><td class="good">+9.9pp</td></tr>
+        <tr><td>7x</td><td>69.2</td><td>-7.0</td><td>72.1</td><td>-7.5</td><td class="best">79.1</td><td class="best">-3.0</td><td class="good">+9.9pp</td></tr>
+      </tbody>
+    </table>
+    <div class="insight">
+      <strong>FRフィルター = WR +10pp、MDD半減の効果。</strong><br>
+      7xでもMDD -3.0%（L+Sだと-7.0%）。トレード数は177回（L+S 429の41%）に減少するが、1回あたりの質が高い。<br>
+      <strong>FRフィルターは「量を減らして質を上げる」フィルター。</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CONCLUSION ====== -->
+<div class="section">
+  <h2>結論と推奨設定</h2>
+  <div class="card">
+    <table class="t">
+      <thead><tr><th>目的</th><th>推奨Config</th><th>Lev</th><th>TP/SL</th><th>Mode</th><th>WR</th><th>Sharpe</th><th>Return</th><th>MDD</th></tr></thead>
+      <tbody>
+        <tr class="hl"><td style="text-align:left;color:var(--green)">Sharpe最大化</td><td class="best">lev1 1x L+S</td><td>1x</td><td>3/1%</td><td><span class="mode-tag mode-ls">L+S</span></td><td>69.2%</td><td class="best">9.92</td><td>313%</td><td>-1.1%</td></tr>
+        <tr class="hl"><td style="text-align:left;color:var(--cyan)">WR/PF最大化</td><td class="best">lev1 1x FR</td><td>1x</td><td>3/1%</td><td><span class="mode-tag mode-fr">FR</span></td><td class="best">79.1%</td><td>7.41</td><td>153%</td><td class="best">-0.7%</td></tr>
+        <tr><td style="text-align:left">リターン重視 (安全)</td><td>lev3 1x L+S</td><td>3x</td><td>3/1%</td><td><span class="mode-tag mode-ls">L+S</span></td><td>69.2%</td><td>8.23</td><td class="good">977%</td><td>-3.3%</td></tr>
+        <tr><td style="text-align:left">リターン重視 (積極)</td><td>7x 1x L+S</td><td>7x</td><td>3/1%</td><td><span class="mode-tag mode-ls">L+S</span></td><td>69.2%</td><td>6.79</td><td class="good">2,305%</td><td>-7.0%</td></tr>
+        <tr><td style="text-align:left">リターン重視 (FR安全)</td><td>7x 1x FR</td><td>7x</td><td>3/1%</td><td><span class="mode-tag mode-fr">FR</span></td><td class="best">79.1%</td><td>5.97</td><td class="good">1,183%</td><td>-3.0%</td></tr>
+      </tbody>
+    </table>
+
+    <div class="insight" style="margin-top:12px">
+      <strong>Key Takeaways:</strong><br>
+      1. <strong>Depth 1x (TP3%/SL1%) が全レバ・全モードで最強。</strong>4x-5xに深くする意味はBTでは確認できず<br>
+      2. <strong>FRフィルターはWR +10pp、MDD半減</strong>の強力なフィルター。ただしトレード数は41%に減少<br>
+      3. <strong>ペーパー2日と2年BTの結論は矛盾</strong> — ペーパーの「深い方が良い」は短期サンプルバイアスの可能性大<br>
+      4. <strong>7x + FR filterが最良バランス</strong>: WR79%, Sharpe5.97, +1,183%, MDD-3.0%
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Aggressive Depth × Mode Backtest | 45 configs | Period: 2024-03-14 ~ 2026-03-14 (2 years) | ~3.8h compute time | Initial: $1,000,000
+</div>
+
+</body>
+</html>

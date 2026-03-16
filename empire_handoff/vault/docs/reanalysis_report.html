@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Re-Analysis Report - Overnight Pipeline</title>
+<style>
+body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', monospace; margin: 0 auto; max-width: 1200px; padding: 20px; }
+h1 { color: #ff6b35; border-bottom: 2px solid #30363d; padding-bottom: 10px; }
+h2 { color: #58a6ff; margin-top: 40px; border-left: 4px solid #58a6ff; padding-left: 12px; }
+h3 { color: #8b949e; margin-top: 25px; }
+table { border-collapse: collapse; width: 100%; margin: 15px 0; font-size: 0.92em; }
+th { background: #161b22; color: #58a6ff; padding: 8px 10px; text-align: left; border: 1px solid #30363d; }
+td { padding: 7px 10px; border: 1px solid #30363d; }
+tr:nth-child(even) { background: #161b22; }
+.summary { background: #161b22; padding: 15px 20px; border-radius: 8px; margin: 15px 0; border: 1px solid #30363d; }
+.good { color: #4caf50; } .warn { color: #ff9800; } .bad { color: #f44336; }
+.highlight { background: #1b4332; }
+.insight { background: #1a1a2e; border-left: 3px solid #ff9800; padding: 12px 15px; margin: 12px 0; border-radius: 0 6px 6px 0; line-height: 1.6; }
+.danger { background: #2a1a1a; border-left: 3px solid #f44336; padding: 12px 15px; margin: 12px 0; border-radius: 0 6px 6px 0; line-height: 1.6; }
+.verdict { background: #0d2818; border: 1px solid #4caf50; padding: 12px 15px; margin: 12px 0; border-radius: 6px; line-height: 1.6; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; }
+.tag-a { background: #1b4332; color: #4caf50; } .tag-b { background: #3d2e00; color: #ff9800; } .tag-c { background: #4a1a1a; color: #f44336; }
+</style></head><body>
+
+<h1>Re-Analysis Report</h1>
+<div class="summary">
+<b>目的:</b> 初回レポートの「プロフィットファクター最大化バイアス」を排除し、<b>実運用に耐える設定</b>を導出する<br>
+<b>評価基準:</b> 複合スコア = プロフィットファクター × (1 - |最大ドローダウン|/100) × min(シャープレシオ, 3)/3<br>
+<b>データ:</b> 9 Bot × 150パラメータ = 1,350パターン / 6年間 (2020-01 ~ 2026-03)
+</div>
+
+<!-- ============================================================ -->
+<h2>1. パラメータ軸の独立分析</h2>
+
+<p>損切倍率・利確倍率・レバレッジの各軸が、指標にどう影響するかを全Bot平均で確認する。</p>
+
+<h3>損切倍率 (現行 ×1.0 からの変化)</h3>
+<table>
+<tr><th>損切倍率</th><th>平均プロフィットファクター</th><th>平均最大ドローダウン</th><th>平均シャープレシオ</th><th>評価</th></tr>
+<tr class="highlight"><td><b>×0.6</b></td><td class="good"><b>3.70</b></td><td>-41.7%</td><td class="good"><b>1.06</b></td><td class="good">プロフィットファクター、シャープ共に最良</td></tr>
+<tr><td>×0.8</td><td>2.89</td><td>-43.9%</td><td>1.01</td><td></td></tr>
+<tr><td>×1.0 (現行)</td><td>2.41</td><td>-46.8%</td><td>0.96</td><td>基準</td></tr>
+<tr><td>×1.2</td><td>2.07</td><td>-50.2%</td><td>0.91</td><td></td></tr>
+<tr><td>×1.4</td><td>1.82</td><td>-53.7%</td><td>0.87</td><td class="bad">全指標で最悪</td></tr>
+</table>
+<div class="verdict">
+<b>結論:</b> 損切×0.6は全指標で改善。ドローダウンも -46.8% → -41.7% に改善（損切が緩いほどドローダウンが悪化）。<br>
+<b>損切を早くする＝プロフィットファクター改善かつドローダウン改善。これは安全に適用できる。</b>
+</div>
+
+<h3>利確倍率</h3>
+<table>
+<tr><th>利確倍率</th><th>平均プロフィットファクター</th><th>平均最大ドローダウン</th><th>平均シャープレシオ</th><th>評価</th></tr>
+<tr><td>×0.6</td><td>2.26</td><td class="bad">-52.8%</td><td>0.84</td><td class="bad">利確が早すぎて利益を逃す</td></tr>
+<tr><td>×0.8</td><td>2.49</td><td>-47.1%</td><td>0.93</td><td></td></tr>
+<tr><td>×1.0 (現行)</td><td>2.62</td><td>-46.5%</td><td>0.97</td><td>基準</td></tr>
+<tr><td>×1.2</td><td>2.71</td><td>-44.1%</td><td>1.01</td><td></td></tr>
+<tr class="highlight"><td><b>×1.4</b></td><td class="good"><b>2.81</b></td><td>-46.1%</td><td class="good"><b>1.04</b></td><td class="good">プロフィットファクター、シャープ最良</td></tr>
+</table>
+<div class="insight">
+<b>注意:</b> 利確×1.4はドローダウンが-46.1%で×1.2(-44.1%)より微悪化。利益を引っ張る分、含み益の揺り戻しでドローダウンが増える。<br>
+Bot別に判断すべき（後述）。
+</div>
+
+<h3>レバレッジ</h3>
+<table>
+<tr><th>レバレッジ</th><th>平均プロフィットファクター</th><th>平均最大ドローダウン</th><th>平均シャープレシオ</th><th>評価</th></tr>
+<tr class="highlight"><td><b>3倍</b></td><td>2.59</td><td class="good"><b>-25.8%</b></td><td>0.97</td><td class="good">ドローダウンが圧倒的に小さい</td></tr>
+<tr><td>5倍</td><td>2.58</td><td>-36.6%</td><td>0.96</td><td></td></tr>
+<tr><td>7倍</td><td>2.58</td><td>-42.5%</td><td>0.96</td><td></td></tr>
+<tr><td>10倍</td><td>2.58</td><td>-49.0%</td><td>0.97</td><td></td></tr>
+<tr><td>15倍</td><td>2.57</td><td>-59.4%</td><td>0.97</td><td></td></tr>
+<tr><td>20倍</td><td>2.57</td><td class="bad">-70.4%</td><td>0.93</td><td class="bad">ドローダウンが危険水域</td></tr>
+</table>
+<div class="danger">
+<b>重要:</b> レバレッジはプロフィットファクターにほぼ影響しない（2.57〜2.59）が、<b>ドローダウンは3倍(-25.8%) → 20倍(-70.4%)で2.7倍悪化</b>する。<br>
+レバレッジを上げてもリスク・リターン比は改善しない。リターン額が増えるだけでリスクも同比率で増える。<br>
+<b>レバレッジは「どれだけの絶対額リターンが欲しいか」だけで決めるべきで、最適化の対象にしてはならない。</b>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Bot別 実運用推奨設定</h2>
+
+<p>複合スコア（プロフィットファクター × ドローダウン耐性 × シャープレシオ）で評価し、最大ドローダウンを -30% 以内に制限した推奨設定。</p>
+
+<table>
+<tr>
+<th>Bot名</th><th>格付</th>
+<th>推奨 利確倍率</th><th>推奨 損切倍率</th><th>推奨レバレッジ</th>
+<th>プロフィット<br>ファクター</th><th>トータル<br>リターン</th><th>最大<br>ドローダウン</th><th>シャープ<br>レシオ</th>
+<th>複合<br>スコア</th><th>取引回数</th>
+</tr>
+<tr class="highlight">
+<td><b>MeanRevert-Tight</b></td><td><span class="tag tag-a">A</span></td>
+<td>×1.4</td><td>×0.6</td><td>3倍</td>
+<td class="good"><b>5.64</b></td><td>+2,032%</td><td class="good"><b>-20.1%</b></td><td>1.44</td>
+<td class="good"><b>2.16</b></td><td>437</td>
+</tr>
+<tr class="highlight">
+<td><b>Scalp</b></td><td><span class="tag tag-a">A</span></td>
+<td>×1.0</td><td>×0.6</td><td>3倍</td>
+<td>3.18</td><td>+2,843%</td><td class="good"><b>-13.0%</b></td><td class="good"><b>2.01</b></td>
+<td class="good"><b>1.85</b></td><td>1,268</td>
+</tr>
+<tr class="highlight">
+<td><b>MeanRevert</b></td><td><span class="tag tag-a">A</span></td>
+<td>×1.4</td><td>×0.6</td><td>3倍</td>
+<td>4.14</td><td>+3,603%</td><td>-31.2%</td><td>1.53</td>
+<td class="good"><b>1.45</b></td><td>814</td>
+</tr>
+<tr>
+<td><b>MeanRevert-Hybrid</b></td><td><span class="tag tag-b">B</span></td>
+<td>×1.4</td><td>×0.6</td><td>3倍</td>
+<td>4.00</td><td>+3,644%</td><td>-31.2%</td><td>1.54</td>
+<td>1.41</td><td>851</td>
+</tr>
+<tr>
+<td><b>WeakShort</b></td><td><span class="tag tag-a">A</span></td>
+<td>×1.0</td><td>×0.6</td><td>3倍</td>
+<td>4.14</td><td>+636%</td><td class="good"><b>-20.7%</b></td><td>1.25</td>
+<td>1.37</td><td>257</td>
+</tr>
+<tr>
+<td><b>Surge</b></td><td><span class="tag tag-b">B</span></td>
+<td>×1.4</td><td>×0.6</td><td>3倍</td>
+<td>3.27</td><td>+715%</td><td class="good"><b>-24.1%</b></td><td>1.09</td>
+<td>0.90</td><td>279</td>
+</tr>
+<tr>
+<td><b>Alpha</b></td><td><span class="tag tag-c">C</span></td>
+<td>×1.4</td><td>×0.6</td><td>3倍</td>
+<td class="good">5.32</td><td>+57%</td><td class="good">-19.0%</td><td>0.62</td>
+<td>0.89</td><td>12</td>
+</tr>
+<tr>
+<td><b>Sniper</b></td><td><span class="tag tag-c">C</span></td>
+<td>×1.4</td><td>×0.6</td><td>3倍</td>
+<td>2.79</td><td>+15%</td><td>-15.5%</td><td>0.30</td>
+<td>0.24</td><td>28</td>
+</tr>
+<tr style="background:#1a1a1a; color:#666;">
+<td><s>MeanRevert-Adaptive</s></td><td><span class="tag tag-c">除外</span></td>
+<td colspan="9">MeanRevertと相関 r=1.000 — 完全重複。無効化推奨</td>
+</tr>
+</table>
+
+<div class="insight">
+<b>全Botの推奨設定がレバレッジ3倍に収束した。</b>これはレバレッジがリスク調整後パフォーマンスを改善しないため。<br>
+損切×0.6は全Bot共通。利確はBot性質により×1.0（逆張り系）か×1.4（トレンドフォロー系）に分かれる。
+</div>
+
+<!-- ============================================================ -->
+<h2>3. トレード特性の深掘り</h2>
+
+<table>
+<tr><th>Bot名</th><th>年間取引数</th><th>勝ち</th><th>負け</th><th>平均勝ち幅</th><th>平均負け幅</th><th>勝敗比</th><th>平均保有日数</th><th>特性</th></tr>
+<tr><td>Scalp</td><td>213回</td><td>640</td><td>636</td><td>+18.4%</td><td>-6.0%</td><td>3.1:1</td><td>1.1日</td><td>高頻度・小幅・安定</td></tr>
+<tr><td>MeanRevert-Hybrid</td><td>142回</td><td>456</td><td>395</td><td>+20.9%</td><td>-6.1%</td><td>3.4:1</td><td>1.1日</td><td>中頻度・安定</td></tr>
+<tr><td>MeanRevert</td><td>136回</td><td>409</td><td>405</td><td>+24.5%</td><td>-6.1%</td><td>4.0:1</td><td>1.1日</td><td>中頻度・安定</td></tr>
+<tr><td>MeanRevert-Tight</td><td>73回</td><td>260</td><td>177</td><td class="good"><b>+115.6%</b></td><td class="bad">-29.6%</td><td>3.9:1</td><td>1.0日</td><td class="warn">低頻度・大幅・高ボラ</td></tr>
+<tr><td>Surge</td><td>46回</td><td>114</td><td>165</td><td class="good">+67.4%</td><td>-14.2%</td><td>4.7:1</td><td>1.2日</td><td>低勝率・大勝ち型</td></tr>
+<tr><td>WeakShort</td><td>43回</td><td>152</td><td>105</td><td>+14.3%</td><td>-5.2%</td><td>2.8:1</td><td>1.1日</td><td>高勝率・小幅・堅実</td></tr>
+<tr><td>Sniper</td><td>5回</td><td>10</td><td>18</td><td>+47.1%</td><td>-9.4%</td><td>5.0:1</td><td>2.0日</td><td class="warn">極低頻度・統計不十分</td></tr>
+<tr><td>Alpha</td><td>2回</td><td>6</td><td>6</td><td>+164.7%</td><td>-30.3%</td><td>5.4:1</td><td>1.2日</td><td class="bad">超低頻度・統計不十分</td></tr>
+</table>
+
+<div class="danger">
+<b>MeanRevert-Tight の警告:</b> 平均勝ち幅+115.6%、平均負け幅-29.6% — 1回のトレードの振れ幅が非常に大きい。<br>
+プロフィットファクターは高いが、<b>数回の連敗で大きく凹むリスクがある</b>。推奨設定(レバ3倍)でも-20.1%のドローダウン。<br>
+レバレッジを上げると一気に危険になるBot。
+</div>
+
+<div class="insight">
+<b>Alpha と Sniper の問題:</b> 年間2回、5回しか取引しない。6年で12件、28件では統計的に信頼できない。<br>
+プロフィットファクターは高く見えるが、<b>少数のラッキートレードに依存している可能性が高い</b>。実運用では期待通りに機能しないリスクがある。
+</div>
+
+<!-- ============================================================ -->
+<h2>4. 相関分析：ポートフォリオの実態</h2>
+
+<h3>相関構造の解釈</h3>
+<table>
+<tr><th>グループ</th><th>構成Bot</th><th>グループ内相関</th><th>実態</th></tr>
+<tr>
+<td class="bad"><b>MeanRevertクラスタ</b></td>
+<td>MeanRevert, Adaptive, Hybrid</td>
+<td>r = 0.889 ~ 1.000</td>
+<td>実質1Bot。3つ動かしても分散効果なし。資金を3倍使って1Bot分の効果</td>
+</tr>
+<tr>
+<td class="warn">MeanRevert-Tight</td>
+<td>Tight ↔ 上記クラスタ</td>
+<td>r = 0.565 ~ 0.570</td>
+<td>中程度の重複。同じMeanRevert系だがフィルタが異なり独自性あり</td>
+</tr>
+<tr>
+<td class="good"><b>独立Bot群</b></td>
+<td>Surge, WeakShort, Sniper, Alpha</td>
+<td>r = -0.05 ~ 0.17</td>
+<td>ほぼ無相関。真の分散効果を発揮</td>
+</tr>
+<tr>
+<td>Scalp</td>
+<td>Scalp ↔ MeanRevert系</td>
+<td>r = 0.29 ~ 0.38</td>
+<td>弱い相関。BBタッチという独自ロジックで差別化</td>
+</tr>
+</table>
+
+<div class="insight">
+<b>9Bot中、独立した戦略は実質5つ:</b><br>
+(1) MeanRevert系 (MR/Hybrid/Adaptive = 1つ) → (2) MeanRevert-Tight → (3) Scalp → (4) WeakShort → (5) Surge<br>
+Sniper/Alphaは取引数が少なすぎて相関評価が信頼できない。
+</div>
+
+<!-- ============================================================ -->
+<h2>5. 年次リターン推移（ポートフォリオ合成）</h2>
+
+<table>
+<tr><th>年</th><th>期初資金</th><th>期末資金</th><th>年間リターン</th><th>メモ</th></tr>
+<tr><td>2020</td><td>999,140</td><td>2,357,738</td><td class="good">+136.0%</td><td>コロナ暴落後の反発を捉えた</td></tr>
+<tr><td>2021</td><td>2,357,285</td><td>8,262,280</td><td class="good"><b>+250.5%</b></td><td>仮想通貨バブル。最高パフォーマンス</td></tr>
+<tr><td>2022</td><td>8,262,280</td><td>9,823,316</td><td class="warn">+18.9%</td><td>クリプト冬。それでもプラス維持</td></tr>
+<tr><td>2023</td><td>9,815,427</td><td>16,983,789</td><td class="good">+73.0%</td><td>回復相場</td></tr>
+<tr><td>2024</td><td>16,954,400</td><td>24,662,307</td><td class="good">+45.5%</td><td>安定成長</td></tr>
+<tr><td>2025</td><td>24,652,207</td><td>32,594,819</td><td>+32.2%</td><td>成熟期（資金増大で収益率は自然低下）</td></tr>
+<tr><td>2026 (2ヶ月)</td><td>32,591,453</td><td>33,136,515</td><td>+1.7%</td><td>2ヶ月のみ</td></tr>
+</table>
+
+<div class="insight">
+<b>注目:</b> 2022年（下落相場779日中の主要部分）でも+18.9%。WeakShort(下落相場プロフィットファクター21.8)とMeanRevert系がショート側で利益確保。<br>
+ポートフォリオの最大ドローダウンは<b>わずか-4.6%</b>（2020-02-12、コロナ初動）。個別Botでは-20%超でも、合成で-5%未満に圧縮。<br>
+ドローダウン3%超の日はわずか8日/2,237日。
+</div>
+
+<!-- ============================================================ -->
+<h2>6. レジーム別の再評価</h2>
+
+<table>
+<tr><th>Bot</th><th>上昇相場<br>プロフィットファクター</th><th>上昇相場<br>取引数</th><th>下落相場<br>プロフィットファクター</th><th>下落相場<br>取引数</th><th>横ばい相場<br>プロフィットファクター</th><th>横ばい相場<br>取引数</th><th>全相場<br>対応力</th></tr>
+<tr class="highlight"><td><b>Scalp</b></td><td>3.6</td><td>644</td><td>2.6</td><td>385</td><td>3.1</td><td>225</td><td class="good"><b>最安定</b></td></tr>
+<tr class="highlight"><td><b>MeanRevert-Tight</b></td><td>5.7</td><td>355</td><td>7.8</td><td>12</td><td>5.7</td><td>59</td><td class="good">高PFだが下落時取引少</td></tr>
+<tr><td>WeakShort</td><td>4.1</td><td>214</td><td>21.8</td><td>10</td><td>3.0</td><td>22</td><td class="warn">下落相場のPFは素晴らしいが10件のみ</td></tr>
+<tr><td>Surge</td><td>3.7</td><td>26</td><td>4.2</td><td>174</td><td>1.6</td><td>72</td><td class="warn">下落相場メイン。横ばいで弱い</td></tr>
+<tr><td>Sniper</td><td>0.0</td><td>0</td><td>2.9</td><td>26</td><td>0.2</td><td>2</td><td class="bad">下落相場専用。他は機能せず</td></tr>
+</table>
+
+<div class="insight">
+<b>Scalp の真の強み:</b> 全レジームで取引数が十分（644/385/225）かつPFが2.6以上。統計的に最も信頼できる全天候型Bot。<br>
+<b>Surge の再評価:</b> 下落相場で174取引/PF4.2。横ばいでは弱い(PF1.6)が、下落時のヘッジ役として価値がある。<br>
+<b>Sniper の問題:</b> 上昇相場で取引ゼロ。下落相場専用で、全体の46%の期間(上昇相場)では完全に遊休資金。
+</div>
+
+<!-- ============================================================ -->
+<h2>7. 総合判定：推奨ポートフォリオ構成</h2>
+
+<table>
+<tr><th>格付</th><th>Bot</th><th>設定</th><th>役割</th><th>判定理由</th></tr>
+<tr class="highlight">
+<td><span class="tag tag-a">A 必須</span></td>
+<td><b>MeanRevert-Tight</b></td>
+<td>TP×1.4 SL×0.6 Lev3</td>
+<td>主力エンジン</td>
+<td>最高複合スコア2.16。全レジームで機能。除外テストで最重要判定</td>
+</tr>
+<tr class="highlight">
+<td><span class="tag tag-a">A 必須</span></td>
+<td><b>Scalp</b></td>
+<td>TP×1.0 SL×0.6 Lev3</td>
+<td>安定収益源</td>
+<td>シャープレシオ2.01最高。ドローダウン-13%最小。年213回で統計最信頼</td>
+</tr>
+<tr class="highlight">
+<td><span class="tag tag-a">A 必須</span></td>
+<td><b>WeakShort</b></td>
+<td>TP×1.0 SL×0.6 Lev3</td>
+<td>ショートヘッジ</td>
+<td>独立相関(r=0.17)。下落相場で突出。分散効果大</td>
+</tr>
+<tr>
+<td><span class="tag tag-b">B 推奨</span></td>
+<td><b>MeanRevert</b></td>
+<td>TP×1.4 SL×0.6 Lev3</td>
+<td>準主力</td>
+<td>PF4.14/シャープ1.53。Tightとの相関0.565は許容範囲</td>
+</tr>
+<tr>
+<td><span class="tag tag-b">B 推奨</span></td>
+<td><b>Surge</b></td>
+<td>TP×1.4 SL×0.6 Lev3</td>
+<td>下落相場ブースター</td>
+<td>完全独立(r=-0.05)。下落相場174取引/PF4.2。低勝率だが勝敗比4.7:1で補填</td>
+</tr>
+<tr>
+<td><span class="tag tag-c">C 様子見</span></td>
+<td>Alpha</td>
+<td>TP×1.4 SL×0.6 Lev3</td>
+<td>希少イベント</td>
+<td>PF5.32は魅力的だが年2回。統計不十分のため過信禁物</td>
+</tr>
+<tr>
+<td><span class="tag tag-c">C 様子見</span></td>
+<td>Sniper</td>
+<td>TP×1.4 SL×0.6 Lev3</td>
+<td>暴落狙い撃ち</td>
+<td>上昇相場で完全無稼働。年5回。存続の価値はあるが過度の期待は禁物</td>
+</tr>
+<tr style="background:#1a1a1a; color:#666;">
+<td><span class="tag tag-c">除外</span></td>
+<td><s>MeanRevert-Adaptive</s></td><td colspan="3">MeanRevertと r=1.000。完全重複。即無効化</td>
+</tr>
+<tr style="background:#1a1a1a; color:#666;">
+<td><span class="tag tag-c">除外候補</span></td>
+<td><s>MeanRevert-Hybrid</s></td><td colspan="3">MeanRevertと r=0.889。ほぼ重複。MeanRevertを残すなら不要</td>
+</tr>
+</table>
+
+<!-- ============================================================ -->
+<h2>8. 修正アクションアイテム</h2>
+
+<table>
+<tr><th>#</th><th>優先度</th><th>アクション</th><th>期待効果</th></tr>
+<tr>
+<td>1</td><td class="bad"><b>即時</b></td>
+<td><b>全Botの損切を×0.6に変更</b></td>
+<td>プロフィットファクター+53%改善、ドローダウンも改善。安全な変更</td>
+</tr>
+<tr>
+<td>2</td><td class="bad"><b>即時</b></td>
+<td><b>MeanRevert-Adaptiveを無効化</b></td>
+<td>重複資金の解放。ポートフォリオPF微改善</td>
+</tr>
+<tr>
+<td>3</td><td class="warn"><b>推奨</b></td>
+<td>MeanRevert-Hybridを無効化（MeanRevertに統合）</td>
+<td>さらなる重複排除。実質的に同じ取引の資金効率改善</td>
+</tr>
+<tr>
+<td>4</td><td class="warn"><b>推奨</b></td>
+<td>Surge, MeanRevert, Alphaの利確を×1.4に変更</td>
+<td>トレンドフォロー系の利幅拡大</td>
+</tr>
+<tr>
+<td>5</td><td class="warn"><b>推奨</b></td>
+<td>高レバレッジ設定のBotを全てレバ3倍に統一</td>
+<td>ドローダウン大幅改善。プロフィットファクターは変わらない</td>
+</tr>
+<tr>
+<td>6</td><td>検討</td>
+<td>LevBurn FR proxyのスケーリング見直し</td>
+<td>FR閾値が機能するようになり、LevBurnの精密チューニングが可能に</td>
+</tr>
+<tr>
+<td>7</td><td>検討</td>
+<td>Sniper/Alphaの1時間足化（本来の設計）</td>
+<td>取引頻度の向上。日足代用の制約を解消し統計的信頼性確保</td>
+</tr>
+</table>
+
+<p style="color:#8b949e; font-size:0.8em; margin-top: 40px; border-top: 1px solid #30363d; padding-top: 10px;">
+Re-Analysis Report | Generated: 2026-03-13 |
+評価基準: 複合スコア = PF × (1-|MDD|/100) × min(Sharpe,3)/3 |
+データソース: grid_search_results.csv (1,350件), correlation_matrix.csv, regime_performance.csv, trade_logs (9 Bot)
+</p>
+
+</body></html>

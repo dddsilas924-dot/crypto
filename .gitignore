@@ -1,3 +1,5 @@
 venv/
 .claude/
 .cursor/
+# GitHub は 1 ファイル 100MB まで。DB は除外
+empire_handoff/data/*.db

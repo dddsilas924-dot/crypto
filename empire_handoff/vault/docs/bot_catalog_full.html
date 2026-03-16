@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Monitor - BOT Complete Catalog with Backtest</title>
+<style>
+  :root {
+    --bg: #0a0e17; --card: #111827; --card2: #0d1320; --card-hover: #1a2332;
+    --border: #1e293b; --accent: #3b82f6; --accent2: #8b5cf6;
+    --green: #10b981; --red: #ef4444; --orange: #f59e0b; --cyan: #06b6d4;
+    --pink: #ec4899; --text: #e2e8f0; --muted: #94a3b8; --dim: #64748b;
+    --gold: #fbbf24; --lime: #84cc16;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI','Noto Sans JP',sans-serif; background:var(--bg); color:var(--text); line-height:1.6; }
+
+  .header { background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%); border-bottom:1px solid var(--border); padding:40px 20px; text-align:center; }
+  .header h1 { font-size:2.4rem; background:linear-gradient(135deg,var(--accent),var(--accent2),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px; }
+  .header .subtitle { color:var(--muted); font-size:1rem; }
+
+  .stats-bar { display:flex; justify-content:center; gap:32px; padding:20px; background:var(--card); border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .stat-item { text-align:center; }
+  .stat-item .num { font-size:1.8rem; font-weight:700; }
+  .stat-item .label { font-size:0.78rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+
+  .nav { position:sticky; top:0; z-index:100; background:rgba(10,14,23,0.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); padding:10px 20px; display:flex; gap:6px; overflow-x:auto; justify-content:center; flex-wrap:wrap; }
+  .nav a { color:var(--muted); text-decoration:none; padding:5px 14px; border-radius:16px; font-size:0.8rem; white-space:nowrap; transition:all 0.2s; border:1px solid transparent; }
+  .nav a:hover { color:var(--text); background:var(--card); border-color:var(--border); }
+
+  .container { max-width:1500px; margin:0 auto; padding:20px; }
+  .section { margin:40px 0; }
+  .section-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid var(--border); }
+  .section-header .icon { font-size:1.4rem; width:44px; height:44px; display:flex; align-items:center; justify-content:center; border-radius:10px; flex-shrink:0; }
+  .section-header h2 { font-size:1.3rem; }
+  .section-header .count { background:var(--card); color:var(--muted); padding:2px 10px; border-radius:12px; font-size:0.78rem; border:1px solid var(--border); }
+
+  /* Bot card */
+  .bot-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:20px; transition:all 0.2s; }
+  .bot-card:hover { background:var(--card-hover); border-color:#334155; }
+  .bot-card .bot-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
+  .bot-card .bot-name { font-size:1.2rem; font-weight:700; }
+  .bot-card .bot-name-jp { font-size:0.85rem; color:var(--muted); }
+
+  .badge { display:inline-block; padding:2px 10px; border-radius:10px; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+  .badge-active { background:rgba(16,185,129,0.15); color:var(--green); border:1px solid rgba(16,185,129,0.3); }
+  .badge-inactive { background:rgba(100,116,139,0.15); color:var(--dim); border:1px solid rgba(100,116,139,0.3); }
+  .badge-tier1 { background:rgba(59,130,246,0.15); color:var(--accent); border:1px solid rgba(59,130,246,0.3); }
+  .badge-tier2 { background:rgba(139,92,246,0.15); color:var(--accent2); border:1px solid rgba(139,92,246,0.3); }
+  .badge-extreme { background:rgba(239,68,68,0.15); color:var(--red); border:1px solid rgba(239,68,68,0.3); }
+  .badge-hf { background:rgba(6,182,212,0.15); color:var(--cyan); border:1px solid rgba(6,182,212,0.3); }
+  .badge-config { background:rgba(245,158,11,0.15); color:var(--orange); border:1px solid rgba(245,158,11,0.3); }
+  .badge-top { background:rgba(251,191,36,0.15); color:var(--gold); border:1px solid rgba(251,191,36,0.3); }
+
+  .bot-desc { color:var(--muted); font-size:0.85rem; margin-bottom:14px; }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:900px) { .two-col { grid-template-columns:1fr; } }
+
+  .conditions { background:rgba(0,0,0,0.25); border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:0.82rem; }
+  .conditions .cond-title { color:var(--dim); font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+  .conditions ul { list-style:none; padding:0; }
+  .conditions li { color:var(--muted); padding:2px 0; }
+  .conditions li::before { content:'> '; color:var(--accent); font-family:monospace; }
+
+  .params { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-bottom:12px; }
+  .param { display:flex; justify-content:space-between; background:rgba(0,0,0,0.2); padding:4px 10px; border-radius:6px; font-size:0.78rem; }
+  .param .k { color:var(--dim); }
+  .param .v { color:var(--text); font-weight:600; font-family:'Consolas',monospace; }
+
+  .scoring { font-family:'Consolas',monospace; font-size:0.76rem; color:var(--cyan); background:rgba(6,182,212,0.08); padding:5px 10px; border-radius:6px; margin-bottom:10px; border-left:3px solid var(--cyan); }
+
+  .logic-tags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:12px; }
+  .logic-tag { background:rgba(59,130,246,0.1); color:var(--accent); padding:2px 8px; border-radius:6px; font-size:0.7rem; border:1px solid rgba(59,130,246,0.2); }
+
+  .dir-long { color:var(--green); font-weight:600; }
+  .dir-short { color:var(--red); font-weight:600; }
+  .dir-both { color:var(--orange); font-weight:600; }
+
+  /* Backtest panel */
+  .bt-panel { background:linear-gradient(135deg,rgba(59,130,246,0.05),rgba(139,92,246,0.05)); border:1px solid rgba(59,130,246,0.2); border-radius:10px; padding:16px; margin-top:12px; }
+  .bt-panel .bt-title { font-size:0.78rem; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:600; }
+  .bt-table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+  .bt-table th { text-align:left; padding:6px 8px; color:var(--accent); border-bottom:1px solid rgba(59,130,246,0.2); font-weight:600; font-size:0.72rem; text-transform:uppercase; }
+  .bt-table td { padding:5px 8px; border-bottom:1px solid var(--border); color:var(--muted); }
+  .bt-table tr:hover td { background:rgba(59,130,246,0.05); color:var(--text); }
+  .bt-table .best { color:var(--gold); font-weight:600; }
+  .bt-table .good { color:var(--green); }
+  .bt-table .bad { color:var(--red); }
+  .bt-table .warn { color:var(--orange); }
+
+  /* Paper vs Backtest comparison */
+  .comparison { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+  @media(max-width:700px){.comparison{grid-template-columns:1fr;}}
+  .comp-box { background:rgba(0,0,0,0.3); border-radius:8px; padding:12px; border:1px solid var(--border); }
+  .comp-box .comp-title { font-size:0.72rem; color:var(--dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+  .comp-row { display:flex; justify-content:space-between; padding:3px 0; font-size:0.8rem; }
+  .comp-row .ck { color:var(--dim); }
+  .comp-row .cv { font-family:monospace; font-weight:600; }
+
+  /* Leverage optimization */
+  .lev-panel { background:rgba(139,92,246,0.05); border:1px solid rgba(139,92,246,0.2); border-radius:10px; padding:16px; margin-top:12px; }
+  .lev-panel .lev-title { font-size:0.78rem; color:var(--accent2); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; font-weight:600; }
+  .lev-bar { display:flex; align-items:center; gap:8px; margin:4px 0; font-size:0.78rem; }
+  .lev-bar .lev-label { width:36px; color:var(--dim); font-family:monospace; text-align:right; }
+  .lev-bar .lev-fill { height:18px; border-radius:4px; display:flex; align-items:center; padding:0 8px; font-family:monospace; font-size:0.7rem; color:#fff; font-weight:600; min-width:40px; }
+  .lev-bar .lev-sharpe { color:var(--muted); font-size:0.72rem; margin-left:8px; }
+  .lev-optimal { margin-top:8px; padding:6px 10px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); border-radius:6px; font-size:0.78rem; color:var(--gold); }
+
+  /* Summary tables */
+  .summary-table { width:100%; border-collapse:collapse; font-size:0.82rem; margin-top:12px; }
+  .summary-table th { text-align:left; padding:8px 10px; background:rgba(59,130,246,0.1); color:var(--accent); border-bottom:2px solid var(--border); font-weight:600; }
+  .summary-table td { padding:6px 10px; border-bottom:1px solid var(--border); color:var(--muted); }
+  .summary-table tr:hover td { background:var(--card-hover); color:var(--text); }
+
+  .footer { text-align:center; padding:40px 20px; color:var(--dim); font-size:0.78rem; border-top:1px solid var(--border); margin-top:60px; }
+
+  /* Note box */
+  .note { background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:8px; padding:12px; margin:12px 0; font-size:0.82rem; color:var(--orange); }
+
+  /* Funnel */
+  .funnel { display:flex; flex-direction:column; align-items:center; gap:0; margin:24px auto; max-width:600px; }
+  .funnel-step { text-align:center; padding:16px 0; border-radius:8px; font-weight:600; }
+  .funnel-step .fl { font-size:0.78rem; opacity:0.7; }
+  .funnel-step .fv { font-size:1.2rem; }
+  .funnel-step .fd { font-size:0.76rem; color:var(--muted); margin-top:4px; }
+  .fa { color:var(--dim); font-size:1.1rem; margin:4px 0; }
+
+  .highlight-row td { background:rgba(251,191,36,0.08) !important; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Empire Monitor - Complete BOT Catalog</h1>
+  <div class="subtitle">全BOT詳細 + バックテスト + ペーパー比較 + レバレッジ最適化 | 2024-01〜2026-03</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item"><div class="num" style="color:var(--accent)">248</div><div class="label">Backtest Configs</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--accent2)">41</div><div class="label">Unique Bots</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--green)">945</div><div class="label">Max Trades/Bot</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--gold)">13,611%</div><div class="label">Best Return</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--cyan)">13.36</div><div class="label">Best Sharpe</div></div>
+</div>
+
+<div class="nav">
+  <a href="#funnel">ファンネル構造</a>
+  <a href="#topranking">Top Ranking</a>
+  <a href="#paper-vs-bt">Paper vs Backtest</a>
+  <a href="#levburn-sec">LevBurn-Sec</a>
+  <a href="#levburn">LevBurn 30min</a>
+  <a href="#meanrevert">Mean Reversion</a>
+  <a href="#scalp">Scalp</a>
+  <a href="#surge">Surge</a>
+  <a href="#weakshort">WeakShort</a>
+  <a href="#hf">High-Frequency</a>
+  <a href="#regime">Regime-Aware</a>
+  <a href="#volatility">Volatility</a>
+  <a href="#ico">ICO</a>
+  <a href="#sector">Sector</a>
+  <a href="#configonly">Config-Only</a>
+  <a href="#mega-full">Mega全データ</a>
+  <a href="#lev-opt">レバ最適化</a>
+</div>
+
+<div class="container">
+
+<!-- ====== FUNNEL ====== -->
+<div class="section" id="funnel">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(59,130,246,0.15);">&#x1F3AF;</div>
+    <h2>ファンネル構造 (Tier 1 → 2 → 3)</h2>
+  </div>
+  <div class="funnel">
+    <div class="funnel-step" style="width:100%;background:linear-gradient(90deg,rgba(59,130,246,0.2),rgba(59,130,246,0.05));">
+      <div class="fl">TIER 1 — スクリーニング (Group B: L02,L03,L04,L09,L17)</div>
+      <div class="fv">870銘柄 → Top 50</div>
+      <div class="fd">Python軽量計算。聖域割れ即除外、出来高・相関・先行指標</div>
+    </div>
+    <div class="fa">&#x25BC;</div>
+    <div class="funnel-step" style="width:75%;background:linear-gradient(90deg,rgba(139,92,246,0.2),rgba(139,92,246,0.05));">
+      <div class="fl">TIER 2 — バリデーション (Group C: L08,L10,L13,L14,L23,L24)</div>
+      <div class="fv">Top 50 → Top 15</div>
+      <div class="fd">FR/OI・板厚・清算クラスター・レバ焼きパターン検証</div>
+    </div>
+    <div class="fa">&#x25BC;</div>
+    <div class="funnel-step" style="width:50%;background:linear-gradient(90deg,rgba(6,182,212,0.2),rgba(6,182,212,0.05));">
+      <div class="fl">TIER 3 — AIコメンタリー (Group D: L06,L07,L12,L15-L21)</div>
+      <div class="fv">Top 15 → シグナル</div>
+      <div class="fd">AI解説のみ（価格判定にAI不使用 = Iron Rule #1）</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TOP RANKING ====== -->
+<div class="section" id="topranking">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(251,191,36,0.15);">&#x1F3C6;</div>
+    <h2>Mega Backtest Top 20（Sharpe順）</h2>
+    <span class="count">期間: 2024-01 ~ 2026-03</span>
+  </div>
+  <div class="note">Mega Backtest = 248コンフィグ（41ボット × 最大6レバレッジ）を2年以上のデータで一括検証。初期資金 $1,000,000。</div>
+  <div style="overflow-x:auto;">
+  <table class="summary-table">
+    <thead><tr><th>#</th><th>Bot</th><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>Final Capital</th></tr></thead>
+    <tbody>
+      <tr class="highlight-row"><td>1</td><td style="color:var(--gold)">levburn_sec</td><td>3x</td><td>945</td><td>81.7</td><td>7.88</td><td class="good">1,276%</td><td>-4.4%</td><td class="best">7.07</td><td>$13.8M</td></tr>
+      <tr class="highlight-row"><td>2</td><td style="color:var(--gold)">levburn_sec_conservative</td><td>3x</td><td>945</td><td>88.7</td><td>11.64</td><td class="good">878%</td><td>-5.9%</td><td class="best">6.73</td><td>$9.8M</td></tr>
+      <tr class="highlight-row"><td>3</td><td style="color:var(--gold)">levburn_sec_fr_extreme</td><td>3x</td><td>944</td><td>76.2</td><td>5.55</td><td class="good">1,556%</td><td>-3.8%</td><td class="best">6.51</td><td>$16.6M</td></tr>
+      <tr><td>4</td><td>levburn_sec</td><td>5x</td><td>945</td><td>81.7</td><td>7.91</td><td class="good">2,140%</td><td>-4.9%</td><td>6.47</td><td>$22.4M</td></tr>
+      <tr><td>5</td><td>levburn_sec_conservative</td><td>5x</td><td>945</td><td>88.7</td><td>11.69</td><td class="good">1,476%</td><td>-6.7%</td><td>6.32</td><td>$15.8M</td></tr>
+      <tr><td>6</td><td>levburn_sec</td><td>7x</td><td>945</td><td>81.7</td><td>7.92</td><td class="good">3,003%</td><td>-5.1%</td><td>6.02</td><td>$31.0M</td></tr>
+      <tr><td>7</td><td>levburn_sec_conservative</td><td>7x</td><td>945</td><td>88.7</td><td>11.73</td><td class="good">2,074%</td><td>-7.2%</td><td>6.02</td><td>$21.7M</td></tr>
+      <tr><td>8</td><td>levburn_sec_fr_extreme</td><td>5x</td><td>944</td><td>76.2</td><td>5.57</td><td class="good">2,606%</td><td>-4.2%</td><td>5.88</td><td>$27.1M</td></tr>
+      <tr><td>9</td><td>levburn_sec_aggressive</td><td>3x</td><td>944</td><td>66.6</td><td>4.54</td><td class="good">2,027%</td><td>-3.5%</td><td>5.71</td><td>$21.3M</td></tr>
+      <tr><td>10</td><td>levburn_sec_conservative</td><td>10x</td><td>945</td><td>88.7</td><td>11.76</td><td class="good">2,970%</td><td>-7.6%</td><td>5.64</td><td>$30.7M</td></tr>
+      <tr><td>11</td><td>levburn_sec</td><td>10x</td><td>945</td><td>81.7</td><td>7.93</td><td class="good">4,298%</td><td>-5.3%</td><td>5.57</td><td>$44.0M</td></tr>
+      <tr><td>12</td><td>levburn_sec_conservative</td><td>15x</td><td>945</td><td>88.7</td><td>11.78</td><td class="good">4,465%</td><td>-7.9%</td><td>5.19</td><td>$45.6M</td></tr>
+      <tr><td>13</td><td>levburn_sec_aggressive</td><td>5x</td><td>944</td><td>66.6</td><td>4.55</td><td class="good">3,390%</td><td>-3.7%</td><td>5.10</td><td>$34.9M</td></tr>
+      <tr><td>14</td><td>levburn_sec</td><td>15x</td><td>945</td><td>81.7</td><td>7.94</td><td class="good">6,456%</td><td>-5.5%</td><td>5.03</td><td>$65.6M</td></tr>
+      <tr><td>15</td><td>levburn_sec_conservative</td><td>20x</td><td>945</td><td>88.7</td><td>11.79</td><td class="good">5,959%</td><td>-8.1%</td><td>4.86</td><td>$60.6M</td></tr>
+      <tr><td>16</td><td>meanrevert_hybrid</td><td>1x</td><td>822</td><td>58.0</td><td>2.46</td><td class="good">649%</td><td>-2.9%</td><td>4.74</td><td>$7.5M</td></tr>
+      <tr><td>17</td><td>meanrevert</td><td>1x</td><td>790</td><td>58.2</td><td>2.46</td><td class="good">623%</td><td>-2.9%</td><td>4.71</td><td>$7.2M</td></tr>
+      <tr><td>18</td><td>levburn_sec_aggressive</td><td>7x</td><td>944</td><td>66.6</td><td>4.55</td><td class="good">4,753%</td><td>-4.3%</td><td>4.69</td><td>$48.5M</td></tr>
+      <tr><td>19</td><td>levburn_sec</td><td>20x</td><td>945</td><td>81.7</td><td>7.94</td><td class="good">8,613%</td><td>-5.6%</td><td>4.64</td><td>$87.1M</td></tr>
+      <tr><td>20</td><td>levburn_sec_aggressive</td><td>10x</td><td>944</td><td>66.6</td><td>4.55</td><td class="good">6,798%</td><td>-6.1%</td><td>4.25</td><td>$69.0M</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ====== PAPER VS BACKTEST ====== -->
+<div class="section" id="paper-vs-bt">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(16,185,129,0.15);">&#x1F4CA;</div>
+    <h2>Paper Trading vs Backtest 比較</h2>
+    <span class="count">Paper: 2025-03-13~14 (16h) / BT: 2025-03-13~2026-03-13 (1yr)</span>
+  </div>
+  <div class="note">Paper = 実際のリアルタイムデータでシミュレーション（スリッページ・遅延あり）。Backtest = 過去データで理想的な執行を仮定。PaperのWRが低いのはスリッページ+実行遅延の影響。</div>
+  <div style="overflow-x:auto;">
+  <table class="summary-table">
+    <thead>
+      <tr><th>Bot</th><th colspan="5" style="text-align:center;color:var(--green)">Backtest (1年)</th><th colspan="5" style="text-align:center;color:var(--cyan)">Paper (16h)</th><th>差異</th></tr>
+      <tr><th></th><th>Trades</th><th>WR%</th><th>PF</th><th>Sharpe</th><th>Return%</th><th>Trades</th><th>WR%</th><th>PF</th><th>Sharpe</th><th>Return%</th><th>WR差</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:var(--text)">levburn_sec</td>
+        <td>236</td><td class="good">82.6%</td><td>8.54</td><td class="best">10.49</td><td class="good">1,080%</td>
+        <td>~25</td><td class="warn">34.7%*</td><td>—</td><td>—</td><td class="good">+26.5%**</td>
+        <td class="bad">-47.9pp</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">levburn_sec_aggressive</td>
+        <td>236</td><td>68.2%</td><td>4.91</td><td>6.64</td><td class="good">2,643%</td>
+        <td>~25</td><td>34.7%*</td><td>—</td><td>—</td><td>—</td>
+        <td class="bad">-33.5pp</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">levburn_sec_conservative</td>
+        <td>236</td><td class="good">90.3%</td><td>14.0</td><td class="best">13.36</td><td class="good">520%</td>
+        <td>~25</td><td>34.7%*</td><td>—</td><td>—</td><td>—</td>
+        <td class="bad">-55.6pp</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">scalp</td>
+        <td>300</td><td>43.7%</td><td>1.76</td><td>4.86</td><td class="good">727%</td>
+        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">meanrevert</td>
+        <td>145</td><td>52.4%</td><td>2.09</td><td>4.01</td><td>90%</td>
+        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">surge</td>
+        <td>47</td><td class="good">63.8%</td><td>3.69</td><td>3.83</td><td>52%</td>
+        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note" style="margin-top:8px;">*Paper全体の混合WR。**Paper全体のPnL合計。Paperは16時間のみのサンプルで統計的信頼性は低い。Backtestとの最大の違いは<strong>執行精度</strong>（スリッページ、レイテンシー、板の薄さ）。</div>
+</div>
+
+<!-- ====== LEVBURN-SEC ====== -->
+<div class="section" id="levburn-sec">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(239,68,68,0.15);">&#x1F525;</div>
+    <h2>Bot-LevBurn-Sec（レバ焼き秒スキャ）</h2>
+    <span class="count">Best Sharpe: 7.07 | 5 variants x 6 leverage</span>
+  </div>
+
+  <div class="bot-card">
+    <div class="bot-header">
+      <div><div class="bot-name">Bot-LevBurn-Sec</div><div class="bot-name-jp">レバ焼き秒スキャ — リアルタイム1秒足 | L24</div></div>
+      <div><span class="badge badge-active">Active</span> <span class="badge badge-top">Top Performer</span> <span class="badge badge-tier2">Tier 2</span></div>
+    </div>
+    <div class="bot-desc">2段階評価: FR分析(0-50pt) → リアルタイムトリガー(0-70pt)。1秒足・約定・板情報でエントリー。FR偏りで過密レバポジションの清算方向を狙う。</div>
+
+    <div class="two-col">
+      <div class="conditions">
+        <div class="cond-title">Stage 1: FR Scoring (0-50pt)</div>
+        <ul>
+          <li>FR偏り検出（±0.1%〜0.3%）</li>
+          <li>OI ≥ $10M + OI変化率分析</li>
+          <li>先物/現物比率 5-20x</li>
+        </ul>
+      </div>
+      <div class="conditions">
+        <div class="cond-title">Stage 2: Real-time Trigger (0-70pt)</div>
+        <ul>
+          <li>1s価格変動 ±0.3%, 5s ±0.8%, 10s ±1.5%</li>
+          <li>出来高スパイク: 3.0-5.0x</li>
+          <li>約定偏り: Buy比率70%+ / 30%-</li>
+          <li>板偏り: Bid/Ask ≥ 3.0x</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="logic-tags">
+      <span class="logic-tag">L08 FR/OI</span>
+      <span class="logic-tag">L10 Liquidity</span>
+      <span class="logic-tag">L13 LCEF</span>
+      <span class="logic-tag">L24 LevBurn-Sec</span>
+    </div>
+
+    <!-- Variant comparison -->
+    <div class="bt-panel">
+      <div class="bt-title">Variant別バックテスト比較（Mega BT, 2024-01~2026-03）</div>
+      <table class="bt-table">
+        <thead><tr><th>Variant</th><th>TP/SL</th><th>Min Trigger</th><th>Max Hold</th><th>WR%</th><th>PF</th><th>Best Lev</th><th>Best Sharpe</th><th>Best Return</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">Standard</td><td>1.5/0.5%</td><td>60</td><td>30min</td><td class="good">81.7%</td><td>7.88</td><td class="best">3x</td><td class="best">7.07</td><td>1,276%</td></tr>
+          <tr><td style="color:var(--text)">Conservative</td><td>1.0/0.3%</td><td>75</td><td>10min</td><td class="best">88.7%</td><td class="best">11.64</td><td>3x</td><td class="best">6.73</td><td>878%</td></tr>
+          <tr><td style="color:var(--text)">FR Extreme</td><td>2.0/0.8%</td><td>60</td><td>30min</td><td>76.2%</td><td>5.55</td><td>3x</td><td class="best">6.51</td><td>1,556%</td></tr>
+          <tr><td style="color:var(--text)">Aggressive</td><td>3.0/1.0%</td><td>50</td><td>15min</td><td>66.6%</td><td>4.54</td><td>3x</td><td>5.71</td><td>2,027%</td></tr>
+          <tr><td style="color:var(--text)">Scalp Micro</td><td>0.5/0.2%</td><td>70</td><td>5min</td><td class="best">94.5%</td><td class="best">11.17</td><td>3x</td><td>3.83</td><td>324%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Leverage optimization -->
+    <div class="lev-panel">
+      <div class="lev-title">Standard: レバレッジ別パフォーマンス</div>
+      <div class="lev-bar"><span class="lev-label">3x</span><span class="lev-fill" style="width:100%;background:linear-gradient(90deg,var(--green),var(--cyan));">Sharpe 7.07 | 1,276%</span></div>
+      <div class="lev-bar"><span class="lev-label">5x</span><span class="lev-fill" style="width:91%;background:linear-gradient(90deg,var(--green),var(--accent));">Sharpe 6.47 | 2,140%</span></div>
+      <div class="lev-bar"><span class="lev-label">7x</span><span class="lev-fill" style="width:85%;background:linear-gradient(90deg,var(--accent),var(--accent2));">Sharpe 6.02 | 3,003%</span></div>
+      <div class="lev-bar"><span class="lev-label">10x</span><span class="lev-fill" style="width:79%;background:linear-gradient(90deg,var(--accent2),var(--pink));">Sharpe 5.57 | 4,298%</span></div>
+      <div class="lev-bar"><span class="lev-label">15x</span><span class="lev-fill" style="width:71%;background:linear-gradient(90deg,var(--pink),var(--orange));">Sharpe 5.03 | 6,456%</span></div>
+      <div class="lev-bar"><span class="lev-label">20x</span><span class="lev-fill" style="width:66%;background:linear-gradient(90deg,var(--orange),var(--red));">Sharpe 4.64 | 8,613%</span></div>
+      <div class="lev-optimal">Sharpe最適: 3x (7.07) | リターン最適: 20x (8,613%) | 推奨: 3-5x（リスク調整後最良）</div>
+    </div>
+
+    <div class="lev-panel" style="margin-top:8px;">
+      <div class="lev-title">Conservative: レバレッジ別パフォーマンス</div>
+      <div class="lev-bar"><span class="lev-label">3x</span><span class="lev-fill" style="width:100%;background:linear-gradient(90deg,var(--green),var(--cyan));">Sharpe 6.73 | 878% | MDD -5.9%</span></div>
+      <div class="lev-bar"><span class="lev-label">5x</span><span class="lev-fill" style="width:94%;background:linear-gradient(90deg,var(--green),var(--accent));">Sharpe 6.32 | 1,476% | MDD -6.7%</span></div>
+      <div class="lev-bar"><span class="lev-label">7x</span><span class="lev-fill" style="width:89%;background:linear-gradient(90deg,var(--accent),var(--accent2));">Sharpe 6.02 | 2,074% | MDD -7.2%</span></div>
+      <div class="lev-bar"><span class="lev-label">10x</span><span class="lev-fill" style="width:84%;background:linear-gradient(90deg,var(--accent2),var(--pink));">Sharpe 5.64 | 2,970% | MDD -7.6%</span></div>
+      <div class="lev-bar"><span class="lev-label">15x</span><span class="lev-fill" style="width:77%;background:linear-gradient(90deg,var(--pink),var(--orange));">Sharpe 5.19 | 4,465% | MDD -7.9%</span></div>
+      <div class="lev-bar"><span class="lev-label">20x</span><span class="lev-fill" style="width:72%;background:linear-gradient(90deg,var(--orange),var(--red));">Sharpe 4.86 | 5,959% | MDD -8.1%</span></div>
+      <div class="lev-optimal">Sharpe最適: 3x (6.73) | MDD最小: 3x (-5.9%) | WR全レバ: 88.7% (安定)</div>
+    </div>
+
+    <div class="lev-panel" style="margin-top:8px;">
+      <div class="lev-title">Aggressive: レバレッジ別パフォーマンス</div>
+      <div class="lev-bar"><span class="lev-label">3x</span><span class="lev-fill" style="width:100%;background:linear-gradient(90deg,var(--green),var(--cyan));">Sharpe 5.71 | 2,027% | MDD -3.5%</span></div>
+      <div class="lev-bar"><span class="lev-label">5x</span><span class="lev-fill" style="width:89%;background:linear-gradient(90deg,var(--green),var(--accent));">Sharpe 5.10 | 3,390% | MDD -3.7%</span></div>
+      <div class="lev-bar"><span class="lev-label">7x</span><span class="lev-fill" style="width:82%;background:linear-gradient(90deg,var(--accent),var(--accent2));">Sharpe 4.69 | 4,753% | MDD -4.3%</span></div>
+      <div class="lev-bar"><span class="lev-label">10x</span><span class="lev-fill" style="width:74%;background:linear-gradient(90deg,var(--accent2),var(--pink));">Sharpe 4.25 | 6,798% | MDD -6.1%</span></div>
+      <div class="lev-bar"><span class="lev-label">15x</span><span class="lev-fill" style="width:65%;background:linear-gradient(90deg,var(--pink),var(--orange));">Sharpe 3.74 | 10,205% | MDD -9.0%</span></div>
+      <div class="lev-bar"><span class="lev-label">20x</span><span class="lev-fill" style="width:59%;background:linear-gradient(90deg,var(--orange),var(--red));">Sharpe 3.37 | 13,611% | MDD -11.9%</span></div>
+      <div class="lev-optimal">最高リターン: 20x (13,611% = $137M) | ただし MDD -11.9%。推奨: 5-7x</div>
+    </div>
+
+    <!-- 1-year comparison (bt_comparison) -->
+    <div class="bt-panel" style="margin-top:8px;">
+      <div class="bt-title">直近1年バックテスト詳細 (2025-03-13 ~ 2026-03-13)</div>
+      <table class="bt-table">
+        <thead><tr><th>Bot</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>Avg PnL%</th><th>Best Trade</th><th>Worst Trade</th><th>Final Cap</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">levburn_sec_aggressive</td><td>236</td><td>68.2</td><td>4.91</td><td class="good">2,643%</td><td>-11.6%</td><td>6.64</td><td>22.63%</td><td class="good">+41.7%</td><td class="bad">-18.3%</td><td>$27.4M</td></tr>
+          <tr><td style="color:var(--text)">levburn_sec</td><td>236</td><td class="good">82.6</td><td>8.54</td><td class="good">1,080%</td><td>-4.3%</td><td class="best">10.49</td><td>9.33%</td><td>+12.8%</td><td>-7.2%</td><td>$11.8M</td></tr>
+          <tr><td style="color:var(--text)">levburn_sec_conservative</td><td>236</td><td class="best">90.3</td><td class="best">14.0</td><td class="good">520%</td><td class="good">-2.2%</td><td class="best">13.36</td><td>4.57%</td><td>+5.5%</td><td>-3.6%</td><td>$6.2M</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ====== LEVBURN 30min ====== -->
+<div class="section" id="levburn">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(239,68,68,0.15);">&#x1F4A5;</div>
+    <h2>Bot-LevBurn（レバ焼き 30分足）</h2>
+  </div>
+  <div class="bot-card">
+    <div class="bot-header">
+      <div><div class="bot-name">Bot-LevBurn</div><div class="bot-name-jp">30分間隔FR/OI分析 | L23 | スコア60以上でシグナル</div></div>
+      <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+    </div>
+    <div class="bot-desc">30分間隔でFR/OI/先物現物比率を分析。LevBurn-Secの先行版。FR &gt; 0 → SHORT, FR &lt; 0 → LONG。</div>
+    <div class="params">
+      <div class="param"><span class="k">Default Lev</span><span class="v">5x</span></div>
+      <div class="param"><span class="k">Position</span><span class="v">3%</span></div>
+      <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">5-8%</span></div>
+      <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">2.5-3%</span></div>
+      <div class="param"><span class="k">Interval</span><span class="v">30min</span></div>
+      <div class="param"><span class="k">Max Hold</span><span class="v">48h</span></div>
+    </div>
+    <div class="bt-panel">
+      <div class="bt-title">Mega BT レバレッジ比較</div>
+      <table class="bt-table">
+        <thead><tr><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+        <tbody>
+          <tr><td>3x</td><td>919</td><td>40.5</td><td>1.62</td><td>1,612%</td><td class="warn">-17.3%</td><td>2.00</td></tr>
+          <tr><td>5x</td><td>919</td><td>40.5</td><td>1.63</td><td>2,697%</td><td class="warn">-27.2%</td><td>1.80</td></tr>
+          <tr><td>7x</td><td>919</td><td>40.5</td><td>1.63</td><td>3,773%</td><td class="bad">-36.1%</td><td>1.64</td></tr>
+          <tr><td>10x</td><td>919</td><td>40.5</td><td>1.62</td><td>5,374%</td><td class="bad">-47.5%</td><td>1.46</td></tr>
+          <tr><td>15x</td><td>919</td><td>40.5</td><td>1.62</td><td>8,003%</td><td class="bad">-62.5%</td><td>1.29</td></tr>
+          <tr><td>20x</td><td>919</td><td>40.5</td><td>1.62</td><td>10,574%</td><td class="bad">-73.6%</td><td>1.21</td></tr>
+        </tbody>
+      </table>
+      <div class="lev-optimal" style="margin-top:8px;">WR 40.5%とLevBurn-Secの81.7%に大差。MDDも大きく、LevBurn-Secへの進化が正解。推奨: 無効化のまま</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MEAN REVERSION ====== -->
+<div class="section" id="meanrevert">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(16,185,129,0.15);">&#x1F4C9;</div>
+    <h2>Mean Reversion Family（平均回帰ファミリー）</h2>
+    <span class="count">6 variants</span>
+  </div>
+
+  <div class="bot-card">
+    <div class="bot-header">
+      <div><div class="bot-name">Mean Reversion 全バリアント</div><div class="bot-name-jp">Fear 50-80 欲張り局面でMA20乖離ショート | L09</div></div>
+      <div><span class="badge badge-active">2 Active</span></div>
+    </div>
+    <div class="bot-desc">MA20から大幅に乖離（15%+）した過熱銘柄をショート。Fear &amp; Greedが高い（欲張り）局面で発動。6バリアントで閾値・レバ・方向を変化。</div>
+
+    <div class="two-col">
+      <div class="conditions">
+        <div class="cond-title">共通エントリー条件</div>
+        <ul>
+          <li>Fear: 50〜80（欲張り局面）</li>
+          <li>MA20乖離 ≥ 15%（Standard）</li>
+          <li>Direction: <span class="dir-short">SHORT</span></li>
+        </ul>
+      </div>
+      <div class="conditions">
+        <div class="cond-title">バリアント差異</div>
+        <ul>
+          <li>Tight: MA20乖離 ≥ 22.5%, RSI &gt; 70必須</li>
+          <li>Hybrid: ロング側追加（MA20 ≤ -15%）</li>
+          <li>Adaptive: Fearに応じてLev 1.5-3.5x可変</li>
+          <li>Tuned: Fear 45-75, MA20 ≥ 12%（緩和）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="logic-tags">
+      <span class="logic-tag">L09 Volatility Extremes</span>
+      <span class="logic-tag">MA20 Deviation</span>
+      <span class="logic-tag">RSI</span>
+      <span class="logic-tag">Volume</span>
+    </div>
+
+    <!-- Extended backtest: 2.8 years -->
+    <div class="bt-panel">
+      <div class="bt-title">Extended BT (2023-07 ~ 2026-03, 2.8年) — バリアント × レバレッジ</div>
+      <table class="bt-table">
+        <thead><tr><th>Variant</th><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+        <tbody>
+          <tr class="highlight-row"><td style="color:var(--text)">meanrevert_hybrid</td><td>5x</td><td>483</td><td>56.7</td><td>2.38</td><td class="good">2,091%</td><td>-8.8%</td><td class="best">4.66</td></tr>
+          <tr class="highlight-row"><td style="color:var(--text)">meanrevert</td><td>5x</td><td>464</td><td>56.2</td><td>2.32</td><td class="good">1,950%</td><td>-8.8%</td><td>4.55</td></tr>
+          <tr><td style="color:var(--text)">meanrevert_adaptive</td><td>any</td><td>464</td><td>56.2</td><td>2.30</td><td>1,069%</td><td>-5.4%</td><td class="best">4.87</td></tr>
+          <tr><td>meanrevert_tight</td><td>5x</td><td>257</td><td>54.5</td><td class="good">2.93</td><td>1,163%</td><td>-8.7%</td><td>4.33</td></tr>
+          <tr><td>meanrevert_tuned</td><td>5x</td><td>495</td><td>45.5</td><td>1.99</td><td>1,763%</td><td class="warn">-20.4%</td><td>3.74</td></tr>
+          <tr><td>meanrevert_newlist</td><td>any</td><td>1</td><td>100</td><td>999</td><td>1.2%</td><td>0%</td><td>0.60</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mega BT leverage -->
+    <div class="lev-panel">
+      <div class="lev-title">meanrevert (Standard) レバレッジ最適化 — Mega BT</div>
+      <div class="lev-bar"><span class="lev-label">1x</span><span class="lev-fill" style="width:100%;background:var(--green);">Sharpe 4.71 | 623% | MDD -2.9%</span></div>
+      <div class="lev-bar"><span class="lev-label">2x</span><span class="lev-fill" style="width:91%;background:var(--accent);">Sharpe 4.28 | 1,417% | MDD -5.8%</span></div>
+      <div class="lev-bar"><span class="lev-label">3x</span><span class="lev-fill" style="width:86%;background:var(--accent2);">Sharpe 4.06 | 2,213% | MDD -8.6%</span></div>
+      <div class="lev-bar"><span class="lev-label">5x</span><span class="lev-fill" style="width:77%;background:var(--pink);">Sharpe 3.63 | 3,803% | MDD -14.0%</span></div>
+      <div class="lev-bar"><span class="lev-label">7x</span><span class="lev-fill" style="width:70%;background:var(--orange);">Sharpe 3.30 | 5,391% | MDD -19.3%</span></div>
+      <div class="lev-bar"><span class="lev-label">10x</span><span class="lev-fill" style="width:63%;background:var(--red);">Sharpe 2.98 | 7,774% | MDD -26.7%</span></div>
+      <div class="lev-optimal">Sharpe最適: 1x (4.71) | 実用推奨: 2-3x（リターン/リスクバランス） | Adaptive(可変Lev)が MDD最小(-5.4%)</div>
+    </div>
+
+    <!-- 1-year comparison -->
+    <div class="bt-panel" style="margin-top:8px;">
+      <div class="bt-title">直近1年 (2025-03 ~ 2026-03)</div>
+      <table class="bt-table">
+        <thead><tr><th>Bot</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>Best/Worst</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">meanrevert</td><td>145</td><td>52.4</td><td>2.09</td><td>90.3%</td><td>-4.8%</td><td>4.01</td><td>+11.6% / -6.4%</td></tr>
+          <tr><td style="color:var(--text)">meanrevert_tight</td><td>95</td><td>49.5</td><td>2.56</td><td>60.5%</td><td>-4.1%</td><td>3.82</td><td>+11.6% / -4.6%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SCALP ====== -->
+<div class="section" id="scalp">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(236,72,153,0.15);">&#x26A1;</div>
+    <h2>Bot-Scalp（スキャルピング）</h2>
+  </div>
+  <div class="bot-card">
+    <div class="bot-header">
+      <div><div class="bot-name">Bot-Scalp</div><div class="bot-name-jp">BB±2σ + RSI極値 | 24/7稼働 | Fear制限なし</div></div>
+      <div><span class="badge badge-active">Active</span> <span class="badge badge-extreme">10x Lev</span></div>
+    </div>
+    <div class="bot-desc">RSI &lt; 30 + BB下限 → LONG / RSI &gt; 70 + BB上限 → SHORT。Fear制限なし、常時稼働の高頻度ボット。</div>
+    <div class="params">
+      <div class="param"><span class="k">Leverage</span><span class="v" style="color:var(--red)">10x</span></div>
+      <div class="param"><span class="k">Position</span><span class="v">5%</span></div>
+      <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">8%</span></div>
+      <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+    </div>
+    <div class="scoring">score = |deviation| * (rsi_extreme - rsi + 1)</div>
+    <div class="logic-tags"><span class="logic-tag">Bollinger Bands</span><span class="logic-tag">RSI</span><span class="logic-tag">L09 Volatility</span></div>
+    <div class="bt-panel">
+      <div class="bt-title">Mega BT レバレッジ比較</div>
+      <table class="bt-table">
+        <thead><tr><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+        <tbody>
+          <tr><td>1x</td><td>1,211</td><td>41.9</td><td>1.70</td><td>118%</td><td>-4.1%</td><td class="best">3.35</td></tr>
+          <tr><td>2x</td><td>1,211</td><td>41.9</td><td>1.70</td><td>371%</td><td>-8.0%</td><td>3.35</td></tr>
+          <tr><td>3x</td><td>1,211</td><td>41.9</td><td>1.69</td><td>907%</td><td>-11.8%</td><td>3.35</td></tr>
+          <tr><td>5x</td><td>1,211</td><td>41.9</td><td>1.70</td><td>2,460%</td><td>-18.9%</td><td>3.25</td></tr>
+          <tr><td>7x</td><td>1,211</td><td>41.9</td><td>1.68</td><td>4,004%</td><td class="warn">-25.6%</td><td>3.01</td></tr>
+          <tr><td>10x</td><td>1,211</td><td>41.9</td><td>1.66</td><td>6,360%</td><td class="warn">-24.4%</td><td>2.86</td></tr>
+        </tbody>
+      </table>
+      <div class="lev-optimal" style="margin-top:8px;">Sharpe安定(3.35)だがWR 41.9%は低め。リターンはLevで線形スケール。推奨: 3-5x</div>
+    </div>
+    <div class="bt-panel" style="margin-top:8px;">
+      <div class="bt-title">直近1年</div>
+      <table class="bt-table">
+        <thead><tr><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>Best/Worst</th></tr></thead>
+        <tbody><tr><td>300</td><td>43.7</td><td>1.76</td><td class="good">727%</td><td class="warn">-16.5%</td><td>4.86</td><td>+77.8% / -32.2%</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SURGE ====== -->
+<div class="section" id="surge">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(59,130,246,0.15);">&#x1F30A;</div>
+    <h2>Bot-Surge（日常循環）</h2>
+  </div>
+  <div class="bot-card">
+    <div class="bot-header">
+      <div><div class="bot-name">Bot-Surge</div><div class="bot-name-jp">セクターカスケード追従 | Fear 25-45 | L03,L04,L21</div></div>
+      <div><span class="badge badge-active">Active</span> <span class="badge badge-tier1">Tier 1</span></div>
+    </div>
+    <div class="bot-desc">BTC下落時にセクターリーダーから遅れて追従する銘柄をロング。SOL→JUP/JTO、TAO→FIL/AR等のカスケード。</div>
+    <div class="params">
+      <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+      <div class="param"><span class="k">Position</span><span class="v">20%</span></div>
+      <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">5%</span></div>
+      <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">2%</span></div>
+    </div>
+    <div class="logic-tags"><span class="logic-tag">L03 Inflow</span><span class="logic-tag">L04 Leading</span><span class="logic-tag">L21 Sector Rotation</span></div>
+
+    <div class="two-col">
+      <div class="bt-panel">
+        <div class="bt-title">Extended BT (2.8年)</div>
+        <table class="bt-table">
+          <thead><tr><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+          <tbody>
+            <tr><td>1x</td><td>96</td><td>57.3</td><td>2.91</td><td>40%</td><td>-2.6%</td><td class="best">2.71</td></tr>
+            <tr><td>3x</td><td>96</td><td>57.3</td><td>2.99</td><td>169%</td><td>-7.6%</td><td>2.71</td></tr>
+            <tr><td>5x</td><td>96</td><td>57.3</td><td>3.03</td><td>333%</td><td>-12.5%</td><td>2.66</td></tr>
+            <tr><td>10x</td><td>96</td><td>57.3</td><td>2.95</td><td>740%</td><td class="warn">-23.1%</td><td>2.40</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="bt-panel">
+        <div class="bt-title">Mega BT (2年)</div>
+        <table class="bt-table">
+          <thead><tr><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+          <tbody>
+            <tr><td>1x</td><td>270</td><td>48.1</td><td>2.07</td><td>85%</td><td>-4.4%</td><td>2.05</td></tr>
+            <tr><td>3x</td><td>270</td><td>48.1</td><td>2.06</td><td>378%</td><td>-12.7%</td><td>1.93</td></tr>
+            <tr><td>5x</td><td>270</td><td>48.1</td><td>2.00</td><td>682%</td><td class="warn">-20.3%</td><td>1.81</td></tr>
+            <tr><td>10x</td><td>270</td><td>48.1</td><td>1.98</td><td>1,446%</td><td class="warn">-28.1%</td><td>1.68</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="lev-optimal">直近1年: 47 trades, WR 63.8%, PF 3.69, Sharpe 3.83, +51.7%。Extended vs Megaで WR差(57.3→48.1%) = 市場環境依存が大きい</div>
+  </div>
+</div>
+
+<!-- ====== WEAKSHORT ====== -->
+<div class="section" id="weakshort">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(239,68,68,0.15);">&#x1F4C9;</div>
+    <h2>Bot-WeakShort（弱者空売り）</h2>
+  </div>
+  <div class="bot-card">
+    <div class="bot-header">
+      <div><div class="bot-name">Bot-WeakShort</div><div class="bot-name-jp">Fear 50-75 弱いアルトをショート</div></div>
+      <div><span class="badge badge-active">Active</span></div>
+    </div>
+    <div class="bt-panel">
+      <div class="bt-title">Mega BT</div>
+      <table class="bt-table">
+        <thead><tr><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+        <tbody>
+          <tr><td>1x</td><td>246</td><td>55.7</td><td>2.15</td><td>69%</td><td>-2.7%</td><td class="best">2.23</td></tr>
+          <tr><td>3x</td><td>246</td><td>55.7</td><td>2.09</td><td>349%</td><td>-7.9%</td><td>2.23</td></tr>
+          <tr><td>5x</td><td>246</td><td>55.7</td><td>2.11</td><td>698%</td><td>-8.4%</td><td>2.20</td></tr>
+          <tr><td>10x</td><td>246</td><td>55.7</td><td>2.13</td><td>1,577%</td><td class="warn">-15.6%</td><td>2.09</td></tr>
+        </tbody>
+      </table>
+      <div class="lev-optimal" style="margin-top:8px;">直近1年: 34 trades, WR 52.9%, Sharpe 1.86, +13.3%。安定だがシグナル少なめ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== HIGH FREQUENCY ====== -->
+<div class="section" id="hf">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(6,182,212,0.15);">&#x26A1;</div>
+    <h2>High-Frequency Bots（1時間足）</h2>
+    <span class="count">5 bots | 2025-01 ~ 2026-03</span>
+  </div>
+  <div class="note">HFボットは1h足ベース。hf_frarb以外は全て赤字。hf_momentumは破産レベル。</div>
+  <div class="bot-card">
+    <div style="overflow-x:auto;">
+    <table class="summary-table">
+      <thead><tr><th>Bot</th><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>Avg Hold</th><th>Trades/Day</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr class="highlight-row">
+          <td style="color:var(--green)">hf_frarb</td><td>3x</td><td>3,299</td><td>50.4</td><td>1.07</td><td class="good">12.8%</td><td>-6.8%</td><td>1.48</td><td>0.6h</td><td>7.6</td><td><span class="badge badge-active">Active</span></td>
+        </tr>
+        <tr class="highlight-row">
+          <td style="color:var(--green)">hf_frarb</td><td>10x</td><td>3,299</td><td>50.4</td><td>1.08</td><td class="good">46.9%</td><td class="warn">-21.5%</td><td>1.50</td><td>0.6h</td><td>7.6</td><td><span class="badge badge-active">Active</span></td>
+        </tr>
+        <tr>
+          <td>hf_meanrevert</td><td>10x</td><td>3,140</td><td>43.4</td><td>1.09</td><td>35.6%</td><td class="bad">-54.8%</td><td>0.99</td><td>1.4h</td><td>7.2</td><td><span class="badge badge-active">Active</span></td>
+        </tr>
+        <tr>
+          <td class="bad">hf_momentum</td><td>3x</td><td>6,835</td><td>37.7</td><td class="bad">0.79</td><td class="bad">-57.4%</td><td class="bad">-62.2%</td><td class="bad">-7.10</td><td>2.1h</td><td>15.7</td><td><span class="badge badge-active">Active</span></td>
+        </tr>
+        <tr>
+          <td class="bad">hf_spread</td><td>10x</td><td>919</td><td>40.7</td><td class="bad">0.71</td><td class="bad">-54.8%</td><td class="bad">-56.2%</td><td class="bad">-4.47</td><td>3.7h</td><td>2.1</td><td><span class="badge badge-active">Active</span></td>
+        </tr>
+        <tr>
+          <td class="bad">hf_break</td><td>10x</td><td>2,842</td><td>34.4</td><td class="bad">0.76</td><td class="bad">-71.3%</td><td class="bad">-73.3%</td><td class="bad">-4.78</td><td>1.8h</td><td>6.5</td><td><span class="badge badge-active">Active</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="lev-optimal" style="margin-top:8px;border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.08);color:var(--red);">
+      hf_momentum / hf_spread / hf_break は全レバレッジで赤字 → 無効化推奨。hf_frarb のみプラス (Sharpe 1.5)。hf_meanrevert は MDD大きすぎ。
+    </div>
+  </div>
+</div>
+
+<!-- ====== REGIME AWARE ====== -->
+<div class="section" id="regime">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(139,92,246,0.15);">&#x1F30A;</div>
+    <h2>Regime-Aware & Other Bots</h2>
+    <span class="count">Mega BT全データ</span>
+  </div>
+  <div class="bot-card">
+    <div style="overflow-x:auto;">
+    <table class="summary-table">
+      <thead><tr><th>Bot</th><th>Best Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--text)">alpha</td><td>1x</td><td>9</td><td>44.4</td><td>1.91</td><td>4.5%</td><td>-3.2%</td><td>0.34</td><td class="warn">シグナル少</td></tr>
+        <tr><td style="color:var(--text)">sniper</td><td>1x</td><td>28</td><td>35.7</td><td>1.49</td><td>2.2%</td><td>-2.1%</td><td>0.35</td><td class="warn">シグナル少</td></tr>
+        <tr><td style="color:var(--text)">event</td><td>1x</td><td>39</td><td>28.2</td><td class="bad">0.71</td><td class="bad">-3.3%</td><td>-5.9%</td><td class="bad">-0.37</td><td class="bad">赤字</td></tr>
+        <tr><td>gaptrap</td><td>1x</td><td>8</td><td class="good">75.0</td><td class="good">4.37</td><td>3.4%</td><td>-0.5%</td><td>0.70</td><td class="warn">シグナル少</td></tr>
+        <tr><td>fearflat</td><td>1x</td><td>22</td><td>50.0</td><td>2.10</td><td>7.5%</td><td>-4.6%</td><td>0.64</td><td class="warn">シグナル少</td></tr>
+        <tr><td>rebound</td><td>1x</td><td>94</td><td>38.3</td><td>1.36</td><td>27.2%</td><td>-7.4%</td><td>0.58</td><td>可</td></tr>
+        <tr><td>breakout</td><td>1x</td><td>41</td><td>41.5</td><td>1.53</td><td>11.2%</td><td>-6.4%</td><td>0.54</td><td>可</td></tr>
+        <tr><td>trend</td><td>10x</td><td>285</td><td>33.0</td><td>1.07</td><td>130%</td><td class="bad">-66.9%</td><td>0.53</td><td class="warn">MDD大</td></tr>
+        <tr><td class="bad">momentum</td><td>1x</td><td>711</td><td>32.9</td><td>1.05</td><td>16.8%</td><td class="warn">-27.7%</td><td>0.27</td><td class="bad">不安定</td></tr>
+        <tr><td class="bad">cascade</td><td>1x</td><td>348</td><td>34.5</td><td>1.03</td><td>5.9%</td><td class="warn">-15.0%</td><td>0.15</td><td class="bad">ほぼ0</td></tr>
+        <tr><td class="bad">shortsqueeze</td><td>1x</td><td>58</td><td>32.8</td><td>1.09</td><td>3.6%</td><td>-10.3%</td><td>0.15</td><td class="bad">ほぼ0</td></tr>
+        <tr><td class="bad">sectorlead</td><td>1x</td><td>98</td><td>30.6</td><td class="bad">0.94</td><td class="bad">-4.2%</td><td class="warn">-20.8%</td><td class="bad">-0.08</td><td class="bad">赤字</td></tr>
+        <tr><td class="bad">domshift</td><td>1x</td><td>63</td><td>31.7</td><td class="bad">0.92</td><td class="bad">-3.3%</td><td class="warn">-15.1%</td><td class="bad">-0.09</td><td class="bad">赤字</td></tr>
+        <tr><td class="bad">sectorsync</td><td>1x</td><td>143</td><td>29.4</td><td class="bad">0.95</td><td class="bad">-4.4%</td><td class="warn">-15.7%</td><td class="bad">-0.09</td><td class="bad">赤字</td></tr>
+        <tr><td class="bad">feardip</td><td>1x</td><td>6</td><td>16.7</td><td class="bad">0.44</td><td class="bad">-3.6%</td><td>-5.2%</td><td class="bad">-0.32</td><td class="bad">赤字</td></tr>
+        <tr><td class="bad">stability</td><td>1x</td><td>368</td><td>32.3</td><td class="bad">0.89</td><td class="bad">-9.5%</td><td class="warn">-21.0%</td><td class="bad">-0.34</td><td class="bad">赤字</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Momentum card -->
+  <div class="bot-card">
+    <div class="bot-header">
+      <div>
+        <div class="bot-name">Bot-Momentum</div>
+        <div class="bot-name-jp">モメンタム — トレンドフォロー | Fear 20-60 | バックテスト済・実装見送り</div>
+      </div>
+      <div><span class="badge badge-inactive">BT済・見送り</span></div>
+    </div>
+    <div class="bot-desc">Fear 20-60の中間レジームでトレンドに乗るモメンタム戦略。WR 32.9%と低く、5x以上で赤字転落。10xでは-90.6%（ほぼ破産）。成績不良により実装見送り。</div>
+
+    <div class="two-col">
+      <div class="conditions">
+        <div class="cond-title">Entry Logic（BT簡易ロジック）</div>
+        <ul>
+          <li>Fear: 20〜60（中間レジーム）</li>
+          <li>トレンドフォロー型</li>
+          <li>Direction: <span class="dir-long">LONG</span> / <span class="dir-short">SHORT</span></li>
+        </ul>
+      </div>
+      <div class="conditions">
+        <div class="cond-title">見送り理由</div>
+        <ul>
+          <li>WR 32.9% — 全ボット中ワースト級</li>
+          <li>5x以上で赤字転落（PF &lt; 1.0）</li>
+          <li>10xで -90.6% = 事実上の破産</li>
+          <li>MDD -98.7%（10x時）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bt-panel">
+      <div class="bt-title">Mega BT レバレッジ比較 (2024-01 ~ 2026-03)</div>
+      <table class="bt-table">
+        <thead><tr><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+        <tbody>
+          <tr><td>1x</td><td>711</td><td>32.9</td><td>1.05</td><td>16.8%</td><td class="warn">-27.7%</td><td>0.27</td></tr>
+          <tr><td>2x</td><td>711</td><td>32.9</td><td>1.03</td><td>24.4%</td><td class="bad">-49.0%</td><td>0.27</td></tr>
+          <tr><td>3x</td><td>711</td><td>32.9</td><td>1.02</td><td>21.1%</td><td class="bad">-64.7%</td><td>0.27</td></tr>
+          <tr><td>5x</td><td>711</td><td>32.9</td><td class="bad">0.99</td><td class="bad">-11.5%</td><td class="bad">-84.2%</td><td>0.28</td></tr>
+          <tr><td>7x</td><td>711</td><td>32.9</td><td class="bad">0.97</td><td class="bad">-53.8%</td><td class="bad">-93.5%</td><td>0.29</td></tr>
+          <tr><td>10x</td><td>711</td><td>32.9</td><td class="bad">0.93</td><td class="bad">-90.6%</td><td class="bad">-98.7%</td><td>0.30</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="lev-panel">
+      <div class="lev-title">レバレッジ別パフォーマンス</div>
+      <div class="lev-bar"><span class="lev-label">1x</span><span class="lev-fill" style="width:60%;background:var(--orange);">+16.8% | MDD -27.7%</span></div>
+      <div class="lev-bar"><span class="lev-label">2x</span><span class="lev-fill" style="width:50%;background:var(--orange);">+24.4% | MDD -49.0%</span></div>
+      <div class="lev-bar"><span class="lev-label">3x</span><span class="lev-fill" style="width:45%;background:var(--orange);">+21.1% | MDD -64.7%</span></div>
+      <div class="lev-bar"><span class="lev-label">5x</span><span class="lev-fill" style="width:30%;background:var(--red);">-11.5% | MDD -84.2%</span></div>
+      <div class="lev-bar"><span class="lev-label">7x</span><span class="lev-fill" style="width:20%;background:var(--red);">-53.8% | MDD -93.5%</span></div>
+      <div class="lev-bar"><span class="lev-label">10x</span><span class="lev-fill" style="width:10%;background:var(--red);">-90.6% | MDD -98.7%</span></div>
+      <div class="lev-optimal" style="border-color:rgba(239,68,68,0.5);background:rgba(239,68,68,0.08);color:var(--red);">全レバレッジで Sharpe &lt; 0.3。5x以上で赤字。実装価値なし。</div>
+    </div>
+  </div>
+
+  <!-- Rebound card -->
+  <div class="bot-card">
+    <div class="bot-header">
+      <div>
+        <div class="bot-name">Bot-Rebound</div>
+        <div class="bot-name-jp">リバウンド — BTC回復連動 | Fear &lt; 25 | バックテスト済・実装見送り</div>
+      </div>
+      <div><span class="badge badge-inactive">BT済・見送り</span></div>
+    </div>
+    <div class="bot-desc">Fear &lt; 25の恐怖局面でBTC回復に連動するリバウンドプレイ。WR 38.3%、1xでは微プラスだが高レバでMDD急拡大。エッジが弱く実装見送り。</div>
+
+    <div class="two-col">
+      <div class="conditions">
+        <div class="cond-title">Entry Logic（BT簡易ロジック）</div>
+        <ul>
+          <li>Fear &lt; 25（恐怖局面）</li>
+          <li>BTC回復フェーズで連動する銘柄</li>
+          <li>Direction: <span class="dir-long">LONG</span></li>
+        </ul>
+      </div>
+      <div class="conditions">
+        <div class="cond-title">見送り理由</div>
+        <ul>
+          <li>WR 38.3% — 勝率が低い</li>
+          <li>Sharpe 0.58 — エッジが弱い</li>
+          <li>高レバでMDD急増（10xで-61.4%）</li>
+          <li>PFもレバ増でドリフト（1.36→1.17）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bt-panel">
+      <div class="bt-title">Mega BT レバレッジ比較 (2024-01 ~ 2026-03)</div>
+      <table class="bt-table">
+        <thead><tr><th>Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+        <tbody>
+          <tr><td>1x</td><td>94</td><td>38.3</td><td>1.36</td><td>27.2%</td><td>-7.4%</td><td>0.58</td></tr>
+          <tr><td>2x</td><td>94</td><td>38.3</td><td>1.34</td><td>56.3%</td><td class="warn">-14.4%</td><td>0.58</td></tr>
+          <tr><td>3x</td><td>94</td><td>38.3</td><td>1.31</td><td>85.4%</td><td class="warn">-21.2%</td><td>0.57</td></tr>
+          <tr><td>5x</td><td>94</td><td>38.3</td><td>1.27</td><td>139.6%</td><td class="bad">-34.3%</td><td>0.57</td></tr>
+          <tr><td>7x</td><td>94</td><td>38.3</td><td>1.23</td><td>180.6%</td><td class="bad">-46.1%</td><td>0.58</td></tr>
+          <tr><td>10x</td><td>94</td><td>38.3</td><td>1.17</td><td>192.0%</td><td class="bad">-61.4%</td><td>0.58</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="lev-panel">
+      <div class="lev-title">レバレッジ別パフォーマンス</div>
+      <div class="lev-bar"><span class="lev-label">1x</span><span class="lev-fill" style="width:50%;background:var(--orange);">+27.2% | MDD -7.4%</span></div>
+      <div class="lev-bar"><span class="lev-label">2x</span><span class="lev-fill" style="width:55%;background:var(--orange);">+56.3% | MDD -14.4%</span></div>
+      <div class="lev-bar"><span class="lev-label">3x</span><span class="lev-fill" style="width:58%;background:var(--orange);">+85.4% | MDD -21.2%</span></div>
+      <div class="lev-bar"><span class="lev-label">5x</span><span class="lev-fill" style="width:62%;background:var(--orange);">+139.6% | MDD -34.3%</span></div>
+      <div class="lev-bar"><span class="lev-label">7x</span><span class="lev-fill" style="width:64%;background:var(--orange);">+180.6% | MDD -46.1%</span></div>
+      <div class="lev-bar"><span class="lev-label">10x</span><span class="lev-fill" style="width:65%;background:var(--red);">+192.0% | MDD -61.4%</span></div>
+      <div class="lev-optimal" style="border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.08);color:var(--orange);">プラスだがSharpe 0.58は弱すぎ。リターンは10xでも192%止まり（同期間のlevburn_sec 3xが1,276%）。コスパ悪。</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====== VOLATILITY ====== -->
+<div class="section" id="volatility">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(245,158,11,0.15);">&#x1F4C8;</div>
+    <h2>Volatility & ICO Bots</h2>
+  </div>
+  <div class="bot-card">
+    <div style="overflow-x:auto;">
+    <table class="summary-table">
+      <thead><tr><th>Bot</th><th>Best Lev</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--text)">volexhaust</td><td>1x</td><td>290</td><td>41.4</td><td>1.31</td><td>47%</td><td>-13.4%</td><td>0.81</td></tr>
+        <tr><td style="color:var(--text)">ico_surge</td><td>1x</td><td>101</td><td>45.5</td><td>1.50</td><td>12%</td><td>-2.6%</td><td>0.78</td></tr>
+        <tr><td style="color:var(--text)">ico_rebound</td><td>1x</td><td>133</td><td>41.4</td><td>1.34</td><td>21%</td><td>-6.4%</td><td>0.62</td></tr>
+        <tr><td style="color:var(--text)">ico_meanrevert</td><td>1x</td><td>87</td><td>39.1</td><td>1.14</td><td>5.7%</td><td>-10.0%</td><td>0.26</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="lev-optimal" style="margin-top:8px;">全て Sharpe &lt; 1.0。プラスだがエッジが弱い。ICO系は市場環境（新規上場ラッシュ）に強く依存。</div>
+  </div>
+</div>
+
+<!-- ====== MEGA FULL ====== -->
+<div class="section" id="mega-full">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(59,130,246,0.15);">&#x1F4CB;</div>
+    <h2>Mega Backtest 全248コンフィグ — ボット別ベストレバレッジ</h2>
+  </div>
+  <div style="overflow-x:auto;">
+  <table class="summary-table">
+    <thead><tr><th>#</th><th>Bot Type</th><th>Best Lev (Sharpe)</th><th>Trades</th><th>WR%</th><th>PF</th><th>Return%</th><th>MDD%</th><th>Sharpe</th><th>Category</th></tr></thead>
+    <tbody>
+      <tr class="highlight-row"><td>1</td><td style="color:var(--gold)">levburn_sec</td><td class="best">3x</td><td>945</td><td>81.7</td><td>7.88</td><td>1,276%</td><td>-4.4%</td><td class="best">7.07</td><td>LevBurn</td></tr>
+      <tr class="highlight-row"><td>2</td><td style="color:var(--gold)">levburn_sec_conservative</td><td class="best">3x</td><td>945</td><td>88.7</td><td>11.64</td><td>878%</td><td>-5.9%</td><td class="best">6.73</td><td>LevBurn</td></tr>
+      <tr class="highlight-row"><td>3</td><td style="color:var(--gold)">levburn_sec_fr_extreme</td><td class="best">3x</td><td>944</td><td>76.2</td><td>5.55</td><td>1,556%</td><td>-3.8%</td><td class="best">6.51</td><td>LevBurn</td></tr>
+      <tr class="highlight-row"><td>4</td><td style="color:var(--gold)">levburn_sec_aggressive</td><td class="best">3x</td><td>944</td><td>66.6</td><td>4.54</td><td>2,027%</td><td>-3.5%</td><td>5.71</td><td>LevBurn</td></tr>
+      <tr><td>5</td><td>meanrevert_hybrid</td><td>1x</td><td>822</td><td>58.0</td><td>2.46</td><td>649%</td><td>-2.9%</td><td>4.74</td><td>MeanRevert</td></tr>
+      <tr><td>6</td><td>meanrevert</td><td>1x</td><td>790</td><td>58.2</td><td>2.46</td><td>623%</td><td>-2.9%</td><td>4.71</td><td>MeanRevert</td></tr>
+      <tr><td>7</td><td>meanrevert_tight</td><td>1x</td><td>419</td><td>56.6</td><td>3.16</td><td>301%</td><td>-2.4%</td><td>4.11</td><td>MeanRevert</td></tr>
+      <tr><td>8</td><td>meanrevert_tuned</td><td>1x</td><td>824</td><td>47.0</td><td>2.07</td><td>536%</td><td>-7.3%</td><td>3.85</td><td>MeanRevert</td></tr>
+      <tr><td>9</td><td>levburn_sec_scalp_micro</td><td>3x</td><td>945</td><td>94.5</td><td>11.17</td><td>324%</td><td>-8.8%</td><td>3.83</td><td>LevBurn</td></tr>
+      <tr><td>10</td><td>meanrevert_adaptive</td><td>any</td><td>790</td><td>58.2</td><td>2.50</td><td>2,004%</td><td>-9.2%</td><td>3.82</td><td>MeanRevert</td></tr>
+      <tr><td>11</td><td>scalp</td><td>1x</td><td>1,211</td><td>41.9</td><td>1.70</td><td>118%</td><td>-4.1%</td><td>3.35</td><td>Precision</td></tr>
+      <tr><td>12</td><td>weakshort</td><td>1x</td><td>246</td><td>55.7</td><td>2.15</td><td>69%</td><td>-2.7%</td><td>2.23</td><td>Regime</td></tr>
+      <tr><td>13</td><td>surge</td><td>1x</td><td>270</td><td>48.1</td><td>2.07</td><td>85%</td><td>-4.4%</td><td>2.05</td><td>Regime</td></tr>
+      <tr><td>14</td><td>levburn</td><td>3x</td><td>919</td><td>40.5</td><td>1.62</td><td>1,612%</td><td>-17.3%</td><td>2.00</td><td>LevBurn</td></tr>
+      <tr><td>15</td><td>hf_frarb</td><td>3x</td><td>3,344</td><td>50.4</td><td>1.07</td><td>13%</td><td>-6.8%</td><td>1.51</td><td>HF</td></tr>
+      <tr><td>16</td><td>hf_meanrevert</td><td>20x</td><td>3,193</td><td>43.4</td><td>1.13</td><td>80%</td><td>-80.5%</td><td>1.10</td><td>HF</td></tr>
+      <tr><td>17</td><td>volexhaust</td><td>3x</td><td>290</td><td>41.4</td><td>1.31</td><td>183%</td><td>-35.9%</td><td>0.82</td><td>Volatility</td></tr>
+      <tr><td>18</td><td>ico_surge</td><td>1x</td><td>101</td><td>45.5</td><td>1.50</td><td>12%</td><td>-2.6%</td><td>0.78</td><td>ICO</td></tr>
+      <tr><td>19</td><td>gaptrap</td><td>1x</td><td>8</td><td>75.0</td><td>4.37</td><td>3%</td><td>-0.5%</td><td>0.70</td><td>Volatility</td></tr>
+      <tr><td>20</td><td>ico_rebound</td><td>1x</td><td>133</td><td>41.4</td><td>1.34</td><td>21%</td><td>-6.4%</td><td>0.62</td><td>ICO</td></tr>
+      <tr><td>21</td><td>fearflat</td><td>1x</td><td>22</td><td>50.0</td><td>2.10</td><td>8%</td><td>-4.6%</td><td>0.64</td><td>Regime</td></tr>
+      <tr><td>22</td><td>rebound</td><td>1x</td><td>94</td><td>38.3</td><td>1.36</td><td>27%</td><td>-7.4%</td><td>0.58</td><td class="warn">BT済・見送り</td></tr>
+      <tr><td>23</td><td>breakout</td><td>1x</td><td>41</td><td>41.5</td><td>1.53</td><td>11%</td><td>-6.4%</td><td>0.54</td><td>Regime</td></tr>
+      <tr><td>24</td><td>trend</td><td>10x</td><td>285</td><td>33.0</td><td>1.07</td><td>130%</td><td>-66.9%</td><td>0.53</td><td>Config</td></tr>
+      <tr><td>25</td><td>meanrevert_newlist</td><td>1x</td><td>1</td><td>100</td><td>inf</td><td>1%</td><td>0%</td><td>0.40</td><td>MeanRevert</td></tr>
+      <tr><td>26</td><td>alpha</td><td>1x</td><td>9</td><td>44.4</td><td>1.91</td><td>5%</td><td>-3.2%</td><td>0.34</td><td>Regime</td></tr>
+      <tr><td>27</td><td>sniper</td><td>1x</td><td>28</td><td>35.7</td><td>1.49</td><td>2%</td><td>-2.1%</td><td>0.35</td><td>Precision</td></tr>
+      <tr><td>28</td><td>momentum</td><td>1x</td><td>711</td><td>32.9</td><td>1.05</td><td>17%</td><td>-27.7%</td><td>0.27</td><td class="bad">BT済・見送り</td></tr>
+      <tr><td>29</td><td>ico_meanrevert</td><td>1x</td><td>87</td><td>39.1</td><td>1.14</td><td>6%</td><td>-10.0%</td><td>0.26</td><td>ICO</td></tr>
+      <tr><td>30</td><td>btcfollow</td><td>1x</td><td>2</td><td>50.0</td><td>2.79</td><td>2%</td><td>-1.4%</td><td>0.25</td><td>Config</td></tr>
+      <tr><td>31</td><td>cascade</td><td>1x</td><td>348</td><td>34.5</td><td>1.03</td><td>6%</td><td>-15.0%</td><td>0.15</td><td>Config</td></tr>
+      <tr><td>32</td><td>shortsqueeze</td><td>1x</td><td>58</td><td>32.8</td><td>1.09</td><td>4%</td><td>-10.3%</td><td>0.15</td><td>Regime</td></tr>
+      <tr><td style="color:var(--red)">33</td><td class="bad">sectorlead</td><td>1x</td><td>98</td><td>30.6</td><td>0.94</td><td class="bad">-4%</td><td>-20.8%</td><td class="bad">-0.08</td><td>Sector</td></tr>
+      <tr><td style="color:var(--red)">34</td><td class="bad">domshift</td><td>1x</td><td>63</td><td>31.7</td><td>0.92</td><td class="bad">-3%</td><td>-15.1%</td><td class="bad">-0.09</td><td>Sector</td></tr>
+      <tr><td style="color:var(--red)">35</td><td class="bad">sectorsync</td><td>1x</td><td>143</td><td>29.4</td><td>0.95</td><td class="bad">-4%</td><td>-15.7%</td><td class="bad">-0.09</td><td>Sector</td></tr>
+      <tr><td style="color:var(--red)">36</td><td class="bad">feardip</td><td>1x</td><td>6</td><td>16.7</td><td>0.44</td><td class="bad">-4%</td><td>-5.2%</td><td class="bad">-0.32</td><td>Regime</td></tr>
+      <tr><td style="color:var(--red)">37</td><td class="bad">stability</td><td>1x</td><td>368</td><td>32.3</td><td>0.89</td><td class="bad">-10%</td><td>-21.0%</td><td class="bad">-0.34</td><td>Config</td></tr>
+      <tr><td style="color:var(--red)">38</td><td class="bad">event</td><td>1x</td><td>39</td><td>28.2</td><td>0.71</td><td class="bad">-3%</td><td>-5.9%</td><td class="bad">-0.37</td><td>Precision</td></tr>
+      <tr><td style="color:var(--red)">39</td><td class="bad">hf_spread</td><td>3x</td><td>920</td><td>40.8</td><td>0.71</td><td class="bad">-21%</td><td>-21.7%</td><td class="bad">-4.43</td><td>HF</td></tr>
+      <tr><td style="color:var(--red)">40</td><td class="bad">hf_break</td><td>3x</td><td>2,885</td><td>34.5</td><td>0.79</td><td class="bad">-31%</td><td>-32.4%</td><td class="bad">-4.72</td><td>HF</td></tr>
+      <tr><td style="color:var(--red)">41</td><td class="bad">hf_momentum</td><td>3x</td><td>6,898</td><td>37.7</td><td>0.79</td><td class="bad">-58%</td><td>-62.2%</td><td class="bad">-7.18</td><td>HF</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ====== LEVERAGE OPTIMIZATION SUMMARY ====== -->
+<div class="section" id="lev-opt">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(139,92,246,0.15);">&#x1F527;</div>
+    <h2>レバレッジ最適化サマリー</h2>
+  </div>
+  <div class="bot-card">
+    <div class="bot-name" style="margin-bottom:16px;">全ボット — Sharpe最適レバレッジ vs リターン最適レバレッジ</div>
+    <div style="overflow-x:auto;">
+    <table class="summary-table">
+      <thead><tr><th>Bot</th><th>Sharpe最適Lev</th><th>Sharpe値</th><th>Return最適Lev</th><th>Return%</th><th>MDD@Return最適</th><th>推奨Lev</th></tr></thead>
+      <tbody>
+        <tr class="highlight-row"><td style="color:var(--gold)">levburn_sec</td><td class="best">3x</td><td class="best">7.07</td><td>20x</td><td>8,613%</td><td>-5.6%</td><td style="color:var(--green)">3-5x</td></tr>
+        <tr class="highlight-row"><td style="color:var(--gold)">levburn_sec_conservative</td><td class="best">3x</td><td class="best">6.73</td><td>20x</td><td>5,959%</td><td>-8.1%</td><td style="color:var(--green)">3-5x</td></tr>
+        <tr class="highlight-row"><td style="color:var(--gold)">levburn_sec_fr_extreme</td><td class="best">3x</td><td class="best">6.51</td><td>20x</td><td>10,478%</td><td>-10.7%</td><td style="color:var(--green)">3-5x</td></tr>
+        <tr class="highlight-row"><td style="color:var(--gold)">levburn_sec_aggressive</td><td class="best">3x</td><td>5.71</td><td>20x</td><td>13,611%</td><td>-11.9%</td><td style="color:var(--green)">3-7x</td></tr>
+        <tr><td>levburn_sec_scalp_micro</td><td>3x</td><td>3.83</td><td>20x</td><td>2,263%</td><td>-19.3%</td><td style="color:var(--green)">3x</td></tr>
+        <tr><td>meanrevert</td><td>1x</td><td>4.71</td><td>10x</td><td>7,774%</td><td>-26.7%</td><td style="color:var(--green)">1-2x</td></tr>
+        <tr><td>meanrevert_hybrid</td><td>1x</td><td>4.74</td><td>10x</td><td>8,023%</td><td>-26.7%</td><td style="color:var(--green)">1-2x</td></tr>
+        <tr><td>meanrevert_tight</td><td>1x</td><td>4.11</td><td>10x</td><td>4,543%</td><td>-13.2%</td><td style="color:var(--green)">1-3x</td></tr>
+        <tr><td>meanrevert_adaptive</td><td>any</td><td>3.82</td><td>any</td><td>2,004%</td><td>-9.2%</td><td style="color:var(--green)">自動</td></tr>
+        <tr><td>scalp</td><td>1x</td><td>3.35</td><td>10x</td><td>6,360%</td><td>-24.4%</td><td style="color:var(--green)">2-3x</td></tr>
+        <tr><td>weakshort</td><td>1x</td><td>2.23</td><td>10x</td><td>1,577%</td><td>-15.6%</td><td style="color:var(--green)">1-3x</td></tr>
+        <tr><td>surge</td><td>1x</td><td>2.05</td><td>10x</td><td>1,446%</td><td>-28.1%</td><td style="color:var(--green)">1-3x</td></tr>
+        <tr><td>levburn</td><td>3x</td><td>2.00</td><td>20x</td><td>10,574%</td><td class="bad">-73.6%</td><td style="color:var(--orange)">3x (非推奨)</td></tr>
+        <tr><td>hf_frarb</td><td>3x</td><td>1.51</td><td>20x</td><td>110%</td><td>-39.5%</td><td style="color:var(--green)">3-5x</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="note" style="margin-top:16px;">
+      <strong>レバレッジ最適化の法則:</strong><br>
+      1. 全ボットで <strong>Sharpe最適は低レバ (1-3x)</strong>。高レバはリターン↑だがSharpe↓MDD↑<br>
+      2. LevBurn-Sec系は MDD が全レバで -12%以下 → 高レバ耐性あり（他ボットは10xでMDD -30%超）<br>
+      3. MeanRevert系は 1x が最適（Sharpe 4.7）。レバかけるとMDDが急増<br>
+      4. <strong>推奨ポートフォリオ</strong>: LevBurn-Sec 3-5x + MeanRevert 1-2x + Scalp 2-3x の分散
+    </div>
+  </div>
+</div>
+
+<!-- ====== GRID SEARCH INSIGHT ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(6,182,212,0.15);">&#x1F50D;</div>
+    <h2>Grid Search — パラメータ最適化結果</h2>
+  </div>
+  <div class="bot-card">
+    <div class="two-col">
+      <div>
+        <h3 style="color:var(--accent);font-size:0.9rem;margin-bottom:8px;">LevBurn-Sec Grid (2,251 configs)</h3>
+        <table class="bt-table">
+          <thead><tr><th>FR閾値</th><th>TP</th><th>SL</th><th>Lev</th><th>Return%</th><th>Sharpe</th></tr></thead>
+          <tbody>
+            <tr class="highlight-row"><td>0.03</td><td>5.0%</td><td>0.8%</td><td>10x</td><td class="good">13,078%</td><td>1.61</td></tr>
+            <tr><td>0.03</td><td>3.0%</td><td>0.8%</td><td>10x</td><td>7,895%</td><td>1.37</td></tr>
+            <tr><td>0.03</td><td>2.0%</td><td>0.8%</td><td>10x</td><td>4,014%</td><td>1.14</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="color:var(--accent);font-size:0.9rem;margin-bottom:8px;">Surge Grid (1,351 configs)</h3>
+        <table class="bt-table">
+          <thead><tr><th>TP倍率</th><th>SL倍率</th><th>Lev</th><th>PF</th><th>Return%</th><th>MDD%</th></tr></thead>
+          <tbody>
+            <tr class="highlight-row"><td>0.8x</td><td>0.6x</td><td>20x</td><td>2.41</td><td class="good">2,840%</td><td class="bad">-67.9%</td></tr>
+            <tr><td>0.6x</td><td>0.6x</td><td>20x</td><td>2.16</td><td>2,103%</td><td class="bad">-76.1%</td></tr>
+            <tr><td>0.8x</td><td>0.6x</td><td>15x</td><td>2.41</td><td>2,111%</td><td class="bad">-67.1%</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:0.75rem;color:var(--orange);margin-top:4px;">Surgeの高レバGridはMDD -67%超 → 実用不可</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CONCLUSION ====== -->
+<div class="section">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(16,185,129,0.15);">&#x2705;</div>
+    <h2>結論 — ボット評価マトリクス</h2>
+  </div>
+  <div class="bot-card">
+    <div style="overflow-x:auto;">
+    <table class="summary-table">
+      <thead><tr><th>Tier</th><th>Bots</th><th>Sharpe</th><th>WR</th><th>推奨Lev</th><th>判定</th></tr></thead>
+      <tbody>
+        <tr style="background:rgba(16,185,129,0.08);">
+          <td style="color:var(--green);font-weight:700;">S Tier</td>
+          <td>levburn_sec (全variant)</td>
+          <td>5.7〜7.1</td>
+          <td>66〜89%</td>
+          <td>3-5x</td>
+          <td style="color:var(--green);">主力運用</td>
+        </tr>
+        <tr style="background:rgba(59,130,246,0.05);">
+          <td style="color:var(--accent);font-weight:700;">A Tier</td>
+          <td>meanrevert, meanrevert_hybrid, meanrevert_tight, meanrevert_adaptive</td>
+          <td>3.8〜4.9</td>
+          <td>54〜58%</td>
+          <td>1-2x</td>
+          <td style="color:var(--accent);">安定サブ</td>
+        </tr>
+        <tr style="background:rgba(139,92,246,0.05);">
+          <td style="color:var(--accent2);font-weight:700;">B Tier</td>
+          <td>scalp, scalp_micro, weakshort, surge</td>
+          <td>2.0〜3.8</td>
+          <td>42〜64%</td>
+          <td>1-3x</td>
+          <td style="color:var(--accent2);">分散用</td>
+        </tr>
+        <tr style="background:rgba(245,158,11,0.05);">
+          <td style="color:var(--orange);font-weight:700;">C Tier</td>
+          <td>levburn, hf_frarb, volexhaust, ico_surge, gaptrap</td>
+          <td>0.7〜2.0</td>
+          <td>40〜75%</td>
+          <td>1-3x</td>
+          <td style="color:var(--orange);">条件付き</td>
+        </tr>
+        <tr style="background:rgba(239,68,68,0.05);">
+          <td style="color:var(--red);font-weight:700;">D Tier</td>
+          <td>hf_momentum, hf_spread, hf_break, event, stability, feardip, sectorlead, domshift, sectorsync</td>
+          <td>&lt; 0</td>
+          <td>17〜41%</td>
+          <td>—</td>
+          <td style="color:var(--red);">無効化推奨</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Empire Monitor Complete BOT Catalog | Generated: 2026-03-14 | Data Sources: mega_summary.csv (248), bt_comparison (1yr), extended_backtest (2.8yr), hf_backtest, levburn_grid (2,251), surge_grid (1,351) | Initial Capital: $1,000,000
+</div>
+
+</body>
+</html>

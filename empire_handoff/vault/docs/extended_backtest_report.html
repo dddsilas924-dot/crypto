@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>最長期間バックテスト v2: 6 Bot × 5 レバレッジ (6年間)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;padding:20px;max-width:1500px;margin:0 auto}
+h1{color:#58a6ff;font-size:1.8em;border-bottom:2px solid #30363d;padding-bottom:12px;margin-bottom:20px}
+h2{color:#79c0ff;font-size:1.3em;margin:20px 0 10px}
+h3{color:#d2a8ff;font-size:1.1em;margin:15px 0 8px}
+
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.summary-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px}
+.summary-card h4{font-size:.85em;margin-bottom:6px;color:#8b949e}
+.summary-card .value{font-size:1.6em;font-weight:700}
+.summary-card .sub{color:#8b949e;font-size:.82em;margin-top:4px}
+.green{color:#3fb950}.red{color:#f85149}.yellow{color:#d29922}.blue{color:#58a6ff}.purple{color:#d2a8ff}
+
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.85em}
+th{background:#21262d;color:#79c0ff;text-align:left;padding:7px 8px;border-bottom:2px solid #30363d;white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid #21262d;white-space:nowrap}
+tr:hover{background:#161b22}
+.right{text-align:right}.center{text-align:center}
+
+.section{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin:16px 0}
+.highlight{background:rgba(88,166,255,.08);border-left:3px solid #58a6ff;padding:10px 14px;margin:8px 0;border-radius:0 6px 6px 0}
+.good-box{background:rgba(63,185,80,.08);border:1px solid #3fb950;border-radius:8px;padding:16px;margin:12px 0}
+.bear-box{background:rgba(248,81,73,.08);border:1px solid #f85149;border-radius:8px;padding:16px;margin:12px 0}
+
+.hm-cell{text-align:center;padding:8px 12px;font-weight:600;border:1px solid #30363d;font-size:.82em}
+.hm-5{background:rgba(63,185,80,.35);color:#3fb950}
+.hm-4{background:rgba(63,185,80,.2);color:#3fb950}
+.hm-3{background:rgba(210,169,34,.2);color:#d29922}
+.hm-2{background:rgba(248,81,73,.15);color:#f85149}
+.hm-1{background:rgba(248,81,73,.3);color:#f85149}
+.hm-0{background:#161b22;color:#484f58}
+
+.verdict-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-weight:700;font-size:.8em}
+.verdict-go{background:rgba(63,185,80,.15);color:#3fb950;border:1px solid #3fb950}
+
+.bar-row{display:flex;align-items:center;margin:3px 0;gap:6px}
+.bar-label{width:80px;text-align:right;font-size:.82em;color:#8b949e}
+.bar-track{flex:1;background:#21262d;height:18px;border-radius:3px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:3px}
+.bar-val{position:absolute;right:6px;top:0;font-size:.75em;color:#fff;font-weight:600;line-height:18px}
+.bar-bear{background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(248,81,73,.15) 3px,rgba(248,81,73,.15) 6px)}
+
+footer{text-align:center;color:#484f58;font-size:.8em;margin-top:30px;padding:16px;border-top:1px solid #21262d}
+</style>
+</head>
+<body>
+
+<h1>📊 最長期間バックテスト v2: 6 Bot × 5 レバレッジ (6年間)</h1>
+<p style="color:#8b949e;margin-bottom:20px">期間: 2020-02-01 〜 2026-03-01 (~6年) | コスト: 0.22% RT | マルチソース: MEXC先物 + Binance現物 + Bybit先物</p>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="summary-grid">
+  <div class="summary-card">
+    <h4>データ拡張</h4>
+    <div class="value blue">+208,833</div>
+    <div class="sub">レコード追加 (3取引所)</div>
+  </div>
+  <div class="summary-card">
+    <h4>テスト期間</h4>
+    <div class="value purple">~6年</div>
+    <div class="sub">2020-02 〜 2026-03 (前回2.7年)</div>
+  </div>
+  <div class="summary-card">
+    <h4>2022年ベア</h4>
+    <div class="value green">全Bot黒字</div>
+    <div class="sub">212銘柄で検証</div>
+  </div>
+  <div class="summary-card">
+    <h4>破産数</h4>
+    <div class="value green">0</div>
+    <div class="sub">10xでも全Bot生存</div>
+  </div>
+  <div class="summary-card">
+    <h4>最高リターン</h4>
+    <div class="value green">+8025%</div>
+    <div class="sub">MR-Hybrid 10x (6年)</div>
+  </div>
+  <div class="summary-card">
+    <h4>最高Sharpe</h4>
+    <div class="value purple">4.66</div>
+    <div class="sub">MR-Hybrid 1x</div>
+  </div>
+</div>
+
+<!-- SECTION 1: DATA OVERVIEW -->
+<h2>1. データ概要 (マルチソース拡張)</h2>
+<div class="section">
+<table>
+<tr><th>項目</th><th>拡張前</th><th>拡張後</th></tr>
+<tr><td>日足最古</td><td>2023-06-15</td><td class="green"><b>2020-01-01</b></td></tr>
+<tr><td>日足最新</td><td>2026-03-10</td><td>2026-03-10</td></tr>
+<tr><td>年別カバレッジ</td><td colspan="2"></td></tr>
+<tr><td style="padding-left:30px">2020年</td><td class="red">0銘柄</td><td class="green"><b>116銘柄</b></td></tr>
+<tr><td style="padding-left:30px">2021年</td><td class="red">0銘柄</td><td class="green"><b>182銘柄</b></td></tr>
+<tr><td style="padding-left:30px">2022年 (ベア相場)</td><td class="red">0銘柄</td><td class="green"><b>212銘柄</b></td></tr>
+<tr><td style="padding-left:30px">2023年</td><td>220銘柄</td><td>264銘柄</td></tr>
+<tr><td style="padding-left:30px">2024年</td><td>378銘柄</td><td>384銘柄</td></tr>
+<tr><td style="padding-left:30px">2025年</td><td>662銘柄</td><td>662銘柄</td></tr>
+</table>
+
+<h3>データソース内訳</h3>
+<table>
+<tr><th>ソース</th><th>追加レコード</th><th>拡張銘柄</th><th>最古日</th><th>備考</th></tr>
+<tr><td>MEXC先物</td><td class="right">92,232</td><td class="right">175</td><td>2020-06-05</td><td>主データソース (先物価格一致)</td></tr>
+<tr><td>Binance現物</td><td class="right">113,652</td><td class="right">202</td><td>2020-01-01</td><td>補完用 (日足レベルでは先物と概ね一致)</td></tr>
+<tr><td>Bybit先物</td><td class="right">2,949</td><td class="right">41</td><td>2020-03-25</td><td>追加補完</td></tr>
+<tr><td><b>合計</b></td><td class="right green"><b>208,833</b></td><td class="right"><b>418</b></td><td></td><td></td></tr>
+</table>
+
+<div class="highlight">
+  MEXC先物を最優先、不足分をBinance現物とBybit先物で補完。
+  日足レベルでは現物と先物の価格差は軽微（特にBTC/ETH等の主要銘柄）。
+  Fear&Greedは2018-02-01から利用可能で、2020年以降の全期間をカバー。
+</div>
+</div>
+
+<!-- SECTION 2: HEATMAP -->
+<h2>2. 全組み合わせヒートマップ (Return / MDD) - 6年間</h2>
+<div class="section" style="overflow-x:auto">
+<table>
+<tr>
+  <th>Bot</th><th>Trades</th><th>WR</th><th>PF</th>
+  <th class="center">1x</th><th class="center">2x</th><th class="center">3x</th><th class="center">5x</th><th class="center">10x</th>
+</tr>
+<tr>
+  <td><b>Surge</b></td><td class="right">278</td><td class="right">47.8%</td><td class="right">2.09</td>
+  <td class="hm-3">+86%<br>MDD -4.4%</td>
+  <td class="hm-4">+229%<br>MDD -8.6%</td>
+  <td class="hm-4">+383%<br>MDD -12.7%</td>
+  <td class="hm-4">+690%<br>MDD -20.3%</td>
+  <td class="hm-5">+1458%<br>MDD -27.3%</td>
+</tr>
+<tr style="background:#1a1f2b">
+  <td><b>MeanRevert</b></td><td class="right">806</td><td class="right">57.8%</td><td class="right">2.45</td>
+  <td class="hm-4">+624%<br>MDD -3.0%</td>
+  <td class="hm-5">+1420%<br>MDD -6.0%</td>
+  <td class="hm-5">+2216%<br>MDD -8.9%</td>
+  <td class="hm-5">+3807%<br>MDD -14.5%</td>
+  <td class="hm-5">+7776%<br>MDD -27.7%</td>
+</tr>
+<tr>
+  <td><b>MR-Tight</b></td><td class="right">430</td><td class="right">56.0%</td><td class="right green"><b>3.22</b></td>
+  <td class="hm-4">+305%<br>MDD -2.4%</td>
+  <td class="hm-4">+781%<br>MDD -3.8%</td>
+  <td class="hm-5">+1255%<br>MDD -5.6%</td>
+  <td class="hm-5">+2204%<br>MDD -9.3%</td>
+  <td class="hm-5"><b>+4574%</b><br>MDD -16.3%</td>
+</tr>
+<tr style="background:#1a1f2b">
+  <td><b>MR-Hybrid</b></td><td class="right">838</td><td class="right">57.6%</td><td class="right">2.44</td>
+  <td class="hm-4">+650%<br>MDD -3.0%</td>
+  <td class="hm-5">+1470%<br>MDD -6.0%</td>
+  <td class="hm-5">+2290%<br>MDD -8.9%</td>
+  <td class="hm-5">+3931%<br>MDD -14.5%</td>
+  <td class="hm-5"><b>+8025%</b><br>MDD -27.7%</td>
+</tr>
+<tr>
+  <td><b>MR-Adaptive</b></td><td class="right">806</td><td class="right">57.8%</td><td class="right">2.49</td>
+  <td class="hm-5" colspan="5" style="text-align:center">+2009% / MDD -9.2% (Fear連動レバ: config leverage無視)</td>
+</tr>
+<tr style="background:#1a1f2b">
+  <td><b>MR-Tuned</b></td><td class="right">843</td><td class="right">46.7%</td><td class="right">2.07</td>
+  <td class="hm-4">+542%<br>MDD -7.2%</td>
+  <td class="hm-5">+1254%<br>MDD -6.6%</td>
+  <td class="hm-5">+1970%<br>MDD -7.4%</td>
+  <td class="hm-5">+3401%<br>MDD -12.1%</td>
+  <td class="hm-5">+6960%<br>MDD -23.3%</td>
+</tr>
+</table>
+<div class="highlight">
+  <b>6年間リターンは全体的に大幅増加。</b>MR-Hybrid 10xで+8025%（前回2.7年: +4344%）。
+  MR-Tight 10xはMDD -16.3%（前回-8.1%）とやや悪化するが、6年間のリターンは+4574%。
+  全Botが全レバレッジで破産なし。
+</div>
+</div>
+
+<!-- SECTION 3: PERIOD COMPARISON -->
+<h2>3. 期間比較: 2.7年 vs 6年 (レバ2×)</h2>
+<div class="section">
+<table>
+<tr>
+  <th>Bot</th>
+  <th class="right">2.7Y Trades</th><th class="right">2.7Y PF</th><th class="right">2.7Y Return</th>
+  <th class="right">6Y Trades</th><th class="right">6Y PF</th><th class="right">6Y Return</th>
+  <th class="right">PF変化</th><th>判定</th>
+</tr>
+<tr>
+  <td>Surge</td>
+  <td class="right">96</td><td class="right">2.95</td><td class="right">+95%</td>
+  <td class="right">278</td><td class="right">2.09</td><td class="right">+229%</td>
+  <td class="right yellow">-29%</td><td><span class="verdict-badge" style="background:rgba(210,169,34,.15);color:#d29922;border:1px solid #d29922">注意</span></td>
+</tr>
+<tr>
+  <td>MeanRevert</td>
+  <td class="right">464</td><td class="right">2.24</td><td class="right">+678%</td>
+  <td class="right">806</td><td class="right green">2.45</td><td class="right">+1420%</td>
+  <td class="right green">+9%</td><td><span class="verdict-badge verdict-go">安定</span></td>
+</tr>
+<tr>
+  <td>MR-Tight</td>
+  <td class="right">257</td><td class="right">2.86</td><td class="right">+360%</td>
+  <td class="right">430</td><td class="right green"><b>3.22</b></td><td class="right">+781%</td>
+  <td class="right green">+13%</td><td><span class="verdict-badge verdict-go">安定</span></td>
+</tr>
+<tr>
+  <td>MR-Hybrid</td>
+  <td class="right">483</td><td class="right">2.29</td><td class="right">+733%</td>
+  <td class="right">838</td><td class="right green">2.44</td><td class="right">+1470%</td>
+  <td class="right green">+7%</td><td><span class="verdict-badge verdict-go">安定</span></td>
+</tr>
+<tr>
+  <td>MR-Adaptive</td>
+  <td class="right">464</td><td class="right">2.30</td><td class="right">+1069%</td>
+  <td class="right">806</td><td class="right green">2.49</td><td class="right">+2009%</td>
+  <td class="right green">+8%</td><td><span class="verdict-badge verdict-go">安定</span></td>
+</tr>
+<tr>
+  <td>MR-Tuned</td>
+  <td class="right">495</td><td class="right">1.98</td><td class="right">+601%</td>
+  <td class="right">843</td><td class="right green">2.07</td><td class="right">+1254%</td>
+  <td class="right green">+5%</td><td><span class="verdict-badge verdict-go">安定</span></td>
+</tr>
+</table>
+<div class="good-box">
+  <b>MeanRevert系は6年間でPF向上。</b> 2020-2022年の追加データが戦略の有効性を裏付け。
+  MR-Tightは+13%のPF向上（2.86→3.22）で最も安定性が高い。
+</div>
+<div class="bear-box">
+  <b>Surgeのみ注意:</b> PF -29% (2.95→2.09)。2020-2022年はWR 43%、PF 1.5-1.7と弱い。
+  ただし全年度でプラスリターンは維持しており、実用上の問題は小さい。
+</div>
+</div>
+
+<!-- SECTION 4: YEARLY - THE KEY SECTION -->
+<h2>4. 年度別成績 (レバ2×) - 2022年ベア相場検証</h2>
+<div class="section">
+
+<h3>Surge (278 trades, 6Y)</h3>
+<div class="bar-row"><div class="bar-label">2020</div><div class="bar-track"><div class="bar-fill" style="width:38%;background:#58a6ff"><span class="bar-val">+71% (44t) PF=1.64</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2021</div><div class="bar-track"><div class="bar-fill" style="width:35%;background:#58a6ff"><span class="bar-val">+65% (39t) PF=1.66</span></div></div></div>
+<div class="bar-row"><div class="bar-label bar-bear">2022</div><div class="bar-track bar-bear"><div class="bar-fill" style="width:69%;background:#f85149"><span class="bar-val">+129% (94t) PF=1.53 BEAR</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2023</div><div class="bar-track"><div class="bar-fill" style="width:20%;background:#3fb950"><span class="bar-val">+37% (20t) PF=1.76</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2024</div><div class="bar-track"><div class="bar-fill" style="width:45%;background:#3fb950"><span class="bar-val">+85% (25t) PF=2.74</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2025</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3fb950"><span class="bar-val">+188% (46t) PF=3.35</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2026</div><div class="bar-track"><div class="bar-fill" style="width:29%;background:#3fb950"><span class="bar-val">+54% (10t) PF=5.02</span></div></div></div>
+
+<h3>MeanRevert (806 trades, 6Y)</h3>
+<div class="bar-row"><div class="bar-label">2020</div><div class="bar-track"><div class="bar-fill" style="width:27%;background:#58a6ff"><span class="bar-val">+195% (62t) PF=2.04</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2021</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#58a6ff"><span class="bar-val">+714% (163t) PF=2.71</span></div></div></div>
+<div class="bar-row"><div class="bar-label bar-bear">2022</div><div class="bar-track bar-bear"><div class="bar-fill" style="width:8%;background:#f85149"><span class="bar-val">+59% (16t) PF=2.31 BEAR</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2023</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3fb950"><span class="bar-val">+820% (183t) PF=2.77</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2024</div><div class="bar-track"><div class="bar-fill" style="width:96%;background:#3fb950"><span class="bar-val">+788% (199t) PF=2.46</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2025</div><div class="bar-track"><div class="bar-fill" style="width:86%;background:#3fb950"><span class="bar-val">+616% (181t) PF=2.17</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2026</div><div class="bar-track"><div class="bar-fill" style="width:1%;background:#d29922"><span class="bar-val">+5% (2t)</span></div></div></div>
+
+<h3>MR-Tight (430 trades, 6Y)</h3>
+<div class="bar-row"><div class="bar-label">2020</div><div class="bar-track"><div class="bar-fill" style="width:15%;background:#58a6ff"><span class="bar-val">+78% (25t) PF=2.30</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2021</div><div class="bar-track"><div class="bar-fill" style="width:66%;background:#58a6ff"><span class="bar-val">+344% (76t) PF=3.25</span></div></div></div>
+<div class="bar-row"><div class="bar-label bar-bear">2022</div><div class="bar-track bar-bear"><div class="bar-fill" style="width:8%;background:#f85149"><span class="bar-val">+39% (9t) PF=3.11 BEAR</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2023</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3fb950"><span class="bar-val">+550% (112t) PF=3.57</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2024</div><div class="bar-track"><div class="bar-fill" style="width:95%;background:#3fb950"><span class="bar-val">+524% (100t) PF=3.90</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2025</div><div class="bar-track"><div class="bar-fill" style="width:67%;background:#3fb950"><span class="bar-val">+367% (106t) PF=2.49</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2026</div><div class="bar-track"><div class="bar-fill" style="width:1%;background:#d29922"><span class="bar-val">+7% (2t)</span></div></div></div>
+
+<h3>MR-Hybrid (838 trades, 6Y)</h3>
+<div class="bar-row"><div class="bar-label">2020</div><div class="bar-track"><div class="bar-fill" style="width:25%;background:#58a6ff"><span class="bar-val">+215% (70t) PF=2.01</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2021</div><div class="bar-track"><div class="bar-fill" style="width:81%;background:#58a6ff"><span class="bar-val">+708% (164t) PF=2.67</span></div></div></div>
+<div class="bar-row"><div class="bar-label bar-bear">2022</div><div class="bar-track bar-bear"><div class="bar-fill" style="width:7%;background:#f85149"><span class="bar-val">+59% (16t) PF=2.31 BEAR</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2023</div><div class="bar-track"><div class="bar-fill" style="width:92%;background:#3fb950"><span class="bar-val">+804% (191t) PF=2.60</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2024</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3fb950"><span class="bar-val">+872% (214t) PF=2.52</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2025</div><div class="bar-track"><div class="bar-fill" style="width:73%;background:#3fb950"><span class="bar-val">+634% (181t) PF=2.22</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2026</div><div class="bar-track"><div class="bar-fill" style="width:1%;background:#d29922"><span class="bar-val">+5% (2t)</span></div></div></div>
+
+<h3>MR-Adaptive (806 trades, 6Y, Fear連動レバ)</h3>
+<div class="bar-row"><div class="bar-label">2020</div><div class="bar-track"><div class="bar-fill" style="width:18%;background:#58a6ff"><span class="bar-val">+190% (62t) PF=1.85</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2021</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#58a6ff"><span class="bar-val">+1095% (163t) PF=2.66</span></div></div></div>
+<div class="bar-row"><div class="bar-label bar-bear">2022</div><div class="bar-track bar-bear"><div class="bar-fill" style="width:4%;background:#f85149"><span class="bar-val">+41% (16t) PF=2.11 BEAR</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2023</div><div class="bar-track"><div class="bar-fill" style="width:93%;background:#3fb950"><span class="bar-val">+1021% (183t) PF=3.06</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2024</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3fb950"><span class="bar-val">+1195% (199t) PF=2.43</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2025</div><div class="bar-track"><div class="bar-fill" style="width:77%;background:#3fb950"><span class="bar-val">+841% (181t) PF=2.19</span></div></div></div>
+<div class="bar-row"><div class="bar-label">2026</div><div class="bar-track"><div class="bar-fill" style="width:1%;background:#d29922"><span class="bar-val">+1% (2t)</span></div></div></div>
+
+<div class="bear-box">
+  <h3>2022年ベア相場の検証結果</h3>
+  <table>
+  <tr><th>Bot</th><th class="right">2022 Trades</th><th class="right">WR</th><th class="right">PF</th><th class="right">Return (2x)</th><th>評価</th></tr>
+  <tr><td>Surge</td><td class="right">94</td><td class="right">41.5%</td><td class="right">1.53</td><td class="right green">+129%</td><td>最多トレード。ベアでもロングで利益</td></tr>
+  <tr><td>MeanRevert</td><td class="right">16</td><td class="right">56.2%</td><td class="right">2.31</td><td class="right green">+59%</td><td>トレード数減だがPF維持</td></tr>
+  <tr><td>MR-Tight</td><td class="right">9</td><td class="right">55.6%</td><td class="right green"><b>3.11</b></td><td class="right green">+39%</td><td>最高PF。厳選エントリーが効果的</td></tr>
+  <tr><td>MR-Hybrid</td><td class="right">16</td><td class="right">56.2%</td><td class="right">2.31</td><td class="right green">+59%</td><td>LONG面がベアに適応</td></tr>
+  <tr><td>MR-Adaptive</td><td class="right">16</td><td class="right">56.2%</td><td class="right">2.11</td><td class="right green">+41%</td><td>Fear連動でレバ自動調整</td></tr>
+  </table>
+  <p style="margin-top:10px"><b>全Bot が2022年ベア相場でプラスリターンを達成。</b>
+  MeanRevert系はショート戦略のためベア相場との相性が良い。
+  Surgeはロング専門だがFear帯(&lt;50)での反発を捉えて+129%。
+  ただし2022年はMEXC先物の銘柄数が少なく(212銘柄)、トレード機会が限定的。</p>
+</div>
+
+<div class="highlight">
+  <b>全Bot・全7年度でプラスリターン。</b>2020年からの6年間を通じて一度も年間マイナスなし。
+  MR-Tight は2022年ベアでPF 3.11を維持し、最も堅牢なBot。
+</div>
+</div>
+
+<!-- SECTION 5: LEVERAGE RECOMMENDATION -->
+<h2>5. 推奨レバレッジ (6年間データ基準)</h2>
+<div class="section">
+<table>
+<tr><th>Bot</th><th>保守的 (MDD&lt;10%)</th><th>積極的 (MDD&lt;20%)</th><th>最大許容</th><th>破産レバ</th></tr>
+<tr><td>Surge</td><td class="green">2x (+229%)</td><td class="green">5x (+690%)</td><td>10x</td><td class="green">なし</td></tr>
+<tr><td>MeanRevert</td><td class="green">3x (+2216%)</td><td class="green">10x (+7776%)</td><td>10x</td><td class="green">なし</td></tr>
+<tr><td>MR-Tight</td><td class="green"><b>5x (+2204%)</b></td><td class="green">10x (+4574%)</td><td>10x</td><td class="green">なし</td></tr>
+<tr><td>MR-Hybrid</td><td class="green">3x (+2290%)</td><td class="green">10x (+8025%)</td><td>10x</td><td class="green">なし</td></tr>
+<tr><td>MR-Adaptive</td><td class="green">自動 (+2009%)</td><td class="green">自動 (+2009%)</td><td>自動</td><td class="green">なし</td></tr>
+<tr><td>MR-Tuned</td><td class="yellow">2x (+1254%)</td><td class="green">5x (+3401%)</td><td>10x</td><td class="green">なし</td></tr>
+</table>
+<div class="highlight">
+  6年間データでもレバレッジ耐性は高い。MR-Tight 5xでMDD -9.3%は保守的運用に最適。
+  MR-Tunedは6年間で見るとMDD改善（2.7年: -16.1% → 6年: -6.6% at 2x）。
+</div>
+</div>
+
+<!-- SECTION 6: RECOMMENDATION -->
+<h2>6. 総合推奨 (6年間検証済み)</h2>
+<div class="section">
+
+<h3>実運用推奨ランキング</h3>
+<table>
+<tr><th>順位</th><th>Bot</th><th>推奨レバ</th><th>6Y Return (2x)</th><th>MDD</th><th>2022ベア</th><th>特徴</th></tr>
+<tr>
+  <td>1</td><td><b class="green">MR-Tight</b></td><td>5x</td><td>+781%</td><td>-3.8%</td><td class="green">+39% PF3.11</td>
+  <td>最高PF 3.22、ベアでも最高PF。リスク最小の鉄板</td>
+</tr>
+<tr>
+  <td>2</td><td><b class="green">MR-Hybrid</b></td><td>3x</td><td>+1470%</td><td>-6.0%</td><td class="green">+59% PF2.31</td>
+  <td>最多838トレード、Long+Short両面。6年間で最大リターン</td>
+</tr>
+<tr>
+  <td>3</td><td><b class="green">MR-Adaptive</b></td><td>自動</td><td>+2009%</td><td>-9.2%</td><td class="green">+41% PF2.11</td>
+  <td>Fear連動で自動レバ最適化。2021年+1095%の爆発力</td>
+</tr>
+<tr>
+  <td>4</td><td><b class="blue">MeanRevert</b></td><td>3x</td><td>+1420%</td><td>-6.0%</td><td class="green">+59% PF2.31</td>
+  <td>ベース戦略。6年PF向上（2.24→2.45）で安定性実証</td>
+</tr>
+<tr>
+  <td>5</td><td><b class="blue">Surge</b></td><td>2x</td><td>+229%</td><td>-8.6%</td><td class="green">+129% PF1.53</td>
+  <td>ロング専門。ベアで最多94t。MR系と相互補完</td>
+</tr>
+<tr>
+  <td>6</td><td><b class="yellow">MR-Tuned</b></td><td>2x</td><td>+1254%</td><td>-6.6%</td><td>未検証</td>
+  <td>WR 46.7%だがPF 2.07。Wide Fear帯で高取引数</td>
+</tr>
+</table>
+
+<h3>推奨ポートフォリオ構成 (6年間検証済み)</h3>
+<div class="good-box">
+  <table>
+  <tr><th>Bot</th><th>レバ</th><th>配分</th><th>役割</th><th>6Y期待Return</th></tr>
+  <tr><td><b>MR-Tight</b></td><td>5x</td><td>30%</td><td>安定収益コア（MDD最小、ベアPF3.11）</td><td>+2204%</td></tr>
+  <tr><td><b>MR-Hybrid</b></td><td>3x</td><td>25%</td><td>高トレード数＋方向性分散</td><td>+2290%</td></tr>
+  <tr><td><b>MR-Adaptive</b></td><td>自動</td><td>20%</td><td>Fear連動最適化</td><td>+2009%</td></tr>
+  <tr><td><b>Surge</b></td><td>2x</td><td>15%</td><td>ロング側カバー（ベアで最多取引）</td><td>+229%</td></tr>
+  <tr><td><b>MR-Tuned</b></td><td>2x</td><td>10%</td><td>Wide Fear帯、補助的</td><td>+1254%</td></tr>
+  </table>
+  <br>
+  <b>想定パフォーマンス（加重平均 6年間）:</b><br>
+  Return: 2204×0.3 + 2290×0.25 + 2009×0.2 + 229×0.15 + 1254×0.1 = <span class="green" style="font-size:1.3em"><b>+1,781%</b></span><br>
+  Max MDD: -9.3% (MR-Tight 5x基準)<br>
+  2022年ベア: 全Bot黒字達成
+</div>
+
+<h3>v1 (2.7年) vs v2 (6年) の主な変化</h3>
+<table>
+<tr><th>項目</th><th>v1 (2.7年)</th><th>v2 (6年)</th><th>変化</th></tr>
+<tr><td>テスト期間</td><td>2023-07 ~ 2026-03</td><td class="green">2020-02 ~ 2026-03</td><td>+3.4年</td></tr>
+<tr><td>2022年ベア検証</td><td class="red">未検証</td><td class="green"><b>全Bot黒字</b></td><td>重要な新知見</td></tr>
+<tr><td>ポートフォリオ期待Return</td><td>+904%</td><td class="green"><b>+1,781%</b></td><td>+97%増</td></tr>
+<tr><td>MR-Tight PF</td><td>2.86</td><td class="green"><b>3.22</b></td><td>+13%向上</td></tr>
+<tr><td>Surge PF</td><td>2.95</td><td class="yellow">2.09</td><td>-29%低下</td></tr>
+<tr><td>データソース</td><td>MEXC先物のみ</td><td class="green">MEXC+Binance+Bybit</td><td>3取引所統合</td></tr>
+</table>
+
+<h3>注意事項</h3>
+<div class="highlight" style="border-left-color:#d29922">
+  <ul style="padding-left:20px">
+    <li>2020-2022年はBinance現物価格で補完した銘柄あり（日足レベルでは先物と概ね一致）</li>
+    <li>2022年は212銘柄と少なく、トレード機会が限定的（MR系16t, Surge94t）</li>
+    <li>Surgeは6年間でPF低下（-29%）。2020-2022年のWR低下が原因。レバは2x推奨</li>
+    <li>MR-Adaptiveはconfig leverageを無視（Fear連動レバが常に優先）</li>
+    <li>MR-NewListは除外（全期間で1トレードのみ）</li>
+    <li>実運用では銘柄数増加・流動性変化によるバックテストとの乖離に注意</li>
+  </ul>
+</div>
+</div>
+
+<footer>
+  Empire Monitor | Extended Backtest Report v2 | Generated 2026-03-12<br>
+  Period: 2020-02-01 ~ 2026-03-01 (~6 years) | Cost: 0.22% RT | 6 Bots × 5 Leverages = 30 runs<br>
+  Data Sources: MEXC Futures (+92K) + Binance Spot (+114K) + Bybit Futures (+3K) = +209K records<br>
+  Bear Market (2022): All bots profitable | No bankruptcies at any leverage
+</footer>
+</body>
+</html>

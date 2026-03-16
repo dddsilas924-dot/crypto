@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Empire Monitor - Bot ロジック完全解析</title>
+    <style>
+        body { font-family: 'Segoe UI', 'Noto Sans JP', sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; background: #0d1117; color: #e0e0e0; }
+        h1 { color: #00d4ff; border-bottom: 3px solid #00d4ff; padding-bottom: 15px; font-size: 28px; }
+        h2 { color: #ffd700; margin-top: 40px; border-left: 4px solid #ffd700; padding-left: 15px; }
+        h3 { color: #ff6b6b; margin-top: 25px; }
+        h4 { color: #4ade80; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th { background: #161b22; color: #00d4ff; padding: 12px; text-align: left; border: 1px solid #30363d; }
+        td { padding: 10px 12px; border: 1px solid #30363d; }
+        tr:nth-child(even) { background: #161b22; }
+        tr:hover { background: #1c2333; }
+        .buy { color: #4ade80; font-weight: bold; }
+        .sell { color: #ef4444; font-weight: bold; }
+        .neutral { color: #fbbf24; }
+        .section { background: #161b22; border-radius: 12px; padding: 25px; margin: 25px 0; border: 1px solid #30363d; }
+        .flow-box { background: #0d1117; border: 2px solid #30363d; border-radius: 8px; padding: 15px; margin: 10px 0; text-align: center; }
+        .flow-arrow { color: #00d4ff; font-size: 24px; text-align: center; margin: 5px 0; }
+        .code-block { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 15px; font-family: 'Consolas', 'Cascadia Code', monospace; color: #79c0ff; overflow-x: auto; margin: 10px 0; white-space: pre; font-size: 0.88rem; }
+        .metric-card { display: inline-block; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 15px 25px; margin: 5px; text-align: center; min-width: 120px; }
+        .metric-value { font-size: 28px; font-weight: bold; color: #00d4ff; }
+        .metric-label { font-size: 12px; color: #8b949e; margin-top: 5px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .highlight { background: #1a3a2a; border-left: 4px solid #4ade80; padding: 15px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+        .warning { background: #3a2a1a; border-left: 4px solid #fbbf24; padding: 15px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+        .danger { background: #3a1a1a; border-left: 4px solid #ef4444; padding: 15px; margin: 10px 0; border-radius: 0 8px 8px 0; }
+        .tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; margin: 2px; }
+        .tag-long { background: #1a3a2a; color: #4ade80; }
+        .tag-short { background: #3a1a1a; color: #ef4444; }
+        .tag-fear { background: #2a1a3a; color: #c084fc; }
+        .example { background: #0d1117; border: 1px dashed #30363d; border-radius: 8px; padding: 15px; margin: 10px 0; }
+        .timeline { border-left: 3px solid #00d4ff; padding-left: 20px; margin: 15px 0; }
+        .timeline-item { margin: 15px 0; position: relative; }
+        .timeline-item::before { content: '●'; color: #00d4ff; position: absolute; left: -27px; }
+        .fear-bar { display: flex; height: 36px; border-radius: 8px; overflow: hidden; margin: 15px 0; font-size: 0.75rem; font-weight: 600; }
+        .fear-bar > div { display: flex; align-items: center; justify-content: center; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .monthly-table td { font-family: 'Cascadia Code', monospace; font-size: 0.82rem; text-align: right; }
+        .monthly-table td:first-child { text-align: left; font-family: inherit; }
+        .pos { color: #4ade80; }
+        .neg { color: #ef4444; }
+        a { color: #58a6ff; }
+        .toc { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px 30px; margin: 20px 0; }
+        .toc ul { list-style: none; padding-left: 0; }
+        .toc li { padding: 4px 0; }
+        .toc li::before { content: '▸ '; color: #00d4ff; }
+        .toc a { text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<h1>Empire Monitor &mdash; Bot ロジック完全解析</h1>
+<p style="color:#8b949e;">生成日: 2026-03-11 | 対象: Bot-MeanRevert / Bot-WeakShort / Bot-Sniper<br>
+全データはソースコード (<code>src/backtest/backtest_engine.py</code>) とバックテストCSV (<code>vault/backtest_results/</code>) から抽出</p>
+
+<div class="toc">
+<strong style="color:#ffd700;">目次</strong>
+<ul>
+<li><a href="#s0">0. エグゼクティブサマリー</a></li>
+<li><a href="#s1">1. Bot-MeanRevert 完全解析</a></li>
+<li><a href="#s2">2. Bot-WeakShort 完全解析</a></li>
+<li><a href="#s3">3. Bot-Sniper 完全解析</a></li>
+<li><a href="#s4">4. 3Bot 比較表</a></li>
+<li><a href="#s5">5. 売買判断フロー（実運用向け）</a></li>
+</ul>
+</div>
+
+<!-- =========================================================== -->
+<h2 id="s0">0. エグゼクティブサマリー</h2>
+<!-- =========================================================== -->
+
+<div class="section">
+<div class="grid-3">
+
+<div style="border: 1px solid #30363d; border-radius: 10px; padding: 20px;">
+<h4 style="margin-top:0;">Bot-MeanRevert <span class="tag tag-short">SHORT</span></h4>
+<p>楽観相場で「上がりすぎた銘柄」をショートして<br>平均に戻る利益を取る <b>逆張りショート</b></p>
+<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;">
+<div class="metric-card"><div class="metric-value pos">55.4%</div><div class="metric-label">勝率</div></div>
+<div class="metric-card"><div class="metric-value">372</div><div class="metric-label">トレード数</div></div>
+<div class="metric-card"><div class="metric-value pos">+6,562%</div><div class="metric-label">総リターン(10x)</div></div>
+<div class="metric-card"><div class="metric-value neg">-32.2%</div><div class="metric-label">最大DD</div></div>
+<div class="metric-card"><div class="metric-value">10x</div><div class="metric-label">レバレッジ</div></div>
+<div class="metric-card"><div class="metric-value">0.1日</div><div class="metric-label">平均保有</div></div>
+</div>
+</div>
+
+<div style="border: 1px solid #30363d; border-radius: 10px; padding: 20px;">
+<h4 style="margin-top:0;">Bot-WeakShort <span class="tag tag-short">SHORT</span></h4>
+<p>BTC上昇時に「ついていけない弱い銘柄」を<br>ショートする <b>順張りショート</b></p>
+<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;">
+<div class="metric-card"><div class="metric-value pos">55.3%</div><div class="metric-label">勝率</div></div>
+<div class="metric-card"><div class="metric-value">103</div><div class="metric-label">トレード数</div></div>
+<div class="metric-card"><div class="metric-value pos">+295%</div><div class="metric-label">総リターン(2x)</div></div>
+<div class="metric-card"><div class="metric-value neg">-5.4%</div><div class="metric-label">最大DD</div></div>
+<div class="metric-card"><div class="metric-value">2x</div><div class="metric-label">レバレッジ</div></div>
+<div class="metric-card"><div class="metric-value">0.2日</div><div class="metric-label">平均保有</div></div>
+</div>
+</div>
+
+<div style="border: 1px solid #30363d; border-radius: 10px; padding: 20px;">
+<h4 style="margin-top:0;">Bot-Sniper <span class="tag tag-long">LONG</span></h4>
+<p>恐怖相場で極めて厳しい条件を満たした銘柄だけを<br>ロングする <b>精密狙撃</b></p>
+<div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;">
+<div class="metric-card"><div class="metric-value">N/A</div><div class="metric-label">勝率</div></div>
+<div class="metric-card"><div class="metric-value">極少</div><div class="metric-label">トレード数</div></div>
+<div class="metric-card"><div class="metric-value">N/A</div><div class="metric-label">総リターン</div></div>
+<div class="metric-card"><div class="metric-value">N/A</div><div class="metric-label">最大DD</div></div>
+<div class="metric-card"><div class="metric-value">10x</div><div class="metric-label">レバレッジ</div></div>
+<div class="metric-card"><div class="metric-value">~5日</div><div class="metric-label">最大保有</div></div>
+</div>
+<div class="warning" style="margin-top:12px;">バックテストCSV未生成。シグナルモジュール <code>src/signals/bot_sniper.py</code> は実装済み。</div>
+</div>
+
+</div>
+</div>
+
+<!-- =========================================================== -->
+<h2 id="s1">1. Bot-MeanRevert 完全解析</h2>
+<!-- =========================================================== -->
+
+<h3>1-1. コンセプト（なぜ利益が出るのか）</h3>
+<div class="section">
+<div class="highlight">
+<strong>核心原理: 平均回帰（Mean Reversion）</strong><br>
+市場が楽観的なとき（Fear 50-80）、一部の銘柄は短期的に「上がりすぎ」の状態になる。<br>
+20日移動平均から15%以上乖離した銘柄は、統計的に平均に戻る傾向がある。<br>
+この「戻り」をショート（空売り）で利益にする。
+</div>
+
+<h4>市場心理の解説</h4>
+<ul>
+<li>Fear 50-80 = みんなが「まだ上がる」と楽観的に考えている</li>
+<li>一部の銘柄は群集心理で短期的に買われすぎる（FOMO: Fear Of Missing Out）</li>
+<li>20日移動平均から+15%以上乖離 = 統計的に「異常な上昇」</li>
+<li>この超過上昇分が縮小する方向（=下落方向）にショートを入れる</li>
+</ul>
+
+<div class="example">
+<strong>具体例:</strong><br>
+TAOが1週間で+30%上昇、20日移動平均は+5%地点にある。<br>
+→ MA20乖離 = +25%（閾値15%を大幅超過）<br>
+→ 「上がりすぎ」と判定してショート。平均方向に戻ればショートが利益になる。
+</div>
+</div>
+
+<h3>1-2. 発動条件（いつ動くか）</h3>
+<div class="section">
+<table>
+<tr><th>条件</th><th>閾値</th><th>変数名</th><th>理由</th></tr>
+<tr><td><strong>条件1: Fear&amp;Greed</strong></td><td>50 ≤ fg ≤ 80</td><td><code>fear_min=50, fear_max=80</code></td><td>楽観相場でないと「上がりすぎ」が発生しない</td></tr>
+<tr><td><strong>条件2: MA20乖離</strong></td><td>ma20_dev ≥ 15.0%</td><td><code>ma20_dev_min=15.0</code></td><td>終値が20日移動平均から+15%以上上方乖離</td></tr>
+<tr><td><strong>条件3: 出来高増加</strong></td><td>vol_recent/vol_avg &gt; 1.2</td><td>ハードコード</td><td>直近2日出来高が20日平均の1.2倍以上 = 利確売りの兆候</td></tr>
+</table>
+
+<div class="code-block">根拠: src/backtest/backtest_engine.py:726-785 _check_meanrevert_signal()
+
+def _check_meanrevert_signal(self, conn, fg, btc_return, btc_df, date_str, symbols):
+    fear_min = self.config.get('fear_min', 50)     # settings.yaml: 50
+    fear_max = self.config.get('fear_max', 80)     # settings.yaml: 80
+    ma20_dev_min = self.config.get('ma20_dev_min', 15.0)  # settings.yaml: 15.0
+
+    if not (fear_min &lt;= fg &lt;= fear_max):    # Fear帯チェック
+        return None
+
+    # 各銘柄について:
+    ma20 = np.mean(closes[-20:])              # 20日移動平均
+    ma20_dev = (current - ma20) / ma20 * 100  # MA乖離率
+    if ma20_dev &lt; ma20_dev_min:               # +15%未満はスキップ
+        continue
+
+    # 出来高ボーナス: 直近2日が20日平均の1.2倍以上
+    vol_bonus = vol_recent / vol_avg if vol_recent / vol_avg > 1.2 else 1.0
+    score = ma20_dev * vol_bonus  # 乖離率 × 出来高ボーナス</div>
+
+<h4>フローチャート</h4>
+<div class="flow-box">Fear 50-80?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → 待機 ⚪</div>
+<div class="flow-box">全銘柄のMA20乖離率を計算</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-box">乖離 ≥ 15%?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → スキップ</div>
+<div class="flow-box">出来高ボーナス計算 (直近2日/20日平均)</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-box">score = 乖離率 × vol_bonus → 最高スコア銘柄を選択</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-box" style="border-color:#ef4444;"><strong>ショートシグナル生成</strong></div>
+
+<div class="warning">
+<strong>注意:</strong> BTC変動率条件はなし。MeanRevertはFearとMA乖離のみで判定する。BTCが上がっていても下がっていても、MA20乖離が大きければ発火する。
+</div>
+</div>
+
+<h3>1-3. 銘柄選定（何を選ぶか）</h3>
+<div class="section">
+<table>
+<tr><th>選定基準</th><th>計算式</th><th>閾値</th></tr>
+<tr><td><strong>MA20乖離率</strong></td><td><code>(終値 - MA20) / MA20 × 100</code></td><td>≥ 15.0%</td></tr>
+<tr><td><strong>出来高増加</strong></td><td><code>直近2日平均出来高 / 20日平均出来高</code></td><td>&gt; 1.2 でボーナス</td></tr>
+<tr><td><strong>最終スコア</strong></td><td><code>MA乖離率 × vol_bonus</code></td><td>最高スコア銘柄を1つ選択</td></tr>
+</table>
+
+<div class="highlight">
+<strong>Tier1/Tier2との関係:</strong> バックテストではTier通過チェックを行わず、上位100銘柄を直接スキャンする（<code>symbols[:100]</code>）。ライブ運用時のエンジン実装では、Tier2通過銘柄からMeanRevert条件を追加判定する設計が推奨される。
+</div>
+
+<p><strong>頻出銘柄（バックテスト上位5）:</strong></p>
+<table>
+<tr><th>銘柄</th><th>出現回数</th><th>特徴</th></tr>
+<tr><td>AIXBT</td><td>21回</td><td>AI関連、高ボラティリティ</td></tr>
+<tr><td>ASR</td><td>18回</td><td>ファントークン、独自の値動き</td></tr>
+<tr><td>API3</td><td>15回</td><td>オラクル系</td></tr>
+<tr><td>1000BONK</td><td>15回</td><td>ミームコイン、急騰しやすい</td></tr>
+<tr><td>AGI</td><td>15回</td><td>AI関連</td></tr>
+</table>
+</div>
+
+<h3>1-4. エントリー（どうやって入るか）</h3>
+<div class="section">
+<table>
+<tr><th>項目</th><th>値</th><th>根拠</th></tr>
+<tr><td><strong>方向</strong></td><td class="sell">ショート（空売り）</td><td><code>side: 'short'</code> (line 782)</td></tr>
+<tr><td><strong>タイミング</strong></td><td>シグナル翌日の始値</td><td><code>_get_next_open()</code> look-ahead bias回避</td></tr>
+<tr><td><strong>レバレッジ</strong></td><td>2x</td><td><code>settings.yaml bot_meanrevert.leverage: 2</code></td></tr>
+<tr><td><strong>ポジションサイズ</strong></td><td>資金の15%</td><td><code>settings.yaml bot_meanrevert.position_size_pct: 15</code></td></tr>
+</table>
+
+<div class="example">
+<strong>計算例:</strong><br>
+資金100万円 × 15% = 15万円の証拠金 × レバ2倍 = 30万円分のショートポジション<br>
+BSV $99.20でショート → 利確: $99.20 × (1 - 6%) = $93.25 / 損切り: $99.20 × (1 + 3%) = $102.18
+</div>
+
+<div class="warning">
+<strong>バックテスト時のレバレッジ:</strong> CSVのpnl_leveraged_pctは実際にはconfig.leverageが適用される。MeanRevertの場合 settings.yamlではleverage=2だが、バックテストCSVの+57.80%/-32.20%という値はTP=5.78%×10x=57.8%で計算されている。<b>バックテスト時のleverageは10x</b>で実行されたことがCSVの数値から確認できる。
+</div>
+</div>
+
+<h3>1-5. エグジット（どうやって出るか）</h3>
+<div class="section">
+<table>
+<tr><th>条件</th><th>値</th><th>意味</th></tr>
+<tr><td class="buy"><strong>利確 (TP)</strong></td><td>+6.0%</td><td>エントリー価格から6%下がったら利確（ショートなので下落が利益）</td></tr>
+<tr><td class="sell"><strong>損切り (SL)</strong></td><td>-3.0%</td><td>エントリー価格から3%上がったら損切り（ショートで逆行=損失）</td></tr>
+<tr><td class="neutral"><strong>期限切れ</strong></td><td>5日</td><td>最大保有5日。TP/SLどちらにも到達しなければ現在値で決済</td></tr>
+</table>
+
+<div class="code-block">コスト計算: src/backtest/backtest_engine.py:1134-1167 _make_exit()
+
+raw_pnl = (entry - exit) / entry × 100   # ショートの生PnL
+net_pnl = raw_pnl - 0.22%                # 往復コスト控除
+leveraged_pnl = net_pnl × leverage        # レバレッジ適用
+
+例: $99.20 → $93.25 (TP)
+  raw_pnl = (99.20 - 93.25) / 99.20 × 100 = +5.99%
+  net_pnl = 5.99 - 0.22 = +5.78%
+  leveraged_pnl = 5.78 × 10 = +57.80%</div>
+
+<p><strong>エグジット理由の分布:</strong></p>
+<div style="display:flex; gap:10px;">
+<div class="metric-card"><div class="metric-value pos">206</div><div class="metric-label">TP (利確) 55.4%</div></div>
+<div class="metric-card"><div class="metric-value neg">166</div><div class="metric-label">SL (損切り) 44.6%</div></div>
+<div class="metric-card"><div class="metric-value neutral">0</div><div class="metric-label">TIMEOUT</div></div>
+</div>
+</div>
+
+<h3>1-6. 具体的なトレード例</h3>
+<div class="section">
+<div class="example">
+<h4 style="margin-top:0;">例1: 勝ちトレード ✅</h4>
+<table>
+<tr><td>日付</td><td>2025-01-01</td></tr>
+<tr><td>銘柄</td><td>AIXBT/USDT:USDT（AI関連トークン）</td></tr>
+<tr><td>方向</td><td class="sell">ショート 10x</td></tr>
+<tr><td>エントリー</td><td>$0.6037</td></tr>
+<tr><td>エグジット</td><td>$0.5675 (TP)</td></tr>
+<tr><td>保有期間</td><td>0日（当日決済）</td></tr>
+<tr><td>PnL</td><td class="buy">+57.80% (レバ込み)</td></tr>
+<tr><td>理由</td><td>AIXBTは年末年始の楽観相場でMA20から+15%以上乖離。当日中にTP到達。</td></tr>
+</table>
+</div>
+
+<div class="example">
+<h4 style="margin-top:0;">例2: 負けトレード ❌</h4>
+<table>
+<tr><td>日付</td><td>2025-01-04</td></tr>
+<tr><td>銘柄</td><td>AI/USDT:USDT</td></tr>
+<tr><td>方向</td><td class="sell">ショート 10x</td></tr>
+<tr><td>エントリー</td><td>$0.7665</td></tr>
+<tr><td>エグジット</td><td>$0.7895 (SL)</td></tr>
+<tr><td>保有期間</td><td>0日</td></tr>
+<tr><td>PnL</td><td class="sell">-32.20% (レバ込み)</td></tr>
+<tr><td>理由</td><td>AI銘柄の上昇トレンドが予想以上に強く、SLに到達。「上がりすぎ」がさらに上がるパターン。</td></tr>
+</table>
+</div>
+
+<div class="example">
+<h4 style="margin-top:0;">例3: 勝ちトレード（初期）✅</h4>
+<table>
+<tr><td>日付</td><td>2024-01-05</td></tr>
+<tr><td>銘柄</td><td>ARB/USDT:USDT（Arbitrum）</td></tr>
+<tr><td>方向</td><td class="sell">ショート 10x</td></tr>
+<tr><td>エントリー</td><td>$2.005</td></tr>
+<tr><td>エグジット</td><td>$1.885 (TP)</td></tr>
+<tr><td>保有期間</td><td>0日</td></tr>
+<tr><td>PnL</td><td class="buy">+57.80% (レバ込み)</td></tr>
+<tr><td>理由</td><td>年初の楽観相場でARBがMA20乖離+15%超。当日中に利確。</td></tr>
+</table>
+</div>
+</div>
+
+<h3>1-7. バックテスト成績詳細</h3>
+<div class="section">
+<h4>月別PnL</h4>
+<table class="monthly-table">
+<tr><th>月</th><th>トレード数</th><th>PnL%</th><th>勝率</th></tr>
+<tr><td>2024-01</td><td>19</td><td class="pos">+648.2%</td><td>74%</td></tr>
+<tr><td>2024-02</td><td>26</td><td class="pos">+242.8%</td><td>46%</td></tr>
+<tr><td>2024-03</td><td>10</td><td class="pos">+308.0%</td><td>70%</td></tr>
+<tr><td>2024-04</td><td>17</td><td class="pos">+622.6%</td><td>76%</td></tr>
+<tr><td>2024-05</td><td>20</td><td class="pos">+76.0%</td><td>40%</td></tr>
+<tr><td>2024-06</td><td>16</td><td class="pos">+294.8%</td><td>56%</td></tr>
+<tr><td>2024-07</td><td>13</td><td class="pos">+211.4%</td><td>54%</td></tr>
+<tr><td>2024-08</td><td>5</td><td class="pos">+109.0%</td><td>60%</td></tr>
+<tr><td>2024-09</td><td>12</td><td class="pos">+243.6%</td><td>58%</td></tr>
+<tr><td>2024-10</td><td>19</td><td class="pos">+288.2%</td><td>53%</td></tr>
+<tr><td>2024-11</td><td>13</td><td class="pos">+301.4%</td><td>62%</td></tr>
+<tr><td>2024-12</td><td>19</td><td class="pos">+108.2%</td><td>42%</td></tr>
+<tr><td>2025-01</td><td>27</td><td class="pos">+570.6%</td><td>59%</td></tr>
+<tr><td>2025-02</td><td>11</td><td class="pos">+365.8%</td><td>73%</td></tr>
+<tr><td style="color:#fbbf24">2025-04</td><td>7</td><td class="neg">-45.4%</td><td>29%</td></tr>
+<tr><td>2025-05</td><td>31</td><td class="pos">+261.8%</td><td>45%</td></tr>
+<tr><td>2025-06</td><td>25</td><td class="pos">+455.0%</td><td>56%</td></tr>
+<tr><td>2025-07</td><td>29</td><td class="pos">+326.2%</td><td>48%</td></tr>
+<tr><td>2025-08</td><td>26</td><td class="pos">+692.8%</td><td>65%</td></tr>
+<tr><td>2025-09</td><td>12</td><td class="pos">+63.6%</td><td>42%</td></tr>
+<tr><td>2025-10</td><td>13</td><td class="pos">+391.4%</td><td>69%</td></tr>
+<tr><td>2026-01</td><td>2</td><td class="pos">+25.6%</td><td>50%</td></tr>
+</table>
+
+<h4>統計サマリー</h4>
+<div style="display:flex; flex-wrap:wrap; gap:8px;">
+<div class="metric-card"><div class="metric-value">372</div><div class="metric-label">総トレード</div></div>
+<div class="metric-card"><div class="metric-value pos">206</div><div class="metric-label">勝ちトレード</div></div>
+<div class="metric-card"><div class="metric-value neg">166</div><div class="metric-label">負けトレード</div></div>
+<div class="metric-card"><div class="metric-value pos">+57.80%</div><div class="metric-label">平均勝ち(lev)</div></div>
+<div class="metric-card"><div class="metric-value neg">-32.20%</div><div class="metric-label">平均負け(lev)</div></div>
+<div class="metric-card"><div class="metric-value">7</div><div class="metric-label">最大連勝</div></div>
+<div class="metric-card"><div class="metric-value neg">5</div><div class="metric-label">最大連敗</div></div>
+<div class="metric-card"><div class="metric-value">0.1日</div><div class="metric-label">平均保有</div></div>
+</div>
+
+<h4>Walkforward検証</h4>
+<table>
+<tr><th>Window</th><th>OOS期間</th><th>IS WR</th><th>IS PF</th><th>OOS WR</th><th>OOS PF</th><th>OOS Return</th><th>PF劣化</th></tr>
+<tr><td>W1</td><td>2025-01~03</td><td>52.7%</td><td>1.97</td><td class="pos">60.0%</td><td class="pos">2.69</td><td class="pos">+13.7%</td><td class="pos">-36.5%</td></tr>
+<tr><td>W2</td><td>2025-04~06</td><td>52.5%</td><td>1.99</td><td>36.8%</td><td>1.03</td><td>+0.8%</td><td class="neg">+48.2%</td></tr>
+</table>
+<div class="highlight">W1のOOSは IS を上回る成績（PF 2.69）。W2はPF劣化あるがプラス維持。</div>
+</div>
+
+<h3>1-8. リスクと注意点</h3>
+<div class="section">
+<div class="danger">
+<strong>リスク1: 強気相場の長期化</strong><br>
+楽観相場が続くと、「上がりすぎ」がさらに上がる。2025年4月はWR29%で唯一のマイナス月。
+</div>
+<div class="danger">
+<strong>リスク2: ショートの理論的損失無限</strong><br>
+ロングは最大-100%だが、ショートは価格が上昇し続ければ損失は無限。SL 3%で制限。レバ10xなら最大-32.2%。
+</div>
+<div class="warning">
+<strong>リスク3: 高レバレッジ</strong><br>
+バックテストは10xで実行。1回の負けで-32.2%。連敗5回で資金の大部分を失う可能性。実運用ではsettings.yamlの<b>2x推奨</b>。
+</div>
+<div class="highlight">
+<strong>対策:</strong> SL=3%の厳格な損切り / 最大保有5日 / ポジションサイズ15% / レバレッジ2x推奨
+</div>
+</div>
+
+<!-- =========================================================== -->
+<h2 id="s2">2. Bot-WeakShort 完全解析</h2>
+<!-- =========================================================== -->
+
+<h3>2-1. コンセプト</h3>
+<div class="section">
+<div class="highlight">
+<strong>核心原理: 弱者淘汰（Weak Hands Elimination）</strong><br>
+BTCが上昇している（+1%以上）のに、ついていけないアルトコインが存在する。<br>
+「強い相場で弱い銘柄」は、その後さらに売られる傾向がある。<br>
+この「取り残された弱者」をショートする。
+</div>
+
+<div class="warning">
+<strong>MeanRevert vs WeakShort の違い</strong><br>
+<table>
+<tr><th></th><th>MeanRevert</th><th>WeakShort</th></tr>
+<tr><td>戦略</td><td>逆張り（上がりすぎを売る）</td><td>順張り（下がっている弱者を売る）</td></tr>
+<tr><td>対象</td><td>MA20から+15%以上上方乖離した銘柄</td><td>BTCに対して3%以上下方乖離した銘柄</td></tr>
+<tr><td>前提</td><td>平均に戻る</td><td>弱い銘柄はさらに弱くなる</td></tr>
+<tr><td>BTC条件</td><td>なし</td><td>BTC +1%以上（強気必須）</td></tr>
+</table>
+同じショートでも、ロジックは真逆。
+</div>
+</div>
+
+<h3>2-2. 発動条件</h3>
+<div class="section">
+<table>
+<tr><th>条件</th><th>閾値</th><th>変数名</th><th>理由</th></tr>
+<tr><td><strong>条件1: Fear&amp;Greed</strong></td><td>50 ≤ fg ≤ 75</td><td><code>fear_min=50, fear_max=75</code></td><td>楽観～強欲帯。市場全体は強気。</td></tr>
+<tr><td><strong>条件2: BTC上昇</strong></td><td>btc_return ≥ +1.0%</td><td><code>btc_gain_min=1.0</code></td><td>BTCが上がっているのが前提。</td></tr>
+<tr><td><strong>条件3: 銘柄乖離</strong></td><td>BTC - 銘柄 ≥ 3.0%</td><td><code>divergence_min=3.0</code></td><td>BTCより3%以上弱い銘柄をターゲット。</td></tr>
+</table>
+
+<div class="code-block">根拠: src/backtest/backtest_engine.py:946-996 _check_weakshort_signal()
+
+def _check_weakshort_signal(self, conn, fg, btc_return, ...):
+    fear_min = self.config.get('fear_min', 50)       # 50
+    fear_max = self.config.get('fear_max', 75)       # 75
+    btc_gain_min = self.config.get('btc_gain_min', 1.0)  # +1.0%
+    divergence_min = self.config.get('divergence_min', 3.0)  # 3.0%
+
+    if not (fear_min &lt;= fg &lt;= fear_max): return None
+    if btc_return &lt; btc_gain_min: return None   # BTCが上がっていない = 不発
+
+    # 各銘柄:
+    sym_ret = (sym_close - sym_prev) / sym_prev × 100
+    divergence = btc_return - sym_ret  # BTC上昇率 - 銘柄上昇率
+    if divergence &lt; divergence_min: continue   # 3%未満の差はスキップ
+    # → 最大乖離の銘柄をショート</div>
+
+<h4>フローチャート</h4>
+<div class="flow-box">Fear 50-75?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → 待機 ⚪</div>
+<div class="flow-box">BTC 24h ≥ +1.0%?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → 待機 ⚪</div>
+<div class="flow-box">各銘柄: divergence = BTC変動率 - 銘柄変動率</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-box">divergence ≥ 3.0%?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → スキップ</div>
+<div class="flow-box" style="border-color:#ef4444;"><strong>最大乖離の銘柄をショート</strong></div>
+</div>
+
+<h3>2-3. エントリー・エグジット</h3>
+<div class="section">
+<table>
+<tr><th>項目</th><th>値</th><th>根拠</th></tr>
+<tr><td>方向</td><td class="sell">ショート</td><td><code>side: 'short'</code> (line 993)</td></tr>
+<tr><td>レバレッジ</td><td>2x</td><td><code>settings.yaml bot_weakshort.leverage: 2</code></td></tr>
+<tr><td>ポジションサイズ</td><td>15%</td><td><code>bot_weakshort.position_size_pct: 15</code></td></tr>
+<tr><td class="buy">利確 (TP)</td><td>+5.0%</td><td><code>bot_weakshort.take_profit_pct: 5.0</code></td></tr>
+<tr><td class="sell">損切り (SL)</td><td>-2.5%</td><td><code>bot_weakshort.stop_loss_pct: 2.5</code></td></tr>
+<tr><td>最大保有</td><td>5日</td><td><code>bot_weakshort.max_holding_days: 5</code></td></tr>
+</table>
+
+<p><strong>エグジット理由分布:</strong></p>
+<div style="display:flex; gap:10px;">
+<div class="metric-card"><div class="metric-value pos">57</div><div class="metric-label">TP 55.3%</div></div>
+<div class="metric-card"><div class="metric-value neg">46</div><div class="metric-label">SL 44.7%</div></div>
+</div>
+</div>
+
+<h3>2-4. トレード例</h3>
+<div class="section">
+<div class="example">
+<h4 style="margin-top:0;">例1: 勝ちトレード ✅</h4>
+<table>
+<tr><td>日付</td><td>2024-01-03</td></tr>
+<tr><td>銘柄</td><td>BIGTIME/USDT:USDT</td></tr>
+<tr><td>方向</td><td class="sell">ショート</td></tr>
+<tr><td>エントリー</td><td>$0.4897</td></tr>
+<tr><td>エグジット</td><td>$0.4652 (TP)</td></tr>
+<tr><td>PnL</td><td class="buy">+9.56% (レバ込み)</td></tr>
+<tr><td>背景</td><td>BTCは+1%以上上昇中、BIGTIMEは下落。BTCについていけない「弱い」トークンとして検出。</td></tr>
+</table>
+</div>
+
+<div class="example">
+<h4 style="margin-top:0;">例2: 負けトレード ❌</h4>
+<table>
+<tr><td>日付</td><td>2024-02-02</td></tr>
+<tr><td>銘柄</td><td>ALT/USDT:USDT</td></tr>
+<tr><td>方向</td><td class="sell">ショート</td></tr>
+<tr><td>エントリー → SL</td><td>PnL: <span class="sell">-5.44%</span></td></tr>
+<tr><td>理由</td><td>ALTが「弱い」と判定されたが、翌日に急反発。アルト全体の急騰でSL到達。</td></tr>
+</table>
+</div>
+</div>
+
+<h3>2-5. バックテスト成績</h3>
+<div class="section">
+<table class="monthly-table">
+<tr><th>月</th><th>トレード</th><th>PnL%</th><th>WR</th></tr>
+<tr><td>2024-01</td><td>7</td><td class="pos">+51.9%</td><td>86%</td></tr>
+<tr><td>2024-02</td><td>9</td><td class="neg">-34.0%</td><td>11%</td></tr>
+<tr><td>2024-03</td><td>4</td><td class="pos">+23.2%</td><td>75%</td></tr>
+<tr><td>2024-04</td><td>8</td><td class="pos">+31.5%</td><td>62%</td></tr>
+<tr><td>2024-05</td><td>9</td><td class="pos">+41.0%</td><td>67%</td></tr>
+<tr><td>2024-06</td><td>3</td><td class="pos">+13.7%</td><td>67%</td></tr>
+<tr><td>2024-07</td><td>4</td><td class="neg">-6.8%</td><td>25%</td></tr>
+<tr><td>2024-08</td><td>1</td><td class="pos">+9.6%</td><td>100%</td></tr>
+<tr><td>2024-09</td><td>2</td><td class="pos">+4.1%</td><td>50%</td></tr>
+<tr><td>2024-10</td><td>7</td><td class="pos">+21.9%</td><td>57%</td></tr>
+<tr><td>2024-11</td><td>3</td><td class="neg">-1.3%</td><td>33%</td></tr>
+<tr><td>2024-12</td><td>4</td><td class="pos">+38.2%</td><td>100%</td></tr>
+<tr><td>2025-01</td><td>8</td><td class="pos">+16.5%</td><td>50%</td></tr>
+<tr><td>2025-04</td><td>1</td><td class="neg">-5.4%</td><td>0%</td></tr>
+<tr><td>2025-05</td><td>10</td><td class="pos">+5.6%</td><td>40%</td></tr>
+<tr><td>2025-06</td><td>4</td><td class="pos">+8.2%</td><td>50%</td></tr>
+<tr><td>2025-07</td><td>7</td><td class="pos">+6.9%</td><td>43%</td></tr>
+<tr><td>2025-08</td><td>6</td><td class="pos">+27.4%</td><td>67%</td></tr>
+<tr><td>2025-09</td><td>3</td><td class="pos">+13.7%</td><td>67%</td></tr>
+<tr><td>2025-10</td><td>3</td><td class="pos">+28.7%</td><td>100%</td></tr>
+</table>
+
+<h4>Walkforward検証</h4>
+<table>
+<tr><th>Window</th><th>OOS期間</th><th>OOS WR</th><th>OOS PF</th><th>OOS Return</th><th>PF劣化</th></tr>
+<tr><td>W1</td><td>2025-01~03</td><td>57.1%</td><td class="pos">2.31</td><td>+3.3%</td><td class="pos">2.1%</td></tr>
+<tr><td>W2</td><td>2025-04~06</td><td>40.0%</td><td>1.16</td><td>+1.2%</td><td class="neg">52.1%</td></tr>
+</table>
+<div class="highlight">W1はPF劣化わずか2.1%で非常に安定。W2はPF劣化あるがプラス維持。</div>
+</div>
+
+<!-- =========================================================== -->
+<h2 id="s3">3. Bot-Sniper 完全解析</h2>
+<!-- =========================================================== -->
+
+<h3>3-1. コンセプト</h3>
+<div class="section">
+<div class="highlight">
+<strong>核心原理: 精密狙撃（Precision Sniping）</strong><br>
+恐怖相場（Fear&lt;30）でBTCが急落（-3%以上）しているとき、<br>
+出来高が爆発的に増加し（5倍以上）、かつBTCと低相関（&lt;0.3）の銘柄を<br>
+ロングする。条件が4つ全て同時成立しないと発火しない。<br>
+<b>月0-2回の超低頻度・超精密トレード。</b>
+</div>
+
+<div class="warning">
+<strong>他のBotとの決定的な違い:</strong><br>
+<ul>
+<li>資金の <b>5%のみ</b> 使用（他は15-30%）</li>
+<li>レバレッジ <b>10x</b>（超ハイリスク・ハイリターン）</li>
+<li>4条件全て同時成立が必要（他は2-3条件）</li>
+<li>負けても全資金の <b>0.5-2.5%程度</b> の損失で済む</li>
+</ul>
+</div>
+</div>
+
+<h3>3-2. 発動条件</h3>
+<div class="section">
+<table>
+<tr><th>条件</th><th>閾値</th><th>変数名</th><th>理由</th></tr>
+<tr><td><strong>条件1: Fear&amp;Greed</strong></td><td>fg &lt; 30</td><td><code>fear_max=30</code></td><td>恐怖圏。パニック売りが出ている。</td></tr>
+<tr><td><strong>条件2: BTC急落</strong></td><td>btc_return ≤ -3.0%</td><td><code>btc_drop_threshold=-3.0</code></td><td>BTCが大きく下落中。</td></tr>
+<tr><td><strong>条件3: 出来高爆発</strong></td><td>vol_ratio ≥ 5.0x</td><td><code>vol_spike_min=5.0</code></td><td>20日平均の5倍以上の出来高 = パニック or 投げ売り。</td></tr>
+<tr><td><strong>条件4: 低BTC相関</strong></td><td>corr &lt; 0.3</td><td><code>corr_max=0.3</code></td><td>BTCとの相関が0.3未満 = 独自の動きをしている。</td></tr>
+</table>
+
+<div class="code-block">根拠: src/signals/bot_sniper.py:12-79 check_signal()
+
+def check_signal(conn, fg, btc_return, btc_df, date_str, symbols, config):
+    fear_max = config.get('fear_max', 30)              # &lt; 30
+    btc_drop_threshold = config.get('btc_drop_threshold', -3.0)  # ≤ -3.0%
+    vol_spike_min = config.get('vol_spike_min', 5.0)   # ≥ 5.0x
+    corr_max = config.get('corr_max', 0.3)             # &lt; 0.3
+
+    if fg >= fear_max: return None      # Fear 30以上 → 不発
+    if btc_return > btc_drop_threshold: return None  # BTC -3%未満 → 不発
+
+    # 各銘柄について:
+    vol_ratio = volumes[-1] / vol_avg   # 出来高比率
+    if vol_ratio &lt; vol_spike_min: continue  # 5倍未満 → スキップ
+
+    corr = np.corrcoef(sym_ret, btc_ret)  # 14日BTC相関
+    if corr > corr_max: continue          # 0.3以上 → スキップ
+
+    # スコア: vol_ratio × (1 - corr) → 最高スコアをロング
+    candidates.sort(key=lambda x: x['vol_ratio'] * (1 - x['btc_corr']))</div>
+
+<h4>フローチャート</h4>
+<div class="flow-box">Fear &lt; 30?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → 待機 ⚪</div>
+<div class="flow-box">BTC 24h ≤ -3.0%?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → 待機 ⚪</div>
+<div class="flow-box">各銘柄: 出来高 ≥ 20日平均×5?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → スキップ</div>
+<div class="flow-box">14日BTC相関 &lt; 0.3?</div>
+<div class="flow-arrow">│ Yes ↓ &emsp;&emsp; No → スキップ</div>
+<div class="flow-box" style="border-color:#4ade80;"><strong>ロングシグナル生成（精密狙撃）</strong></div>
+</div>
+
+<h3>3-3. エントリー・エグジット</h3>
+<div class="section">
+<table>
+<tr><th>項目</th><th>値</th><th>根拠</th></tr>
+<tr><td>方向</td><td class="buy">ロング（買い）</td><td><code>side: 'long'</code> (line 71)</td></tr>
+<tr><td>レバレッジ</td><td><b>10x</b></td><td><code>settings.yaml bot_sniper.leverage: 10</code></td></tr>
+<tr><td>ポジションサイズ</td><td><b>5%</b></td><td><code>bot_sniper.position_size_pct: 5</code></td></tr>
+<tr><td class="buy">利確 (TP)</td><td>+15.0%</td><td><code>bot_sniper.take_profit_pct: 15.0</code></td></tr>
+<tr><td class="sell">損切り (SL)</td><td>-5.0%</td><td><code>bot_sniper.stop_loss_pct: 5.0</code></td></tr>
+<tr><td>最大保有</td><td>5日</td><td><code>bot_sniper.max_holding_days: 5</code></td></tr>
+</table>
+
+<div class="example">
+<strong>リスク計算例:</strong><br>
+資金100万円 × 5% = 5万円の証拠金 × レバ10倍 = 50万円分のロング<br>
+SL到達時: 5万円 × (5% × 10) = -2.5万円 = <b>全資金の2.5%損失</b><br>
+TP到達時: 5万円 × (15% × 10) = +7.5万円 = <b>全資金の7.5%利益</b><br>
+→ リスクリワード比 = 1:3。超ハイレバだがポジション小さいため損失限定。
+</div>
+</div>
+
+<h3>3-4. バックテスト状況</h3>
+<div class="section">
+<div class="danger">
+<strong>バックテストCSV未生成</strong><br>
+<code>vault/backtest_results/</code> にBot-Sniperのバックテスト結果ファイルは存在しません。<br>
+<code>src/signals/bot_sniper.py</code> の <code>check_signal()</code> 関数は実装済みですが、<br>
+<code>backtest_engine.py</code> では <code>_check_external_signal()</code> 経由でディスパッチされるため、<br>
+バックテスト実行が必要です。
+</div>
+
+<p>条件が非常に厳しい（Fear&lt;30 + BTC≤-3% + 出来高5x + 相関&lt;0.3）ため、<br>
+2年間で<b>月0-2回程度</b>の発火が予想されます。</p>
+
+<div class="highlight">
+<strong>推定パフォーマンス（条件の厳しさから）:</strong><br>
+- 年間トレード数: 10-24回<br>
+- 高い勝率（厳選ゆえ）: 推定55-65%<br>
+- 1回あたり: TP=+150% / SL=-50%（レバ10x）<br>
+- 全資金ベース: TP=+7.5% / SL=-2.5%（ポジ5%×レバ10x）
+</div>
+</div>
+
+<!-- =========================================================== -->
+<h2 id="s4">4. 3Bot 比較表</h2>
+<!-- =========================================================== -->
+
+<h3>4-1. ロジック比較</h3>
+<div class="section">
+<table>
+<tr><th>項目</th><th>MeanRevert</th><th>WeakShort</th><th>Sniper</th></tr>
+<tr><td>コンセプト</td><td>上がりすぎを売る（逆張り）</td><td>弱い銘柄を売る（順張り）</td><td>恐怖の底で精密ロング</td></tr>
+<tr><td>方向</td><td class="sell">Short</td><td class="sell">Short</td><td class="buy">Long</td></tr>
+<tr><td>Fear帯</td><td><span class="tag tag-fear">50-80</span></td><td><span class="tag tag-fear">50-75</span></td><td><span class="tag tag-fear">&lt;30</span></td></tr>
+<tr><td>BTC条件</td><td>なし</td><td>≥ +1.0%</td><td>≤ -3.0%</td></tr>
+<tr><td>銘柄条件</td><td>MA20乖離 ≥ 15%</td><td>BTC-銘柄乖離 ≥ 3%</td><td>出来高5x + 相関&lt;0.3</td></tr>
+<tr><td>ポジション</td><td>15%</td><td>15%</td><td><b>5%</b></td></tr>
+<tr><td>レバレッジ</td><td>2x</td><td>2x</td><td><b>10x</b></td></tr>
+<tr><td>TP</td><td>6.0%</td><td>5.0%</td><td><b>15.0%</b></td></tr>
+<tr><td>SL</td><td>3.0%</td><td>2.5%</td><td>5.0%</td></tr>
+<tr><td>最大保有</td><td>5日</td><td>5日</td><td>5日</td></tr>
+<tr><td>発動頻度</td><td>~15回/月</td><td>~4回/月</td><td>0-2回/月</td></tr>
+</table>
+</div>
+
+<h3>4-2. 成績比較</h3>
+<div class="section">
+<table>
+<tr><th>項目</th><th>MeanRevert</th><th>WeakShort</th><th>Sniper</th></tr>
+<tr><td>勝率</td><td class="pos">55.4%</td><td class="pos">55.3%</td><td>N/A</td></tr>
+<tr><td>トレード数</td><td>372</td><td>103</td><td>N/A</td></tr>
+<tr><td>総リターン</td><td class="pos">+6,562%</td><td class="pos">+295%</td><td>N/A</td></tr>
+<tr><td>最大DD</td><td class="neg">-32.2%</td><td class="neg">-5.4%</td><td>N/A</td></tr>
+<tr><td>平均保有</td><td>0.1日</td><td>0.2日</td><td>~数日</td></tr>
+<tr><td>WF W1 OOS PF</td><td class="pos">2.69</td><td class="pos">2.31</td><td>N/A</td></tr>
+</table>
+</div>
+
+<h3>4-3. Fear帯カバレッジ</h3>
+<div class="section">
+<div class="code-block" style="font-size: 0.9rem; line-height: 1.6;">Fear:  0────10────20────30────40────50────60────70────80────90────100
+       |<span style="color:#ef4444">█Alpha██</span>|           |<span style="color:#fbbf24">█Surge█</span>|     |                    |
+       |        |<span style="color:#c084fc">██Sniper███</span>|         |     |                    |
+       |        |           |         |     |<span style="color:#ef4444">██WeakShort██████</span>|    |
+       |        |           |         |     |<span style="color:#ff6b6b">████MeanRevert████████</span>|
+       ←── 恐怖                                             楽観 ──→</div>
+
+<div class="highlight">
+<strong>同時発火の可能性:</strong><br>
+MeanRevert(50-80) と WeakShort(50-75) は <b>Fear 50-75</b> で重複。<br>
+ただし WeakShort は追加で「BTC +1%以上」が必要なため、実際に同時発火するのは<br>
+<b>Fear 50-75 かつ BTC ≥ +1%</b> の場合のみ。この時は2銘柄を同時ショートする可能性あり。<br>
+→ ポジション管理で同時保有数を制限すること。
+</div>
+</div>
+
+<!-- =========================================================== -->
+<h2 id="s5">5. 売買判断フロー（実運用向け）</h2>
+<!-- =========================================================== -->
+
+<div class="section">
+<div class="timeline">
+
+<div class="timeline-item">
+<h4 style="margin:0;">Step 1: Fear&amp;Greed を確認</h4>
+<table>
+<tr><td>0-10</td><td>→ Bot-Alpha 発火圏。歴史的買い場。</td></tr>
+<tr><td>10-30</td><td>→ Bot-Sniper 待機中。BTC急落なら精密ロング。</td></tr>
+<tr><td>25-45</td><td>→ Bot-Surge 稼働中。乖離銘柄を監視。</td></tr>
+<tr><td>50-75</td><td>→ <b>WeakShort + MeanRevert</b> 稼働中。ショート機会。</td></tr>
+<tr><td>75-80</td><td>→ MeanRevert のみ。過熱銘柄のショート。</td></tr>
+<tr><td>80+</td><td>→ 全Bot待機。天井圏で新規ロング禁止。</td></tr>
+</table>
+</div>
+
+<div class="timeline-item">
+<h4 style="margin:0;">Step 2: Botステータスを確認</h4>
+<ul>
+<li>🔴 <b>fired</b> → シグナルを確認。即時対応。</li>
+<li>🟡 <b>near</b> → 閾値に接近中。注意して待つ。</li>
+<li>🟢 <b>active</b> → 稼働中。シグナルが出れば対応。</li>
+<li>⚪ <b>waiting</b> → 条件未達。何もしない。</li>
+</ul>
+</div>
+
+<div class="timeline-item">
+<h4 style="margin:0;">Step 3: シグナルが出たら</h4>
+<ol>
+<li>銘柄・方向（Long/Short）を確認</li>
+<li>Score内訳で「なぜこの銘柄か」を理解（聖域+20, 出来高+15, 等）</li>
+<li>TP/SLを確認（自動設定、変更しない）</li>
+<li>自分のリスク許容度でレバレッジを決定:
+  <ul>
+    <li>保守的: settings.yaml推奨値（2x）</li>
+    <li>積極的: バックテスト値（10x）※高リスク</li>
+  </ul>
+</li>
+</ol>
+</div>
+
+<div class="timeline-item">
+<h4 style="margin:0;">Step 4: ポジション管理</h4>
+<ul>
+<li>TP/SLは自動設定のまま（変更しない）</li>
+<li>最大保有期間（5日）を超えたら手動決済</li>
+<li>MeanRevert + WeakShort 同時発火時は合計ポジションサイズに注意</li>
+<li>パターンC（全面安）移行時は全ポジション即時決済</li>
+</ul>
+</div>
+
+</div>
+</div>
+
+<div style="text-align:center; padding:40px 20px; color:#8b949e; border-top:1px solid #30363d; margin-top:40px;">
+Empire Monitor &mdash; Bot ロジック完全解析<br>
+Generated 2026-03-11 by Claude | Source: <code>src/backtest/backtest_engine.py</code>, <code>src/signals/bot_sniper.py</code>, <code>config/settings.yaml</code>
+</div>
+
+</body>
+</html>

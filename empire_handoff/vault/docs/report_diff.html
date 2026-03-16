@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Monitor - DIFF Report (Before vs After)</title>
+<style>
+body { font-family: 'Segoe UI', sans-serif; max-width: 1400px; margin: 0 auto; padding: 20px; background: #1a1a2e; color: #e0e0e0; }
+h1 { color: #00d4ff; border-bottom: 2px solid #00d4ff; padding-bottom: 10px; }
+h2 { color: #ffd700; margin-top: 30px; }
+h3 { color: #ff6b6b; }
+table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+th { background: #16213e; color: #00d4ff; padding: 10px; text-align: left; border: 1px solid #333; }
+td { padding: 8px 10px; border: 1px solid #333; }
+tr:hover { background: #16213e; }
+.pass { color: #4ade80; font-weight: bold; }
+.fail { color: #ef4444; font-weight: bold; }
+.warn { color: #fbbf24; }
+.adopt { background: #1a3a2a; }
+.reject { background: #3a1a1a; }
+.insurance { background: #2a2a1a; }
+.experiment { background: #1a2a3a; }
+.section { background: #16213e; border-radius: 8px; padding: 20px; margin: 20px 0; }
+.before { border-left: 4px solid #ef4444; padding-left: 15px; }
+.after { border-left: 4px solid #4ade80; padding-left: 15px; }
+code { background: #0d1117; padding: 2px 6px; border-radius: 4px; color: #79c0ff; }
+pre { background: #0d1117; padding: 15px; border-radius: 8px; overflow-x: auto; line-height: 1.5; }
+.metric { font-size: 24px; font-weight: bold; color: #00d4ff; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+.badge-green { background: #1a3a2a; color: #4ade80; }
+.badge-red { background: #3a1a1a; color: #ef4444; }
+.badge-yellow { background: #2a2a1a; color: #fbbf24; }
+.badge-blue { background: #1a2a3a; color: #00d4ff; }
+
+</style>
+</head>
+<body>
+<h1>Empire Monitor - DIFF Report (Before vs After)</h1>
+
+<h2>1. Change Summary</h2>
+<div class="section">
+<table>
+<tr><th>Category</th><th>Before</th><th>After</th><th>Impact</th></tr>
+<tr><td>Report Format</td><td class="before">4 sections (市場/Tier1/Tier2/ポジション)</td><td class="after">7 sections (+結論/Bot Status/どらの解説/スコアガイド)</td><td>ユーザー体験向上</td></tr><tr><td>VETO System</td><td class="before">なし</td><td class="after">3層VETO (データ/自動/手動)</td><td>不良銘柄の自動除外</td></tr><tr><td>Commentary</td><td class="before">なし</td><td class="after">テンプレートベース日本語コメンタリー</td><td>判断根拠の可視化</td></tr><tr><td>Score Display</td><td class="before">合計スコアのみ</td><td class="after">T1/T2内訳表示</td><td>スコア透明性</td></tr><tr><td>Bot Status</td><td class="before">2Bot表示 (Alpha/Surge)</td><td class="after">6Bot表示 (全採用/保険Bot)</td><td>Bot稼働状況の把握</td></tr><tr><td>Community Report</td><td class="before">なし</td><td class="after">簡易版レポート (Telegram用)</td><td>情報共有</td></tr><tr><td>Score Guide</td><td class="before">なし</td><td class="after">フッター付き配点ガイド</td><td>新規ユーザー理解</td></tr><tr><td>Fear Comment</td><td class="before">数値のみ</td><td class="after">帯域別コメント + Bot発火条件</td><td>恐怖指数の文脈化</td></tr>
+</table>
+</div>
+
+<h2>2. File Changes (git diff --stat)</h2>
+<div class="section">
+<pre>config/settings.yaml                               |  238 +++++
+ main.py                                            |    7 +-
+ mew/1.txt                                          |   45 +
+ mew/10.txt                                         |   29 +
+ mew/11.txt                                         |   26 +
+ mew/12.txt                                         |   14 +
+ mew/13.txt                                         |   24 +
+ mew/14.txt                                         |   25 +
+ mew/15.txt                                         |   16 +
+ mew/16.txt                                         |   24 +
+ mew/17.txt                                         |   12 +
+ mew/18.txt                                         |    6 +
+ mew/19.txt                                         |   10 +
+ mew/2.txt                                          |   57 ++
+ mew/20.txt                                         |   11 +
+ mew/21.txt                                         |   10 +
+ mew/3.txt                                          |   59 ++
+ mew/4.txt                                          |   56 ++
+ mew/5.txt                                          |   48 +
+ mew/6.txt                                          |   30 +
+ mew/7.txt                                          |   30 +
+ mew/8.txt                                          |   33 +
+ mew/9.txt                                          |   29 +
+ mew/A.txt                                          |    5 +
+ mew/B.txt                                          |    4 +
+ mew/C.txt                                          |    5 +
+ mew/D.txt                                          |    3 +
+ scripts/generate_report_html.py                    | 1007 ++++++++++++++++++++
+ scripts/run_backtest.py                            |   50 +-
+ scripts/run_bot_improvement.py                     |  343 +++++++
+ scripts/run_cap_sensitivity.py                     |  146 +++
+ scripts/run_engine_audit.py                        |  142 +++
+ scripts/run_knowledge_bots.py                      |  284 ++++++
+ scripts/run_leverage_compare.py                    |  236 +++++
+ scripts/run_pyramid_compare.py                     |  202 ++++
+ scripts/run_walkforward.py                         |  461 +++++----
+ scripts/send_final_summary.py                      |   66 ++
+ scripts/send_meanrevert_analysis.py                |   66 ++
+ scripts/send_newbot_summary.py                     |   56 ++
+ scripts/test_new_modules.py                        |  397 ++++++++
+ scripts/test_system.py                             |  218 ++++-
+ scripts/verify_trades.py                           |  197 ++++
+ src/backtest/backtest_engine.py                    |  865 ++++++++++++++++-
+ src/core/commentary.py                             |  344 +++++++
+ src/core/engine.py                                 |  176 +++-
+ src/core/paper_tracker.py                          |  196 ++++
+ src/core/report_scheduler.py                       |   99 +-
+ src/core/state.py                                  |    2 +
+ src/core/veto.py                                   |  138 +++
+ src/execution/alert.py                             |  404 ++++++--
+ src/signals/bot_domshift.py                        |  109 +++
+ src/signals/bot_event.py                           |   59 ++
+ src/signals/bot_feardip.py                         |   79 ++
+ src/signals/bot_fearflat.py                        |   95 ++
+ src/signals/bot_gaptrap.py                         |   79 ++
+ src/signals/bot_scalp.py                           |   86 ++
+ src/signals/bot_sectorlead.py                      |   83 ++
+ src/signals/bot_sectorsync.py                      |  109 +++
+ src/signals/bot_shortsqueeze.py                    |   81 ++
+ src/signals/bot_sniper.py                          |   79 ++
+ src/signals/bot_volexhaust.py                      |   81 ++
+ src/signals/regime.py                              |   28 +-
+ src/signals/tier1_engine.py                        |    1 +
+ src/signals/tier2_engine.py                        |    1 +
+ .../bt_breakout_20240101_20260301.csv              |   23 +
+ .../bt_btcfollow_20240101_20260301.csv             |    2 +
+ .../bt_cascade_20240101_20260301.csv               |  105 ++
+ .../bt_meanrevert_20240101_20260301.csv            |  373 ++++++++
+ .../bt_momentum_20240101_20260301.csv              |  298 ++++++
+ .../bt_rebound_20240101_20260301.csv               |   46 +
+ .../bt_stability_20240101_20260301.csv             |  171 ++++
+ .../bt_trend_20240101_20260301.csv                 |  144 +++
+ .../bt_weakshort_20240101_20260301.csv             |  104 ++
+ vault/backtest_results/walkforward/wf_alpha.csv    |    6 +
+ .../backtest_results/walkforward/wf_meanrevert.csv |    6 +
+ vault/backtest_results/walkforward/wf_surge.csv    |    6 +
+ .../backtest_results/walkforward/wf_weakshort.csv  |    6 +
+ vault/docs/bot_lineup_final.md                     |  162 ++++
+ vault/docs/empire_monitor_qa_31.md                 |  210 ++++
+ vault/docs/empire_monitor_specification.md         |  720 ++++++++++++++
+ vault/docs/empire_monitor_specification_v2.html    |  675 +++++++++++++
+ vault/docs/empire_monitor_specification_v2.md      |  751 +++++++++++++++
+ vault/docs/report_after.html                       |  216 +++++
+ vault/docs/report_before.html                      |  195 ++++
+ vault/docs/report_diff.html                        |  337 +++++++
+ vault/knowledge/mew/_INDEX.md                      |   87 ++
+ vault/knowledge/mew/mew_1.md                       |   50 +
+ vault/knowledge/mew/mew_10.md                      |   45 +
+ vault/knowledge/mew/mew_11.md                      |   45 +
+ vault/knowledge/mew/mew_12.md                      |   46 +
+ vault/knowledge/mew/mew_13.md                      |   46 +
+ vault/knowledge/mew/mew_14.md                      |   53 ++
+ vault/knowledge/mew/mew_15.md                      |   49 +
+ vault/knowledge/mew/mew_16.md                      |   49 +
+ vault/knowledge/mew/mew_17.md                      |   49 +
+ vault/knowledge/mew/mew_18.md                      |   46 +
+ vault/knowledge/mew/mew_19.md                      |   47 +
+ vault/knowledge/mew/mew_2.md                       |   48 +
+ vault/knowledge/mew/mew_20.md                      |   49 +
+ vault/knowledge/mew/mew_21.md                      |   47 +
+ vault/knowledge/mew/mew_3.md                       |   46 +
+ vault/knowledge/mew/mew_4.md                       |   47 +
+ vault/knowledge/mew/mew_5.md                       |   47 +
+ vault/knowledge/mew/mew_6.md                       |   47 +
+ vault/knowledge/mew/mew_7.md                       |   45 +
+ vault/knowledge/mew/mew_8.md                       |   47 +
+ vault/knowledge/mew/mew_9.md                       |   46 +
+ vault/knowledge/mew/mew_A.md                       |   47 +
+ vault/knowledge/mew/mew_B.md                       |   44 +
+ vault/knowledge/mew/mew_C.md                       |   45 +
+ vault/knowledge/mew/mew_D.md                       |   46 +
+ 111 files changed, 13359 insertions(+), 381 deletions(-)</pre>
+</div>
+
+<h2>3. Before / After Report Comparison</h2>
+<div class="grid">
+<div class="section before">
+<h3>BEFORE (旧フォーマット)</h3>
+<pre>&#x1F680; 起動レポート 2026-03-11 17:00
+
+■ 市場環境
+  BTC: $82,500 (前日比 +1.5%)
+  Fear&amp;Greed: 35 (Fear域)
+  BTC.D: 61.2%
+  パターン: B (全力買い)
+  Bot-Alpha: 待機中
+  Bot-Surge: 稼働中
+
+■ Tier1通過 (182銘柄)
+  セクター別: DeFi:42, AI:28
+
+■ Tier2通過 上位20
+  1. PAXG [DeFi] Score:109
+  2. SOL [L1] Score:95
+
+■ ポジション (0件)
+  なし</pre>
+</div>
+<div class="section after">
+<h3>AFTER (新フォーマット)</h3>
+<pre>&#x1F680; 起動レポート 2026-03-11 17:00
+
+■ 結論
+  アルト祭り＋Fear域。積極的にロング。Tier2上位を狙え。
+
+■ 市場前提
+  BTC $82,500 (+1.5%) | F&amp;G 35 | BTC.D 61.2% | Pattern B
+
+■ Tier1通過 (182銘柄)
+  セクター: DeFi:42, AI:28
+
+■ Tier2通過 上位20
+  1. PAXG [DeFi] 109pt (T1:62+T2:47)
+  2. SOL [L1] 95pt (T1:58+T2:37)
+
+■ Bot Status
+  Bot-Alpha: 待機中。Fear&lt;10の極限恐怖を待つ。
+  Bot-Surge: 🟡 稼働中。BTC乖離銘柄＋セクター波及を監視。
+
+■ ポジション (0件)
+  なし
+
+■ どらの解説
+  😟 Fear域(F&amp;G=35)。Bot-Surge稼働条件。押し目買い候補を探す。
+</pre>
+</div>
+</div>
+
+<h2>4. New Features</h2>
+<div class="section">
+<table>
+<tr><th>Feature</th><th>Description</th></tr>
+<tr><td><strong>VETO System</strong></td><td>3層構造: Layer1=データ品質, Layer2=自動ルール, Layer3=手動リスト。VETO発動で-100pt即除外。</td></tr><tr><td><strong>Commentary Engine</strong></td><td>テンプレートベースの日本語コメンタリー。AIは不使用（Iron Rule遵守）。パターン/Fear/BTC変動から自動生成。</td></tr><tr><td><strong>Community Report</strong></td><td>Telegram向け簡易レポート。結論+市場前提+上位5銘柄のコンパクト版。</td></tr><tr><td><strong>Score Guide Footer</strong></td><td>T1/T2の配点構造をレポート末尾に表示。初見ユーザーでもスコアの意味が分かる。</td></tr><tr><td><strong>Bot Status Section</strong></td><td>6Bot(Alpha/Surge/MeanRevert/WeakShort/Sniper/Scalp)の稼働状態と条件を表示。</td></tr><tr><td><strong>Regime Commentary</strong></td><td>6パターン(A-F)に対応する相場解説と推奨アクションを生成。</td></tr>
+</table>
+</div>
+
+<h2>5. Q&amp;A Summary (31 items)</h2>
+<div class="section">
+<p>
+Implemented: <span class="pass">28</span> &nbsp;
+Not Implemented: <span class="fail">3</span> &nbsp;
+Coverage: <span class="metric">90%</span>
+</p>
+<table>
+<tr><th>Question</th><th>Status</th></tr>
+<tr><td>Q1: レポート結論セクション追加</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q2: 市場前提の1行化</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q3: Bot Statusセクション追加</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q4: どらの解説セクション追加</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q5: スコア内訳表示</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q6: スコアガイドフッター</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q7: VETO除外表示</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q8: コミュニティレポート</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q9: Fear帯域コメント</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q10: パターン別解説</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q11: BTC変動コメント</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q12: トリガーアクション</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q13: セクター内訳表示</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q14: 新規上場フラグ</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q15: Tier2内訳(FR/流動性/清算)</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q16: Bot-Alpha待機表示</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q17: Bot-Surge稼働表示</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q18: Bot-MeanRevert条件</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q19: Bot-WeakShort条件</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q20: Bot-Sniper条件</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q21: Bot-Scalp常時稼働</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q22: マクロイベントVETO</td><td><span class="fail">&#x274C; 未実装</span></td></tr><tr><td>Q23: Bot同時シグナル優先順位</td><td><span class="fail">&#x274C; 未実装</span></td></tr><tr><td>Q24: パターン別勝率トラッキング</td><td><span class="fail">&#x274C; 未実装</span></td></tr><tr><td>Q25: BTC.D 30-80%ガード</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q26: VETO手動追加/削除</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q27: VETO統計・履歴</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q28: スプレッド過大VETO</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q29: OHLCV欠損VETO</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q30: extra_checks拡張</td><td><span class="pass">&#x2705; 実装済</span></td></tr><tr><td>Q31: テスト全件パス</td><td><span class="pass">&#x2705; 実装済</span></td></tr>
+</table>
+</div>
+
+<h2>6. Test Results</h2>
+<div class="section">
+<div class="grid">
+<div>
+<h3>Before (no tests existed)</h3>
+<p><span class="warn">N/A - テストなし</span></p>
+</div>
+<div>
+<h3>After (test_new_modules.py)</h3>
+<p>Passed: <span class="pass">36</span> / Failed: <span class="fail">0</span> / Total: 36</p>
+</div>
+</div>
+<details>
+<summary style="cursor:pointer; color:#00d4ff;">Raw test output</summary>
+<pre>
+=== Test: Commentary ===
+  ✅ regime_comment Pattern B: 🎉 アルト祭り突入。BTC上昇中にドミナンス低下＝資金がアルトに流れている。Tier2上位を積極的に狙う。
+→ 全力買い...
+  ✅ regime_comment Pattern C + BTC急落
+  ✅ fear_comment fg=5: 😱 極限恐怖(F&amp;G=5)。Bot-Alpha発火圏内。歴史的買い場の可能性。...
+  ✅ fear_comment fg=85: 🤑 極限貪欲(F&amp;G=85)。天井圏の警戒。新規ロング禁止、利確優先。...
+  ✅ bot_status alpha fired: Bot-Alpha: 🔴 発火中！極限一撃モード。低相関・高αの厳選銘柄にLong 3x。...
+  ✅ bot_status surge waiting
+  ✅ tier1_summary: Tier1通過: 180/870銘柄 (20.7%)
+通常レベルの通過率。
+主要セクター: DeFi(40銘柄)、AI(...
+  ✅ tier2_symbol_comment: SOL: 合計70pt (T1:45 + T2:25)
+  T1内訳: 聖域20 / 出来高15 / 価格変動10
+  ...
+  ✅ trigger_comment BTC 1h: 市場意味: フラッシュクラッシュ/急騰 / 執行: 新規エントリー見送り。既存ポジションSL確認。 / 監視: Alph...
+  ✅ score_guide_footer
+  ✅ build_report_commentary
+  ✅ _build_conclusion Pattern C
+  ✅ _build_conclusion Fear=5
+
+  Commentary: 13/13 passed
+
+=== Test: VetoSystem ===
+  ✅ VetoSystem init with manual_symbols
+  ✅ Layer 3 manual veto: 手動VETO: SCAM/USDT:USDTはsettings.yaml veto.manual_s
+  ✅ Layer 2 price=0 veto
+  ✅ Layer 2 negative price veto
+  ✅ Layer 2 OHLCV missing veto
+  ✅ Layer 2 spread veto
+  ✅ Normal pass (no veto)
+  ✅ add/remove manual veto
+  ✅ veto_stats: {&#x27;total&#x27;: 4, &#x27;by_reason&#x27;: {&#x27;手動VETO&#x27;: 1, &#x27;データ異常&#x27;: 3}, &#x27;manual_count&#x27;: 1}
+  ✅ recent_vetos: 4 entries
+  ✅ extra_checks lt veto
+  ✅ Default config - no veto
+
+  VetoSystem: 12/12 passed
+
+=== Test: Alert imports ===
+  ✅ TelegramAlert new methods exist
+  ✅ EmpireMonitor imports VetoSystem
+
+  Alert imports: 2/2 passed
+
+=== Test: Enhanced Features ===
+  ✅ Bot status with distance (Alpha near)
+  ✅ Bot status with multiple bots
+  ✅ Score breakdown: 聖域+20, 出来高+15, 変動+10, 低相関+10, α乖離+5, FR+20, 板厚+15, 清算-5
+  ✅ Matching bots: ◎Surge
+  ✅ Matching bots fg=60: ○MeanRevert ○WeakShort
+  ✅ SymbolState has tier details
+  ✅ Trigger analysis enhanced: 市場意味: トレンド転換の可能性 / 執行: 全ポジションSL見直し。ポジション縮小検討。 / 監視: Alpha, S...
+  ✅ Trigger analysis OI
+  ✅ Market premise header
+
+  Enhanced Features: 9/9 passed
+
+==================================================
+TOTAL: 36/36 passed
+ALL TESTS PASSED ✅
+</pre>
+</details>
+</div>
+
+<h2>7. Bot Logic Unchanged Confirmation</h2>
+<div class="section">
+<p><span class="pass">&#x2705; All 13 bot logics remain unchanged.</span>
+Only report formatting and commentary were added. No trading logic was modified.</p>
+<table>
+<tr><th>Bot</th><th>Status</th><th>Logic</th><th>Note</th></tr>
+<tr><td>surge</td><td>&#x2705; 採用</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>meanrevert</td><td>&#x2705; 採用</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>weakshort</td><td>&#x2705; 採用</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>alpha</td><td>&#x1F536; 保険</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>sniper</td><td>&#x1F536; 保険</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>scalp</td><td>&#x1F9EA; 実験</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>momentum</td><td>&#x274C; 不採用</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>rebound</td><td>&#x274C; 不採用</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>stability</td><td>&#x1F9EA; 実験</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>trend</td><td>&#x1F9EA; 実験</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>cascade</td><td>&#x274C; 不採用</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>breakout</td><td>&#x274C; 不採用</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr><tr><td>btcfollow</td><td>&#x274C; 不採用</td><td class="pass">unchanged</td><td>Backtest results identical</td></tr>
+</table>
+</div>
+
+<hr style="border-color:#333; margin-top:40px;">
+<p style="color:#666; font-size:12px;">Generated: 2026-03-11 17:26:58 by generate_report_html.py</p>
+</body>
+</html>

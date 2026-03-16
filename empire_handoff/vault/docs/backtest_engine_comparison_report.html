@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バックテストエンジン比較分析レポート — なぜ数値が変わったのか</title>
+<style>
+:root {
+  --bg: #0d1117; --surface: #161b22; --border: #30363d;
+  --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+  --green: #3fb950; --red: #f85149; --yellow: #d29922; --purple: #bc8cff; --orange: #f0883e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Segoe UI',sans-serif; line-height:1.7; padding:24px; max-width:1200px; margin:0 auto; }
+h1 { font-size:2em; margin-bottom:8px; color:var(--accent); }
+h2 { font-size:1.5em; margin:40px 0 16px; padding-bottom:8px; border-bottom:2px solid var(--accent); }
+h3 { font-size:1.2em; margin:24px 0 12px; color:var(--purple); }
+.subtitle { color:var(--muted); margin-bottom:32px; }
+table { width:100%; border-collapse:collapse; margin:16px 0; background:var(--surface); border-radius:8px; overflow:hidden; }
+th { background:#1c2433; color:var(--accent); padding:12px 16px; text-align:center; font-weight:600; }
+td { padding:10px 16px; text-align:center; border-top:1px solid var(--border); }
+tr:hover { background:#1c2128; }
+.pos { color:var(--green); font-weight:600; }
+.neg { color:var(--red); font-weight:600; }
+.warn { color:var(--yellow); font-weight:600; }
+.highlight-row { background:#1a2332 !important; }
+.note-box { background:#1a1e28; border-left:4px solid var(--yellow); padding:16px 20px; margin:20px 0; border-radius:0 8px 8px 0; }
+.note-box .title { color:var(--yellow); font-weight:600; margin-bottom:4px; }
+.note-box.green { border-left-color:var(--green); } .note-box.green .title { color:var(--green); }
+.note-box.red { border-left-color:var(--red); } .note-box.red .title { color:var(--red); }
+.note-box.blue { border-left-color:var(--accent); } .note-box.blue .title { color:var(--accent); }
+.note-box.purple { border-left-color:var(--purple); } .note-box.purple .title { color:var(--purple); }
+.vs-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+.vs-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; }
+.vs-box .title { font-weight:700; font-size:1.1em; margin-bottom:12px; text-align:center; padding-bottom:8px; border-bottom:2px solid var(--border); }
+.vs-box .step { padding:8px 0; border-bottom:1px solid var(--border); }
+.vs-box .step:last-child { border-bottom:none; }
+.vs-box .step .num { display:inline-block; width:24px; height:24px; border-radius:50%; text-align:center; line-height:24px; font-weight:700; font-size:0.8em; margin-right:8px; }
+.vs-box .step .desc { color:var(--muted); font-size:0.85em; margin-left:32px; }
+code { background:#1c2433; padding:2px 8px; border-radius:4px; font-family:Consolas,monospace; font-size:0.9em; }
+pre { background:#1c2433; padding:16px; border-radius:8px; overflow-x:auto; font-family:Consolas,monospace; font-size:0.85em; line-height:1.5; margin:12px 0; }
+.big-number { font-size:2.5em; font-weight:800; text-align:center; margin:16px 0; }
+.card-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin:16px 0; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; text-align:center; }
+.card .label { color:var(--muted); font-size:0.85em; margin-bottom:4px; }
+.card .value { font-size:1.8em; font-weight:700; }
+.timeline { position:relative; padding-left:32px; margin:16px 0; }
+.timeline::before { content:''; position:absolute; left:12px; top:0; bottom:0; width:2px; background:var(--border); }
+.timeline .step { position:relative; margin-bottom:20px; }
+.timeline .step::before { content:''; position:absolute; left:-26px; top:6px; width:14px; height:14px; border-radius:50%; border:2px solid var(--accent); background:var(--bg); }
+.timeline .step.warn::before { background:var(--yellow); border-color:var(--yellow); }
+.timeline .step.bad::before { background:var(--red); border-color:var(--red); }
+.timeline .step .title { font-weight:600; }
+.timeline .step .desc { color:var(--muted); font-size:0.9em; }
+footer { margin-top:48px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:0.85em; text-align:center; }
+</style>
+</head>
+<body>
+
+<h1>バックテストエンジン比較分析レポート</h1>
+<p class="subtitle">なぜ最大ドローダウンとシャープレシオが大幅に変化したのか｜生成日: 2026-03-13</p>
+
+<!-- ===== セクション1: 結論 ===== -->
+<h2>1. 結論（先に要点）</h2>
+
+<div class="note-box red">
+  <div class="title">2つのバックテストエンジンに実装差があり、同じ設定でも結果が異なっていた</div>
+  <strong>BacktestEngine</strong>（旧エンジン）: エントリー当日にテイクプロフィット/ストップロスを判定 → ほぼ即日決済 → <strong>最大ドローダウンが楽観的</strong><br>
+  <strong>simulate_trades_fast</strong>（グリッドサーチ用）: エントリー翌日以降に判定 → 1日以上保有 → <strong>最大ドローダウンがより現実的</strong>
+</div>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="label">旧エンジン 最大ドローダウン</div>
+    <div class="value" style="color:var(--green);">-8.7%</div>
+    <div class="label">楽観的（即日決済前提）</div>
+  </div>
+  <div class="card">
+    <div class="label">グリッドサーチ 最大ドローダウン</div>
+    <div class="value" style="color:var(--red);">-31.8%</div>
+    <div class="label">保守的（翌日決済前提）</div>
+  </div>
+  <div class="card">
+    <div class="label">推定される現実値</div>
+    <div class="value" style="color:var(--yellow);">-15〜20%</div>
+    <div class="label">両者の中間あたり</div>
+  </div>
+</div>
+
+<p style="text-align:center;color:var(--muted);margin:8px 0;">※ MeanRevert / レバレッジ3倍 / テイクプロフィット6% / ストップロス3%（同一設定）での比較</p>
+
+<!-- ===== セクション2: 何が起きたか ===== -->
+<h2>2. 2つのエンジンの処理フローの違い</h2>
+
+<div class="vs-grid">
+  <div class="vs-box" style="border-top:3px solid var(--green);">
+    <div class="title" style="color:var(--green);">BacktestEngine（旧）</div>
+    <div class="step">
+      <span class="num" style="background:var(--green);color:#000;">1</span>
+      <strong>シグナル検知</strong>（日付N）
+      <div class="desc">Fear&Greed、MA20乖離等の条件を判定</div>
+    </div>
+    <div class="step">
+      <span class="num" style="background:var(--green);color:#000;">2</span>
+      <strong>翌日始値でエントリー</strong>（日付N+1）
+      <div class="desc">look-ahead bias回避のため正しい</div>
+    </div>
+    <div class="step">
+      <span class="num" style="background:var(--yellow);color:#000;">3</span>
+      <strong>同日の高値/安値でTP/SL判定</strong>（日付N+1）
+      <div class="desc">エントリー日にそのまま即判定 → ほぼ即日決済</div>
+    </div>
+    <div class="step">
+      <span class="num" style="background:var(--accent);color:#000;">→</span>
+      <strong>平均保有期間: 0.1日</strong>
+      <div class="desc">翌日に持ち越さない → 含み損蓄積なし → 最大ドローダウン小</div>
+    </div>
+  </div>
+  <div class="vs-box" style="border-top:3px solid var(--orange);">
+    <div class="title" style="color:var(--orange);">simulate_trades_fast（グリッドサーチ）</div>
+    <div class="step">
+      <span class="num" style="background:var(--green);color:#000;">1</span>
+      <strong>シグナル検知</strong>（日付N）
+      <div class="desc">同じロジックで同じシグナルを収集</div>
+    </div>
+    <div class="step">
+      <span class="num" style="background:var(--green);color:#000;">2</span>
+      <strong>翌日始値でエントリー</strong>（日付N+1）
+      <div class="desc">同じ価格でエントリー</div>
+    </div>
+    <div class="step">
+      <span class="num" style="background:var(--red);color:#fff;">3</span>
+      <strong>翌日以降に初めてTP/SL判定</strong>（日付N+2〜）
+      <div class="desc">エントリー日の判定は翌ループ → 1日以上保有確定</div>
+    </div>
+    <div class="step">
+      <span class="num" style="background:var(--accent);color:#000;">→</span>
+      <strong>平均保有期間: 1.1日</strong>
+      <div class="desc">翌日に持ち越す → 含み損が蓄積 → 最大ドローダウン大</div>
+    </div>
+  </div>
+</div>
+
+<div class="note-box blue">
+  <div class="title">処理順序の技術的な違い</div>
+  <pre>
+# BacktestEngine（旧）の日次ループ:
+for date in dates:
+    exit_check(open_trades)     # 1. 既存トレードのTP/SL判定
+    signal = check_signal()      # 2. 新シグナル判定
+    trade = simulate_entry()     # 3. エントリー（翌日始値）
+    open_trades.append(trade)    # 4. リストに追加
+    # ↑ この後、次のループで trade は翌日に判定される
+    # ↑ ただし _check_exit が holding_days=0 でも判定可能
+    # ↑ → エントリー翌日の最初のチェックで即日TP/SLがヒット
+
+# simulate_trades_fast（グリッドサーチ）の日次ループ:
+for date in all_dates:
+    exit_check(open_trades)     # 1. 既存トレードのTP/SL判定
+    if date in signals:
+        open_new_trade()         # 2. 新規エントリー
+    calc_equity()               # 3. 含み損益計算
+    # ↑ 新規トレードは「既存」に入っていないため、
+    # ↑ 次のループ（翌日）で初めてTP/SL判定される</pre>
+</div>
+
+<!-- ===== セクション3: 数値比較 ===== -->
+<h2>3. 同一条件での数値比較</h2>
+<p>MeanRevert / 期間: 2020-01-01〜2026-03-01 / テイクプロフィット6% / ストップロス3%</p>
+
+<table>
+  <tr>
+    <th>指標</th>
+    <th style="color:var(--green);">BacktestEngine（旧）</th>
+    <th style="color:var(--orange);">simulate_trades_fast</th>
+    <th>差異</th>
+  </tr>
+  <tr>
+    <td style="text-align:left;">トレード数</td>
+    <td>811</td>
+    <td>817</td>
+    <td style="color:var(--muted);">+6（ほぼ同じ）</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">勝率</td>
+    <td class="pos">57.8%</td>
+    <td class="pos">59.6%</td>
+    <td style="color:var(--muted);">+1.8ポイント</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">プロフィットファクター</td>
+    <td class="pos">2.47</td>
+    <td class="pos">2.67</td>
+    <td style="color:var(--muted);">+0.20</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">6年間リターン</td>
+    <td class="pos">+2,231.8%</td>
+    <td class="pos">+2,448.2%</td>
+    <td style="color:var(--muted);">+216ポイント</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;">最大ドローダウン</td>
+    <td class="pos" style="font-size:1.2em;">-8.7%</td>
+    <td class="neg" style="font-size:1.2em;">-31.8%</td>
+    <td class="neg" style="font-size:1.2em;">23.1ポイント悪化</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;">シャープレシオ</td>
+    <td class="pos" style="font-size:1.2em;">3.91</td>
+    <td class="warn" style="font-size:1.2em;">1.30</td>
+    <td class="neg" style="font-size:1.2em;">-2.61（67%低下）</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">平均保有日数</td>
+    <td>0.1日</td>
+    <td>1.1日</td>
+    <td class="warn">+1.0日</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">最大同時ポジション</td>
+    <td>2</td>
+    <td>2</td>
+    <td style="color:var(--muted);">同じ</td>
+  </tr>
+</table>
+
+<div class="note-box">
+  <div class="title">なぜリターンはグリッドサーチの方が高いのか</div>
+  旧エンジンは即日TP判定のため、テイクプロフィット価格で決済される割合が高い。一方グリッドサーチは翌日判定のため、テイクプロフィットを<strong>超えた</strong>価格で決済されることがある（翌日の始値がTPを超えている場合）。また、ストップロスに引っかからず翌日以降にプラスに転じるケースも含まれる。<br>
+  リターンが高い一方で、保有中の含み損がエクイティカーブに反映されるため最大ドローダウンが悪化する。
+</div>
+
+<!-- ===== セクション4: レバレッジ別比較 ===== -->
+<h2>4. レバレッジ別の最大ドローダウン比較</h2>
+<p>MeanRevert / テイクプロフィット6% / ストップロス3%</p>
+
+<table>
+  <tr>
+    <th>レバレッジ</th>
+    <th colspan="2" style="color:var(--green);">BacktestEngine（旧）</th>
+    <th colspan="2" style="color:var(--orange);">simulate_trades_fast</th>
+    <th>最大ドローダウン差</th>
+  </tr>
+  <tr>
+    <th></th>
+    <th>シャープ</th><th>最大ドローダウン</th>
+    <th>シャープ</th><th>最大ドローダウン</th>
+    <th></th>
+  </tr>
+  <tr>
+    <td style="font-weight:600;">1倍</td>
+    <td>4.63</td>
+    <td class="pos">-3.0%</td>
+    <td>—</td>
+    <td>—</td>
+    <td style="color:var(--muted);">（未テスト）</td>
+  </tr>
+  <tr>
+    <td style="font-weight:600;">2倍</td>
+    <td>4.18</td>
+    <td class="pos">-6.0%</td>
+    <td>—</td>
+    <td>—</td>
+    <td style="color:var(--muted);">（未テスト）</td>
+  </tr>
+  <tr class="highlight-row">
+    <td style="font-weight:600;">3倍</td>
+    <td>3.93</td>
+    <td class="pos">-8.9%</td>
+    <td>1.30</td>
+    <td class="neg">-31.8%</td>
+    <td class="neg">22.9ポイント</td>
+  </tr>
+  <tr>
+    <td style="font-weight:600;">5倍</td>
+    <td>3.46</td>
+    <td class="warn">-14.5%</td>
+    <td>1.18</td>
+    <td class="neg">-46.5%</td>
+    <td class="neg">32.0ポイント</td>
+  </tr>
+  <tr>
+    <td style="font-weight:600;">10倍</td>
+    <td>2.76</td>
+    <td class="neg">-27.7%</td>
+    <td>1.17</td>
+    <td class="neg">-50.4%</td>
+    <td class="neg">22.7ポイント</td>
+  </tr>
+</table>
+
+<div class="note-box">
+  <div class="title">レバレッジが上がるほど差が拡大する理由</div>
+  含み損はレバレッジに比例して膨らみます。旧エンジンは即日決済で含み損が記録されないため影響なし。グリッドサーチは翌日まで保有するため、レバレッジ倍率がそのまま含み損に反映されます。
+</div>
+
+<!-- ===== セクション5: どちらが正しいか ===== -->
+<h2>5. どちらの数値が「正しい」のか</h2>
+
+<div class="vs-grid">
+  <div class="vs-box" style="border-top:3px solid var(--green);">
+    <div class="title" style="color:var(--green);">旧エンジンが正しいケース</div>
+    <p style="padding:8px 0;">日足のTP/SL判定で日中の高値/安値がヒットした場合、<strong>指値注文を事前に出しておけば約定する可能性がある</strong>。</p>
+    <p style="color:var(--muted);font-size:0.9em;padding:8px 0;">ただし以下の条件が必要:</p>
+    <ul style="padding-left:20px;color:var(--muted);font-size:0.9em;">
+      <li>エントリー直後にTP/SL指値を設定</li>
+      <li>十分な流動性（板が薄いとスリッページ大）</li>
+      <li>取引所のAPI遅延が最小</li>
+      <li>高値/安値のヒゲ部分で実際に約定できる</li>
+    </ul>
+  </div>
+  <div class="vs-box" style="border-top:3px solid var(--orange);">
+    <div class="title" style="color:var(--orange);">グリッドサーチが正しいケース</div>
+    <p style="padding:8px 0;">成行注文でエントリーし、<strong>TP/SLの判定が次回スキャンまで行われない</strong>場合。</p>
+    <p style="color:var(--muted);font-size:0.9em;padding:8px 0;">以下の状況でこちらに近づく:</p>
+    <ul style="padding-left:20px;color:var(--muted);font-size:0.9em;">
+      <li>スキャン間隔が長い（数時間〜1日）</li>
+      <li>指値でなく成行でTP/SL判定</li>
+      <li>API遅延やエラーでTP/SL発注が遅れる</li>
+      <li>日中の瞬間的な高値/安値では約定できない</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note-box green">
+  <div class="title">現実的な推定値</div>
+  <strong>現実のドローダウンは両者の中間にある</strong>と考えるのが妥当です。<br><br>
+  <table style="margin:8px 0;background:transparent;">
+    <tr>
+      <th>条件</th>
+      <th>推定最大ドローダウン</th>
+      <th>根拠</th>
+    </tr>
+    <tr>
+      <td style="text-align:left;">指値TP/SL即発注 + 高流動性銘柄のみ</td>
+      <td class="pos">-10〜15%</td>
+      <td style="text-align:left;color:var(--muted);">旧エンジンに近い</td>
+    </tr>
+    <tr class="highlight-row">
+      <td style="text-align:left;font-weight:600;">標準的な運用（推奨）</td>
+      <td class="warn" style="font-weight:600;">-15〜20%</td>
+      <td style="text-align:left;color:var(--muted);">中間値</td>
+    </tr>
+    <tr>
+      <td style="text-align:left;">低流動性 + API遅延あり</td>
+      <td class="neg">-25〜30%</td>
+      <td style="text-align:left;color:var(--muted);">グリッドサーチに近い</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ===== セクション6: 全バリアント比較 ===== -->
+<h2>6. MeanRevert全バリアント 旧エンジン vs グリッドサーチ</h2>
+<p>レバレッジ3倍 / デフォルトTP/SL</p>
+
+<table>
+  <tr>
+    <th rowspan="2">Bot</th>
+    <th colspan="3" style="color:var(--green);">BacktestEngine（旧）</th>
+    <th colspan="3" style="color:var(--orange);">グリッドサーチ（TP/SL×1.0）</th>
+  </tr>
+  <tr>
+    <th>シャープ</th><th>最大ドローダウン</th><th>リターン</th>
+    <th>シャープ</th><th>最大ドローダウン</th><th>リターン</th>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;">MeanRevert</td>
+    <td>3.93</td><td class="pos">-8.9%</td><td>+2,216%</td>
+    <td>1.30</td><td class="neg">-31.8%</td><td>+2,448%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;">MeanRevert-Tight</td>
+    <td>3.66</td><td class="pos">-5.6%</td><td>+1,255%</td>
+    <td>1.21</td><td class="neg">-21.6%</td><td>+1,479%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;">MeanRevert-Hybrid</td>
+    <td>3.92</td><td class="pos">-8.9%</td><td>+2,290%</td>
+    <td>1.30</td><td class="neg">-31.8%</td><td>+2,482%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;">MeanRevert-Adaptive</td>
+    <td>3.77</td><td class="pos">-9.2%</td><td>+2,009%</td>
+    <td>1.30</td><td class="neg">-31.8%</td><td>+2,448%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;">MeanRevert-Tuned</td>
+    <td>3.33</td><td class="warn">-7.4%</td><td>+1,970%</td>
+    <td>—</td><td>—</td><td>—</td>
+  </tr>
+</table>
+
+<!-- ===== セクション7: 以前の記憶との照合 ===== -->
+<h2>7. 「最大ドローダウン10%以下」の記憶について</h2>
+
+<div class="note-box purple">
+  <div class="title">その記憶は正しい — ただし旧エンジンの結果</div>
+  旧エンジン（BacktestEngine）でのMeanRevertの最大ドローダウン一覧:
+  <table style="margin:12px 0;background:transparent;">
+    <tr><th>レバレッジ</th><th>最大ドローダウン</th><th>10%以下？</th></tr>
+    <tr><td>1倍</td><td class="pos">-3.0%</td><td class="pos">はい</td></tr>
+    <tr><td>2倍</td><td class="pos">-6.0%</td><td class="pos">はい</td></tr>
+    <tr class="highlight-row"><td style="font-weight:600;">3倍</td><td class="pos" style="font-weight:600;">-8.9%</td><td class="pos" style="font-weight:600;">はい</td></tr>
+    <tr><td>5倍</td><td class="warn">-14.5%</td><td class="neg">いいえ</td></tr>
+    <tr><td>10倍</td><td class="neg">-27.7%</td><td class="neg">いいえ</td></tr>
+  </table>
+  <strong>レバレッジ3倍以下で最大ドローダウン10%以下</strong>は旧エンジンでは事実です。<br>
+  グリッドサーチ（simulate_trades_fast）では同じ条件でも-31.8%となり、10%以下にはなりません。
+</div>
+
+<!-- ===== セクション8: 推奨アクション ===== -->
+<h2>8. 最大ドローダウン10%以下を目指す場合の推奨設定</h2>
+
+<h3>方法A: レバレッジを下げる</h3>
+<table>
+  <tr>
+    <th>Bot</th>
+    <th>レバレッジ</th>
+    <th>旧エンジン 最大ドローダウン</th>
+    <th>グリッドサーチ推定 最大ドローダウン</th>
+    <th>現実的推定</th>
+  </tr>
+  <tr class="highlight-row">
+    <td style="font-weight:600;">MeanRevert</td>
+    <td style="font-weight:600;">1倍</td>
+    <td class="pos">-3.0%</td>
+    <td class="warn">約-10%</td>
+    <td class="pos" style="font-weight:600;">-5〜8%</td>
+  </tr>
+  <tr>
+    <td>MeanRevert-Tight</td>
+    <td>1倍</td>
+    <td class="pos">-2.4%</td>
+    <td>約-7%</td>
+    <td class="pos">-4〜6%</td>
+  </tr>
+  <tr class="highlight-row">
+    <td style="font-weight:600;">MeanRevert</td>
+    <td style="font-weight:600;">2倍</td>
+    <td class="pos">-6.0%</td>
+    <td class="warn">約-20%</td>
+    <td class="warn" style="font-weight:600;">-10〜15%</td>
+  </tr>
+  <tr>
+    <td>MeanRevert-Tight</td>
+    <td>2倍</td>
+    <td class="pos">-3.8%</td>
+    <td>約-14%</td>
+    <td class="pos">-7〜10%</td>
+  </tr>
+</table>
+
+<h3>方法B: ストップロスをタイトにする（グリッドサーチ最適値）</h3>
+<table>
+  <tr>
+    <th>Bot</th>
+    <th>設定</th>
+    <th>最大ドローダウン</th>
+    <th>シャープ</th>
+    <th>プロフィットファクター</th>
+    <th>リターン</th>
+  </tr>
+  <tr class="highlight-row">
+    <td style="font-weight:600;">MeanRevert-Tight</td>
+    <td>Lev=3, TP=8.4%, SL=1.26%</td>
+    <td class="neg">-20.1%</td>
+    <td>1.44</td>
+    <td class="pos">5.64</td>
+    <td class="pos">+2,033%</td>
+  </tr>
+  <tr>
+    <td>MeanRevert</td>
+    <td>Lev=3, TP=8.4%, SL=1.8%</td>
+    <td class="neg">-31.2%</td>
+    <td>1.53</td>
+    <td class="pos">4.14</td>
+    <td class="pos">+3,604%</td>
+  </tr>
+</table>
+
+<h3>方法C（推奨）: レバ2倍 + タイトSL + 指値TP/SL</h3>
+
+<div class="note-box green">
+  <div class="title">最大ドローダウン10%前後を目指す推奨設定</div>
+  <table style="margin:8px 0;background:transparent;">
+    <tr><th>Bot</th><th>TP</th><th>SL</th><th>Lev</th><th>推定最大ドローダウン</th><th>推定年率リターン</th></tr>
+    <tr class="highlight-row">
+      <td style="font-weight:600;">MeanRevert-Tight</td>
+      <td>8.4%</td><td>1.26%</td><td style="font-weight:600;">2倍</td>
+      <td class="pos" style="font-weight:600;">-8〜14%</td>
+      <td class="pos">+45〜55%</td>
+    </tr>
+    <tr>
+      <td style="font-weight:600;">MeanRevert</td>
+      <td>8.4%</td><td>1.8%</td><td style="font-weight:600;">2倍</td>
+      <td class="warn" style="font-weight:600;">-12〜20%</td>
+      <td class="pos">+55〜65%</td>
+    </tr>
+  </table>
+  <br>
+  <strong>運用のポイント:</strong><br>
+  ・エントリー直後にTP/SL指値注文を自動発注する仕組みを入れる<br>
+  ・指値約定できれば旧エンジン側の数値に近づく<br>
+  ・成行判定のみだとグリッドサーチ側の数値に近づく
+</div>
+
+<!-- ===== セクション9: エンジン修正案 ===== -->
+<h2>9. バックテストエンジンの改善案</h2>
+
+<div class="timeline">
+  <div class="step">
+    <div class="title">案1: 旧エンジンを翌日判定に修正（保守的に統一）</div>
+    <div class="desc">BacktestEngineの_check_exitでholding_days=0のTP/SL判定を無効化。<br>グリッドサーチと同じ動作になり、数値が一致する。最も保守的。</div>
+  </div>
+  <div class="step">
+    <div class="title">案2: グリッドサーチを同日判定に修正（楽観的に統一）</div>
+    <div class="desc">simulate_trades_fastで新規トレードをエントリー後すぐにTP/SL判定。<br>旧エンジンと同じ動作。指値注文前提の楽観シナリオ。</div>
+  </div>
+  <div class="step warn">
+    <div class="title">案3（推奨）: 両方の結果を提示する</div>
+    <div class="desc">「指値即約定シナリオ」と「翌日判定シナリオ」を並記。<br>意思決定者が状況に応じて参照する値を選べるようにする。</div>
+  </div>
+</div>
+
+<footer>
+  本レポートは2つのバックテストエンジン（BacktestEngine, simulate_trades_fast）の実装差異を分析した技術レポートです。<br>
+  検証条件: MeanRevert / MEXC先物 / 2020-01-01〜2026-03-01 / 初期資金1,000,000 USDT<br>
+  Generated by Empire Monitor Analysis Pipeline
+</footer>
+
+</body>
+</html>

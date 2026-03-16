@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4-Bot ポートフォリオ予測レポート</title>
+<style>
+:root {
+  --bg: #0d1117; --surface: #161b22; --border: #30363d;
+  --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff;
+  --green: #3fb950; --red: #f85149; --yellow: #d29922; --purple: #bc8cff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Segoe UI',sans-serif; line-height:1.7; padding:24px; max-width:1200px; margin:0 auto; }
+h1 { font-size:2em; margin-bottom:8px; color:var(--accent); }
+h2 { font-size:1.5em; margin:40px 0 16px; padding-bottom:8px; border-bottom:2px solid var(--accent); }
+h3 { font-size:1.2em; margin:24px 0 12px; color:var(--purple); }
+.subtitle { color:var(--muted); margin-bottom:32px; }
+.capital-box { background:linear-gradient(135deg, #1a2332, #162230); border:2px solid var(--accent); border-radius:12px; padding:24px 32px; margin:24px 0; text-align:center; }
+.capital-box .label { color:var(--muted); font-size:1em; }
+.capital-box .value { font-size:2.5em; font-weight:bold; color:var(--accent); }
+.capital-box .note { color:var(--muted); font-size:0.85em; margin-top:8px; }
+table { width:100%; border-collapse:collapse; margin:16px 0; background:var(--surface); border-radius:8px; overflow:hidden; }
+th { background:#1c2433; color:var(--accent); padding:12px 16px; text-align:center; font-weight:600; white-space:nowrap; }
+td { padding:10px 16px; text-align:center; border-top:1px solid var(--border); }
+tr:hover { background:#1c2128; }
+.pos { color:var(--green); font-weight:600; }
+.neg { color:var(--red); font-weight:600; }
+.warn { color:var(--yellow); }
+.highlight-row { background:#1a2332 !important; }
+.card-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin:16px 0; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; }
+.card .name { font-weight:600; font-size:1.1em; margin-bottom:12px; }
+.card .metric { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--border); }
+.card .metric:last-child { border-bottom:none; }
+.card .metric .label { color:var(--muted); }
+.alloc-bar { display:flex; height:40px; border-radius:8px; overflow:hidden; margin:16px 0; }
+.alloc-bar div { display:flex; align-items:center; justify-content:center; font-weight:600; font-size:0.9em; }
+.scenario-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin:16px 0; }
+.scenario { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; }
+.scenario .title { font-weight:600; font-size:1.1em; margin-bottom:4px; }
+.scenario .desc { color:var(--muted); font-size:0.85em; margin-bottom:12px; }
+.note-box { background:#1a1e28; border-left:4px solid var(--yellow); padding:16px 20px; margin:20px 0; border-radius:0 8px 8px 0; }
+.note-box .title { color:var(--yellow); font-weight:600; margin-bottom:4px; }
+footer { margin-top:48px; padding-top:16px; border-top:1px solid var(--border); color:var(--muted); font-size:0.85em; text-align:center; }
+</style>
+</head>
+<body>
+
+<h1>4-Bot ポートフォリオ予測レポート</h1>
+<p class="subtitle">バックテスト結果に基づく運用シミュレーション｜生成日: 2026-03-13</p>
+
+<!-- ===== 初期資金 ===== -->
+<div class="capital-box">
+  <div class="label">バックテスト基準 初期資金</div>
+  <div class="value">1,000,000 USDT</div>
+  <div class="note">※ バックテスト期間: 2020年1月〜2025年12月（6年間）/ MEXC先物パーペチュアル</div>
+</div>
+
+<!-- ===== セクション1: 選定Bot一覧 ===== -->
+<h2>1. 選定Bot概要</h2>
+<p>グリッドサーチの複合スコア評価（プロフィットファクター × ドローダウン耐性 × シャープレシオ）に基づき、4つのBotを選定しました。全Botレバレッジ3倍を推奨します。</p>
+
+<div class="card-grid">
+  <div class="card" style="border-top:3px solid #f97583;">
+    <div class="name" style="color:#f97583;">Scalp（スキャルピング）</div>
+    <div class="metric"><span class="label">ロジック</span><span>高頻度・短期決済</span></div>
+    <div class="metric"><span class="label">テイクプロフィット</span><span>8.0%</span></div>
+    <div class="metric"><span class="label">ストップロス</span><span>1.8%</span></div>
+    <div class="metric"><span class="label">レバレッジ</span><span>3倍</span></div>
+    <div class="metric"><span class="label">年間取引数</span><span>約211回</span></div>
+  </div>
+  <div class="card" style="border-top:3px solid #7ee787;">
+    <div class="name" style="color:#7ee787;">MeanRevert-Tight（平均回帰・タイト）</div>
+    <div class="metric"><span class="label">ロジック</span><span>平均回帰・厳選エントリー</span></div>
+    <div class="metric"><span class="label">テイクプロフィット</span><span>6.0%</span></div>
+    <div class="metric"><span class="label">ストップロス</span><span>1.3%</span></div>
+    <div class="metric"><span class="label">レバレッジ</span><span>3倍</span></div>
+    <div class="metric"><span class="label">年間取引数</span><span>約73回</span></div>
+  </div>
+  <div class="card" style="border-top:3px solid #58a6ff;">
+    <div class="name" style="color:#58a6ff;">MeanRevert（平均回帰・標準）</div>
+    <div class="metric"><span class="label">ロジック</span><span>平均回帰・広範囲エントリー</span></div>
+    <div class="metric"><span class="label">テイクプロフィット</span><span>6.0%</span></div>
+    <div class="metric"><span class="label">ストップロス</span><span>1.8%</span></div>
+    <div class="metric"><span class="label">レバレッジ</span><span>3倍</span></div>
+    <div class="metric"><span class="label">年間取引数</span><span>約136回</span></div>
+  </div>
+  <div class="card" style="border-top:3px solid #d2a8ff;">
+    <div class="name" style="color:#d2a8ff;">LevBurn-TIGHT（レバレッジバーン・タイト）</div>
+    <div class="metric"><span class="label">ロジック</span><span>資金調達率ベース逆張り</span></div>
+    <div class="metric"><span class="label">テイクプロフィット</span><span>5.0%</span></div>
+    <div class="metric"><span class="label">ストップロス</span><span>1.5%</span></div>
+    <div class="metric"><span class="label">レバレッジ</span><span>3倍</span></div>
+    <div class="metric"><span class="label">年間取引数</span><span>約110回</span></div>
+  </div>
+</div>
+
+<!-- ===== セクション2: 個別Bot成績 ===== -->
+<h2>2. 個別Botバックテスト成績（レバレッジ3倍）</h2>
+<table>
+  <tr>
+    <th>指標</th>
+    <th style="color:#f97583;">Scalp</th>
+    <th style="color:#7ee787;">MeanRevert-Tight</th>
+    <th style="color:#58a6ff;">MeanRevert</th>
+    <th style="color:#d2a8ff;">LevBurn-TIGHT</th>
+  </tr>
+  <tr>
+    <td style="text-align:left;">プロフィットファクター</td>
+    <td class="pos">3.18</td>
+    <td class="pos">5.64</td>
+    <td class="pos">4.14</td>
+    <td class="pos">7.48</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">6年間累計リターン</td>
+    <td class="pos">+2,843%</td>
+    <td class="pos">+2,032%</td>
+    <td class="pos">+3,603%</td>
+    <td class="pos">+540%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">年率リターン（CAGR）</td>
+    <td class="pos">+75.7%</td>
+    <td class="pos">+66.5%</td>
+    <td class="pos">+82.6%</td>
+    <td class="pos">+36.3%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">最大ドローダウン</td>
+    <td class="neg">-13.0%</td>
+    <td class="neg">-20.1%</td>
+    <td class="neg">-31.2%</td>
+    <td class="neg">-15.6%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">シャープレシオ</td>
+    <td>2.01</td>
+    <td>1.44</td>
+    <td>1.53</td>
+    <td>1.38</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">リターン/最大ドローダウン比率</td>
+    <td class="pos">5.82</td>
+    <td class="pos">3.31</td>
+    <td class="pos">2.65</td>
+    <td class="pos">2.33</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">年間取引回数</td>
+    <td>211</td>
+    <td>73</td>
+    <td>136</td>
+    <td>110</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">複合スコア</td>
+    <td>2.77</td>
+    <td>2.17</td>
+    <td>1.90</td>
+    <td>3.03</td>
+  </tr>
+</table>
+
+<div class="note-box">
+  <div class="title">複合スコアの計算方法</div>
+  複合スコア = プロフィットファクター × (1 - |最大ドローダウン| / 100) × min(シャープレシオ, 3) / 3<br>
+  プロフィットファクターだけでなく、ドローダウン耐性とリスク調整後リターンを総合的に評価します。<br>
+  LevBurn-TIGHTが最高スコア（3.03）なのは、プロフィットファクター7.48と低ドローダウンの組み合わせが優れているためです。
+</div>
+
+<!-- ===== セクション3: 相関分析 ===== -->
+<h2>3. Bot間相関分析</h2>
+<p>日次リターンの相関係数です。値が低いほど分散効果が高く、ポートフォリオ全体の最大ドローダウンが改善されます。</p>
+
+<table>
+  <tr>
+    <th></th>
+    <th style="color:#f97583;">Scalp</th>
+    <th style="color:#7ee787;">MR-Tight</th>
+    <th style="color:#58a6ff;">MeanRevert</th>
+    <th style="color:#d2a8ff;">LevBurn-T</th>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;color:#f97583;">Scalp</td>
+    <td>1.000</td>
+    <td class="warn">0.35</td>
+    <td class="warn">0.42</td>
+    <td class="pos">0.15</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;color:#7ee787;">MeanRevert-Tight</td>
+    <td class="warn">0.35</td>
+    <td>1.000</td>
+    <td class="neg">0.82</td>
+    <td class="pos">0.20</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;color:#58a6ff;">MeanRevert</td>
+    <td class="warn">0.42</td>
+    <td class="neg">0.82</td>
+    <td>1.000</td>
+    <td class="pos">0.22</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;font-weight:600;color:#d2a8ff;">LevBurn-TIGHT</td>
+    <td class="pos">0.15</td>
+    <td class="pos">0.20</td>
+    <td class="pos">0.22</td>
+    <td>1.000</td>
+  </tr>
+</table>
+
+<div class="note-box">
+  <div class="title">相関分析のポイント</div>
+  <strong>MeanRevert-Tight と MeanRevert の相関は 0.82 と高い</strong>（同じ平均回帰ロジック派生のため）。<br>
+  しかし、ストップロス幅の違いにより取引タイミングが異なり、MeanRevert-Tightは厳選トレード（年73回）、MeanRevertは広範囲（年136回）で補完関係があります。<br>
+  <strong>LevBurn-TIGHTは全Botと低相関（0.15〜0.22）</strong>で、最大の分散効果を発揮します。
+</div>
+
+<!-- ===== セクション4: 配分シナリオ ===== -->
+<h2>4. 資金配分シナリオ</h2>
+
+<h3>推奨配分: バランス型（低リスク重視）</h3>
+<div class="alloc-bar">
+  <div style="width:30%;background:#f97583;">Scalp 30%</div>
+  <div style="width:30%;background:#7ee787;color:#000;">MR-Tight 30%</div>
+  <div style="width:20%;background:#58a6ff;">MR 20%</div>
+  <div style="width:20%;background:#d2a8ff;color:#000;">LevBurn 20%</div>
+</div>
+
+<table>
+  <tr>
+    <th>配分パターン</th>
+    <th>Scalp</th>
+    <th>MR-Tight</th>
+    <th>MR</th>
+    <th>LevBurn-T</th>
+    <th>加重年率リターン</th>
+    <th>加重プロフィットファクター</th>
+    <th>加重最大ドローダウン</th>
+    <th>リターン/ドローダウン</th>
+  </tr>
+  <tr class="highlight-row">
+    <td style="text-align:left;font-weight:600;">★ 推奨: バランス型</td>
+    <td>30%</td>
+    <td>30%</td>
+    <td>20%</td>
+    <td>20%</td>
+    <td class="pos">+66.4%</td>
+    <td class="pos">4.97</td>
+    <td class="neg">-19.3%</td>
+    <td class="pos">3.44</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">リスク最小型</td>
+    <td>35%</td>
+    <td>15%</td>
+    <td>15%</td>
+    <td>35%</td>
+    <td class="pos">+57.8%</td>
+    <td class="pos">5.42</td>
+    <td class="neg">-14.8%</td>
+    <td class="pos">3.91</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">リターン最大型</td>
+    <td>20%</td>
+    <td>20%</td>
+    <td>40%</td>
+    <td>20%</td>
+    <td class="pos">+73.3%</td>
+    <td class="pos">4.42</td>
+    <td class="neg">-24.1%</td>
+    <td class="pos">3.04</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">均等配分</td>
+    <td>25%</td>
+    <td>25%</td>
+    <td>25%</td>
+    <td>25%</td>
+    <td class="pos">+65.3%</td>
+    <td class="pos">5.11</td>
+    <td class="neg">-20.0%</td>
+    <td class="pos">3.27</td>
+  </tr>
+</table>
+
+<div class="note-box">
+  <div class="title">推奨理由</div>
+  バランス型は、リターン/最大ドローダウン比率（3.44）とリターン水準（+66.4%）のバランスが最も優れています。<br>
+  リスク最小型はドローダウンを-14.8%に抑えますが、リターンが-8.6ポイント低下します。<br>
+  リターン最大型は+73.3%を達成しますが、MeanRevert比率が高いため最大ドローダウンが-24.1%に悪化します。
+</div>
+
+<!-- ===== セクション5: 初期資金別シミュレーション ===== -->
+<h2>5. 初期資金別 運用シミュレーション（推奨配分）</h2>
+<p>推奨のバランス型配分（Scalp 30% / MR-Tight 30% / MR 20% / LevBurn 20%）を前提に、各初期資金での予測値を算出します。</p>
+
+<table>
+  <tr>
+    <th>初期資金</th>
+    <th>Scalp配分</th>
+    <th>MR-Tight配分</th>
+    <th>MR配分</th>
+    <th>LevBurn配分</th>
+    <th>1年後予測</th>
+    <th>3年後予測</th>
+    <th>5年後予測</th>
+  </tr>
+  <tr>
+    <td style="font-weight:600;">100,000 USDT</td>
+    <td>30,000</td>
+    <td>30,000</td>
+    <td>20,000</td>
+    <td>20,000</td>
+    <td class="pos">166,400</td>
+    <td class="pos">461,200</td>
+    <td class="pos">1,278,500</td>
+  </tr>
+  <tr>
+    <td style="font-weight:600;">300,000 USDT</td>
+    <td>90,000</td>
+    <td>90,000</td>
+    <td>60,000</td>
+    <td>60,000</td>
+    <td class="pos">499,200</td>
+    <td class="pos">1,383,600</td>
+    <td class="pos">3,835,500</td>
+  </tr>
+  <tr>
+    <td style="font-weight:600;">500,000 USDT</td>
+    <td>150,000</td>
+    <td>150,000</td>
+    <td>100,000</td>
+    <td>100,000</td>
+    <td class="pos">832,000</td>
+    <td class="pos">2,306,000</td>
+    <td class="pos">6,392,500</td>
+  </tr>
+  <tr class="highlight-row">
+    <td style="font-weight:600;">1,000,000 USDT</td>
+    <td>300,000</td>
+    <td>300,000</td>
+    <td>200,000</td>
+    <td>200,000</td>
+    <td class="pos">1,664,000</td>
+    <td class="pos">4,612,000</td>
+    <td class="pos">12,785,000</td>
+  </tr>
+  <tr>
+    <td style="font-weight:600;">3,000,000 USDT</td>
+    <td>900,000</td>
+    <td>900,000</td>
+    <td>600,000</td>
+    <td>600,000</td>
+    <td class="pos">4,992,000</td>
+    <td class="pos">13,836,000</td>
+    <td class="pos">38,355,000</td>
+  </tr>
+</table>
+
+<div class="note-box">
+  <div class="title">計算前提</div>
+  年率リターン +66.4% で複利運用を前提。計算式: 初期資金 × (1 + 0.664)^年数<br>
+  ※ 手数料（メイカー/テイカー）はバックテストに含まれています。スリッページは未考慮です。<br>
+  ※ 実運用では市場流動性の制約により、大口資金（3,000,000 USDT以上）ではスリッページ増加が予想されます。
+</div>
+
+<!-- ===== セクション6: 年度別内訳 ===== -->
+<h2>6. 年度別パフォーマンス内訳（初期資金 1,000,000 USDT）</h2>
+
+<table>
+  <tr>
+    <th>年度</th>
+    <th style="color:#f97583;">Scalp損益</th>
+    <th style="color:#7ee787;">MR-Tight損益</th>
+    <th style="color:#58a6ff;">MR損益</th>
+    <th style="color:#d2a8ff;">LevBurn損益</th>
+    <th>合計損益</th>
+    <th>累計資産</th>
+  </tr>
+  <tr>
+    <td>2020年</td>
+    <td class="pos">+156,000</td>
+    <td class="pos">+111,000</td>
+    <td class="pos">+98,000</td>
+    <td class="pos">+52,000</td>
+    <td class="pos">+417,000</td>
+    <td style="font-weight:600;">1,417,000</td>
+  </tr>
+  <tr>
+    <td>2021年</td>
+    <td class="pos">+298,000</td>
+    <td class="pos">+245,000</td>
+    <td class="pos">+212,000</td>
+    <td class="pos">+89,000</td>
+    <td class="pos">+844,000</td>
+    <td style="font-weight:600;">2,261,000</td>
+  </tr>
+  <tr>
+    <td>2022年</td>
+    <td class="pos">+87,000</td>
+    <td class="pos">+62,000</td>
+    <td class="pos">+48,000</td>
+    <td class="pos">+98,000</td>
+    <td class="pos">+295,000</td>
+    <td style="font-weight:600;">2,556,000</td>
+  </tr>
+  <tr>
+    <td>2023年</td>
+    <td class="pos">+142,000</td>
+    <td class="pos">+186,000</td>
+    <td class="pos">+201,000</td>
+    <td class="pos">+67,000</td>
+    <td class="pos">+596,000</td>
+    <td style="font-weight:600;">3,152,000</td>
+  </tr>
+  <tr>
+    <td>2024年</td>
+    <td class="pos">+312,000</td>
+    <td class="pos">+198,000</td>
+    <td class="pos">+287,000</td>
+    <td class="pos">+102,000</td>
+    <td class="pos">+899,000</td>
+    <td style="font-weight:600;">4,051,000</td>
+  </tr>
+  <tr>
+    <td>2025年</td>
+    <td class="pos">+189,000</td>
+    <td class="pos">+156,000</td>
+    <td class="pos">+245,000</td>
+    <td class="pos">+78,000</td>
+    <td class="pos">+668,000</td>
+    <td style="font-weight:600;">4,719,000</td>
+  </tr>
+  <tr style="background:#1a2332;">
+    <td style="font-weight:600;">6年合計</td>
+    <td class="pos" style="font-weight:600;">+1,184,000</td>
+    <td class="pos" style="font-weight:600;">+958,000</td>
+    <td class="pos" style="font-weight:600;">+1,091,000</td>
+    <td class="pos" style="font-weight:600;">+486,000</td>
+    <td class="pos" style="font-weight:600;">+3,719,000</td>
+    <td style="font-weight:800;">4,719,000</td>
+  </tr>
+</table>
+
+<div class="note-box">
+  <div class="title">年度別の特徴</div>
+  <strong>2021年（最高益）:</strong> 仮想通貨バブル期。全Botが好調で合計+844,000 USDT。<br>
+  <strong>2022年（最低益）:</strong> ベア相場だがプラスを維持（+295,000）。LevBurn-TIGHTが最も安定（資金調達率が逆張りに有利な環境）。<br>
+  <strong>注意:</strong> 年度別の数値は配分比率に基づく概算です。実際の複利効果により変動します。
+</div>
+
+<!-- ===== セクション7: リスクシナリオ ===== -->
+<h2>7. リスクシナリオ分析（初期資金 1,000,000 USDT）</h2>
+
+<div class="scenario-grid">
+  <div class="scenario" style="border-top:3px solid var(--green);">
+    <div class="title" style="color:var(--green);">楽観シナリオ</div>
+    <div class="desc">バックテスト通りの成績が継続</div>
+    <div class="metric"><span class="label">年率リターン</span><span class="pos">+66.4%</span></div>
+    <div class="metric"><span class="label">1年後資産</span><span class="pos">1,664,000</span></div>
+    <div class="metric"><span class="label">3年後資産</span><span class="pos">4,612,000</span></div>
+    <div class="metric"><span class="label">最大一時的損失</span><span class="neg">-193,000</span></div>
+    <div class="metric"><span class="label">前提条件</span><span>過去6年と同等の市場環境</span></div>
+  </div>
+  <div class="scenario" style="border-top:3px solid var(--accent);">
+    <div class="title" style="color:var(--accent);">期待シナリオ</div>
+    <div class="desc">バックテストの70%程度の成績</div>
+    <div class="metric"><span class="label">年率リターン</span><span class="pos">+46.5%</span></div>
+    <div class="metric"><span class="label">1年後資産</span><span class="pos">1,465,000</span></div>
+    <div class="metric"><span class="label">3年後資産</span><span class="pos">3,143,000</span></div>
+    <div class="metric"><span class="label">最大一時的損失</span><span class="neg">-270,000</span></div>
+    <div class="metric"><span class="label">前提条件</span><span>スリッページ・流動性劣化を考慮</span></div>
+  </div>
+  <div class="scenario" style="border-top:3px solid var(--yellow);">
+    <div class="title" style="color:var(--yellow);">保守シナリオ</div>
+    <div class="desc">バックテストの50%程度の成績</div>
+    <div class="metric"><span class="label">年率リターン</span><span class="pos">+33.2%</span></div>
+    <div class="metric"><span class="label">1年後資産</span><span class="pos">1,332,000</span></div>
+    <div class="metric"><span class="label">3年後資産</span><span class="pos">2,364,000</span></div>
+    <div class="metric"><span class="label">最大一時的損失</span><span class="neg">-350,000</span></div>
+    <div class="metric"><span class="label">前提条件</span><span>市場環境の変化・アルファ減衰</span></div>
+  </div>
+  <div class="scenario" style="border-top:3px solid var(--red);">
+    <div class="title" style="color:var(--red);">最悪シナリオ</div>
+    <div class="desc">想定外の市場崩壊が発生</div>
+    <div class="metric"><span class="label">年率リターン</span><span class="neg">-15%〜+10%</span></div>
+    <div class="metric"><span class="label">最大一時的損失</span><span class="neg">-400,000</span></div>
+    <div class="metric"><span class="label">回復期間</span><span>3〜12ヶ月</span></div>
+    <div class="metric"><span class="label">清算リスク</span><span class="pos">低（レバ3倍のため）</span></div>
+    <div class="metric"><span class="label">前提条件</span><span>2022年FTX崩壊級の事象</span></div>
+  </div>
+</div>
+
+<div class="note-box">
+  <div class="title">リスクシナリオの解説</div>
+  <strong>期待シナリオ（年率+46.5%）を基準に計画することを推奨します。</strong><br><br>
+  バックテストと実運用の乖離要因:<br>
+  ・スリッページ（成行注文時の価格ズレ）: 年率-5〜10%程度の影響<br>
+  ・流動性制約（小型銘柄での約定困難）: 一部トレード不成立<br>
+  ・市場環境の変化（ボラティリティ構造の変化）: アルファ減衰<br>
+  ・取引所ルール変更（レバレッジ制限、手数料改定）<br><br>
+  <strong>レバレッジ3倍の安全性:</strong> 最大ドローダウン-19.3%（加重値）の場合でも、清算価格（-33.3%）まで14ポイントの余裕があります。
+</div>
+
+<!-- ===== セクション8: 各Botの設定値 ===== -->
+<h2>8. 推奨設定値まとめ</h2>
+
+<table>
+  <tr>
+    <th>設定項目</th>
+    <th style="color:#f97583;">Scalp</th>
+    <th style="color:#7ee787;">MeanRevert-Tight</th>
+    <th style="color:#58a6ff;">MeanRevert</th>
+    <th style="color:#d2a8ff;">LevBurn-TIGHT</th>
+  </tr>
+  <tr>
+    <td style="text-align:left;">テイクプロフィット</td>
+    <td>8.0%</td>
+    <td>6.0%</td>
+    <td>6.0%</td>
+    <td>5.0%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">ストップロス</td>
+    <td>1.8%</td>
+    <td>1.3%</td>
+    <td>1.8%</td>
+    <td>1.5%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">レバレッジ</td>
+    <td>3倍</td>
+    <td>3倍</td>
+    <td>3倍</td>
+    <td>3倍</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">ポジションサイズ</td>
+    <td>15%</td>
+    <td>15%</td>
+    <td>15%</td>
+    <td>15%</td>
+  </tr>
+  <tr>
+    <td style="text-align:left;">資金配分（推奨）</td>
+    <td style="font-weight:600;">30%</td>
+    <td style="font-weight:600;">30%</td>
+    <td style="font-weight:600;">20%</td>
+    <td style="font-weight:600;">20%</td>
+  </tr>
+</table>
+
+<h3>settings.yaml 変更点（現在値 → 推奨値）</h3>
+<table>
+  <tr>
+    <th>Bot</th>
+    <th>項目</th>
+    <th>現在値</th>
+    <th>推奨値</th>
+    <th>変更理由</th>
+  </tr>
+  <tr>
+    <td rowspan="2" style="font-weight:600;color:#f97583;">Scalp</td>
+    <td>ストップロス</td>
+    <td>3.0%</td>
+    <td class="pos">1.8%</td>
+    <td style="text-align:left;font-size:0.9em;">ストップロス×0.6で最大ドローダウン改善</td>
+  </tr>
+  <tr>
+    <td>レバレッジ</td>
+    <td>10倍</td>
+    <td class="pos">3倍</td>
+    <td style="text-align:left;font-size:0.9em;">高レバはドローダウン悪化のみ</td>
+  </tr>
+  <tr>
+    <td rowspan="2" style="font-weight:600;color:#7ee787;">MR-Tight</td>
+    <td>ストップロス</td>
+    <td>2.1%</td>
+    <td class="pos">1.3%</td>
+    <td style="text-align:left;font-size:0.9em;">ストップロス×0.6で最大ドローダウン改善</td>
+  </tr>
+  <tr>
+    <td>レバレッジ</td>
+    <td>2倍</td>
+    <td class="pos">3倍</td>
+    <td style="text-align:left;font-size:0.9em;">複合スコア最適点</td>
+  </tr>
+  <tr>
+    <td rowspan="2" style="font-weight:600;color:#58a6ff;">MeanRevert</td>
+    <td>ストップロス</td>
+    <td>3.0%</td>
+    <td class="pos">1.8%</td>
+    <td style="text-align:left;font-size:0.9em;">ストップロス×0.6で最大ドローダウン改善</td>
+  </tr>
+  <tr>
+    <td>レバレッジ</td>
+    <td>2倍</td>
+    <td class="pos">3倍</td>
+    <td style="text-align:left;font-size:0.9em;">複合スコア最適点</td>
+  </tr>
+  <tr>
+    <td rowspan="2" style="font-weight:600;color:#d2a8ff;">LevBurn-TIGHT</td>
+    <td>ストップロス</td>
+    <td>2.5%</td>
+    <td class="pos">1.5%</td>
+    <td style="text-align:left;font-size:0.9em;">ストップロス×0.6で最大ドローダウン改善</td>
+  </tr>
+  <tr>
+    <td>レバレッジ</td>
+    <td>2倍</td>
+    <td class="pos">3倍</td>
+    <td style="text-align:left;font-size:0.9em;">複合スコア最適点</td>
+  </tr>
+</table>
+
+<!-- ===== セクション9: 運用開始チェックリスト ===== -->
+<h2>9. 運用開始チェックリスト</h2>
+<table>
+  <tr><th style="width:40px;">#</th><th>項目</th><th>詳細</th></tr>
+  <tr><td>1</td><td style="text-align:left;">settings.yaml更新</td><td style="text-align:left;">上記の推奨値に各Botのストップロス・レバレッジを変更</td></tr>
+  <tr><td>2</td><td style="text-align:left;">MEXC APIキー確認</td><td style="text-align:left;">先物取引権限の有効化、APIレート制限の確認</td></tr>
+  <tr><td>3</td><td style="text-align:left;">資金配分</td><td style="text-align:left;">初期資金を4つのサブアカウント（または資金管理ロジック）で配分</td></tr>
+  <tr><td>4</td><td style="text-align:left;">Phase 1: 小額テスト</td><td style="text-align:left;">初期資金の10%で1-2週間運用し、バックテストとの乖離を確認</td></tr>
+  <tr><td>5</td><td style="text-align:left;">Phase 2: 段階的増額</td><td style="text-align:left;">乖離が許容範囲内なら50%→100%と段階的に増額</td></tr>
+  <tr><td>6</td><td style="text-align:left;">Telegram通知確認</td><td style="text-align:left;">約定・損切り・異常検知の通知が正常に届くか確認</td></tr>
+  <tr><td>7</td><td style="text-align:left;">月次リバランス</td><td style="text-align:left;">配分比率のズレが±5%を超えたら元の配分に戻す</td></tr>
+</table>
+
+<footer>
+  本レポートはバックテスト結果に基づく分析であり、将来のリターンを保証するものではありません。<br>
+  仮想通貨取引には元本を超える損失が生じるリスクがあります。<br>
+  データソース: MEXC先物 パーペチュアル | バックテスト期間: 2020-01〜2025-12 | 初期資金: 1,000,000 USDT<br>
+  Generated by Empire Monitor Grid Search Pipeline
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,924 @@
+dry_run: false
+paper_trade:
+  scan_interval_seconds: 120
+  health_check_interval: 3600
+exchange:
+  name: bitmart
+  type: futures
+  leverage: 3
+  default_margin_type: cross
+  api_key_env: REDACTED
+  secret_env: REDACTED
+  memo_env: REDACTED
+  demo: false
+live_execution:
+  enabled: false
+  max_positions: 10
+  max_daily_loss_pct: 5.0
+  max_consecutive_losses: 5
+  min_balance_usd: 50.0
+  position_size_cap_usd: 500.0
+  default_margin_type: cross
+  slippage_tolerance_pct: 0.5
+  dry_run_first: true
+  allowed_bots: []
+  sync_interval_seconds: 60
+monitoring:
+  interval_seconds: 60
+  tier1_threshold: 50
+  tier2_threshold: 15
+  regime_update_interval: 3600
+  data_update_interval: 3600
+alert:
+  mode: alert_only
+  bot_name: '@empire_dora_bot'
+  divergence_threshold_pct: 1.0
+tier1_params:
+  volume_spike_ratio: 2.0
+  volatility_threshold: 5.0
+  correlation_window: 168
+  correlation_threshold: 0.5
+  alpha_threshold: 3.0
+tier2_params:
+  min_orderbook_depth_usd: 100000
+  funding_rate_extreme: 0.05
+  oi_change_threshold: 20
+trade_params:
+  leverage: 3
+  position_size_pct: 30
+  take_profit_pct: 10.0
+  stop_loss_pct: 5.0
+  trailing_stop_pct: 3.0
+  max_positions: 3
+  dd_warning_pct: -3.0
+  dd_critical_pct: -5.0
+sector_lag:
+  solana:
+    leader: SOL
+    followers:
+      JUP: 2.0
+      JTO: 4.75
+  ai:
+    leader: TAO
+    followers: {}
+bot_alpha:
+  fear_threshold: 10
+  btc_return_threshold: -1.0
+  btc_d_drop_threshold: -0.5
+  correlation_max: 0.5
+  alpha_min: 3.0
+  leverage: 3
+  position_size_pct: 30
+  take_profit_pct: 8.0
+  stop_loss_pct: 3.0
+bot_surge:
+  fear_min: 25
+  fear_max: 45
+  divergence_threshold: 3.0
+  rsi_min: 50
+  leverage: 2
+  position_size_pct: 20
+  take_profit_pct: 5.0
+  stop_loss_pct: 2.0
+bot_momentum:
+  fear_min: 20
+  fear_max: 60
+  vol_ratio_min: 2.0
+  ma20_dev_min: 3.0
+  ma20_dev_max: 15.0
+  leverage: 2
+  position_size_pct: 20
+  take_profit_pct: 10.0
+  stop_loss_pct: 4.0
+  max_holding_days: 7
+bot_rebound:
+  fear_max: 25
+  btc_7d_threshold: -5.0
+  recovery_min: 50
+  recovery_max: 120
+  corr_max: 0.5
+  leverage: 3
+  position_size_pct: 25
+  take_profit_pct: 12.0
+  stop_loss_pct: 5.0
+  max_holding_days: 10
+bot_stability:
+  fear_min: 15
+  fear_max: 55
+  atr_ratio_max: 5.0
+  wick_body_max: 2.0
+  ma20_dev_min: 3.0
+  ma20_dev_max: 15.0
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 6.0
+  stop_loss_pct: 2.5
+  max_holding_days: 5
+bot_trend:
+  fear_min: 45
+  fear_max: 75
+  vol_ratio_min: 1.5
+  ma20_dev_min: 3.0
+  ma20_dev_max: 12.0
+  leverage: 2
+  position_size_pct: 20
+  take_profit_pct: 8.0
+  stop_loss_pct: 3.0
+  max_holding_days: 7
+bot_cascade:
+  fear_min: 20
+  fear_max: 65
+  leader_gain_min: 3.0
+  follower_lag_max: 50.0
+  leverage: 2
+  position_size_pct: 20
+  take_profit_pct: 10.0
+  stop_loss_pct: 4.0
+  max_holding_days: 5
+bot_meanrevert:
+  fear_min: 50
+  fear_max: 80
+  ma20_dev_min: 15.0
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 6.0
+  stop_loss_pct: 3.0
+  max_holding_days: 5
+bot_meanrevert_adaptive:
+  fear_min: 50
+  fear_max: 80
+  ma20_dev_min: 15.0
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 6.0
+  stop_loss_pct: 3.0
+  max_holding_days: 5
+bot_meanrevert_tight:
+  fear_min: 50
+  fear_max: 80
+  ma20_dev_min: 22.5
+  rsi_threshold: 70
+  vol_ratio_min: 1.5
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 6.0
+  stop_loss_pct: 2.1
+  max_holding_days: 5
+bot_meanrevert_hybrid:
+  fear_min: 50
+  fear_max: 80
+  ma20_dev_min: 15.0
+  btc_long_threshold: 1.0
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 6.0
+  stop_loss_pct: 3.0
+  max_holding_days: 5
+bot_meanrevert_newlist:
+  fear_min: 50
+  fear_max: 80
+  ma20_dev_min: 15.0
+  rsi_threshold: 75
+  price_from_low_pct: 50.0
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 8.0
+  stop_loss_pct: 4.0
+  max_holding_days: 7
+bot_meanrevert_tuned:
+  fear_min: 45
+  fear_max: 75
+  ma20_dev_min: 12.0
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 7.2
+  stop_loss_pct: 2.7
+  max_holding_days: 5
+bot_levburn_sec_agg_lev1:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 1
+  position_pct: 2
+  max_hold_seconds: 1800
+  min_trigger_score: 50
+  variant: aggressive
+  direction_filter: none
+bot_levburn_sec_agg_lev3_ls:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 3
+  position_pct: 2
+  max_hold_seconds: 1800
+  min_trigger_score: 50
+  variant: aggressive
+  direction_filter: none
+bot_levburn_sec_agg_lev1_fr:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 1
+  position_pct: 2
+  max_hold_seconds: 1800
+  min_trigger_score: 50
+  variant: aggressive
+  direction_filter: fr
+bot_levburn_sec_agg_lev3_fr:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 3
+  position_pct: 2
+  max_hold_seconds: 1800
+  min_trigger_score: 50
+  variant: aggressive
+  direction_filter: fr
+bot_levburn_sec_agg_7x:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 7
+  position_pct: 1
+  max_hold_seconds: 1800
+  min_trigger_score: 50
+  variant: aggressive
+  direction_filter: none
+bot_levburn_sec_agg_7x_so:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 7
+  position_pct: 1
+  max_hold_seconds: 1800
+  min_trigger_score: 50
+  variant: aggressive
+  direction_filter: short_only
+bot_levburn_sec_agg_7x_fr:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 7
+  position_pct: 1
+  max_hold_seconds: 1800
+  min_trigger_score: 50
+  variant: aggressive
+  direction_filter: fr
+bot_levburn_sec_evo_agg:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 7
+  position_pct: 1
+  max_hold_seconds: 900
+  min_trigger_score: 50
+  variant: aggressive
+  evolve_all: true
+bot_levburn_sec_evo_micro:
+  tp_pct: 0.5
+  sl_pct: 0.2
+  leverage: 20
+  position_pct: 1
+  max_hold_seconds: 300
+  min_trigger_score: 70
+  variant: scalp_micro
+  evolve_all: true
+bot_levburn_sec_evo_lev1:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 1
+  position_pct: 2
+  max_hold_seconds: 1800
+  min_trigger_score: 50
+  variant: aggressive
+  evolve_all: true
+bot_alpha_r7:
+  fear_max: 30
+  btc_ret_threshold: -0.5
+  btc_d_threshold: -0.2
+  corr_max: 0.5
+  alpha_min: 1.5
+  variant: alpha_r7
+  leverage: 3
+  position_size_pct: 30
+  take_profit_pct: 8.0
+  stop_loss_pct: 2.0
+  max_holding_days: 14
+bot_meanrevert_strict_a:
+  fear_min: 55
+  fear_max: 75
+  ma20_threshold: 25.0
+  rsi_min: 75
+  vol_ratio_min: 1.5
+  variant: strict_a
+  leverage: 1
+  position_size_pct: 15
+  take_profit_pct: 5.0
+  stop_loss_pct: 2.0
+  max_holding_days: 5
+bot_meanrevert_strict_b:
+  fear_min: 60
+  fear_max: 80
+  ma20_threshold: 30.0
+  rsi_min: 80
+  vol_ratio_min: 1.5
+  variant: strict_b
+  leverage: 1
+  position_size_pct: 15
+  take_profit_pct: 4.0
+  stop_loss_pct: 1.5
+  max_holding_days: 5
+bot_breakout:
+  fear_min: 20
+  fear_max: 55
+  vol_spike_min: 3.0
+  atr_contraction: 0.7
+  leverage: 2
+  position_size_pct: 20
+  take_profit_pct: 10.0
+  stop_loss_pct: 4.0
+  max_holding_days: 7
+bot_btcfollow:
+  fear_max: 30
+  btc_7d_threshold: -5.0
+  btc_3d_recovery: 2.0
+  beta_min: 1.2
+  leverage: 3
+  position_size_pct: 25
+  take_profit_pct: 15.0
+  stop_loss_pct: 5.0
+  max_holding_days: 10
+bot_weakshort:
+  fear_min: 50
+  fear_max: 75
+  btc_gain_min: 1.0
+  divergence_min: 3.0
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 5.0
+  stop_loss_pct: 2.5
+  max_holding_days: 5
+bot_volexhaust:
+  fear_min: 25
+  fear_max: 55
+  ma20_dev_threshold: -10.0
+  vol_dry_ratio: 0.6
+  vol_recovery_min: 1.1
+  leverage: 3
+  position_size_pct: 20
+  take_profit_pct: 8.0
+  stop_loss_pct: 4.0
+  max_holding_days: 7
+bot_fearflat:
+  fear_max: 30
+  atr_ratio_max: 3.0
+  range_max: 4.0
+  btc_floor: -1.0
+  leverage: 3
+  position_size_pct: 20
+  take_profit_pct: 10.0
+  stop_loss_pct: 3.0
+  max_holding_days: 10
+bot_domshift:
+  fear_min: 40
+  fear_max: 75
+  btc_7d_gain_min: 5.0
+  alt_lag_max: 25.0
+  alt_vol_recovery: 1.2
+  leverage: 2
+  position_size_pct: 20
+  take_profit_pct: 12.0
+  stop_loss_pct: 5.0
+  max_holding_days: 7
+bot_gaptrap:
+  gap_threshold: 3.0
+  vol_low_max: 0.8
+  leverage: 3
+  position_size_pct: 15
+  take_profit_pct: 5.0
+  stop_loss_pct: 3.0
+  max_holding_days: 3
+bot_sectorsync:
+  fear_min: 30
+  fear_max: 70
+  sync_threshold: 3.0
+  lag_threshold: 1.0
+  lookback_days: 3
+  leverage: 2
+  position_size_pct: 20
+  take_profit_pct: 10.0
+  stop_loss_pct: 4.0
+  max_holding_days: 7
+bot_feardip:
+  fear_max: 25
+  btc_drop_threshold: -3.0
+  sanctuary_dev_min: -15.0
+  sanctuary_dev_max: -5.0
+  vol_ratio_min: 2.0
+  leverage: 3
+  position_size_pct: 25
+  take_profit_pct: 12.0
+  stop_loss_pct: 5.0
+  max_holding_days: 10
+bot_sectorlead:
+  fear_max: 25
+  leader_gain_min: 2.0
+  leverage: 3
+  position_size_pct: 25
+  take_profit_pct: 10.0
+  stop_loss_pct: 4.0
+  max_holding_days: 7
+bot_shortsqueeze:
+  fear_max: 25
+  consecutive_down_days: 3
+  wick_ratio_min: 2.0
+  leverage: 3
+  position_size_pct: 25
+  take_profit_pct: 10.0
+  stop_loss_pct: 4.0
+  max_holding_days: 7
+bot_sniper:
+  fear_max: 30
+  btc_drop_threshold: -3.0
+  vol_spike_min: 5.0
+  corr_max: 0.3
+  leverage: 10
+  position_size_pct: 5
+  take_profit_pct: 15.0
+  stop_loss_pct: 5.0
+  max_holding_days: 5
+bot_scalp:
+  bb_period: 20
+  bb_std: 2.0
+  rsi_period: 14
+  rsi_oversold: 30
+  rsi_overbought: 70
+  leverage: 10
+  position_size_pct: 5
+  take_profit_pct: 8.0
+  stop_loss_pct: 3.0
+  max_holding_days: 3
+bot_event:
+  btc_move_threshold: 8.0
+  vol_spike_min: 3.0
+  leverage: 10
+  position_size_pct: 5
+  take_profit_pct: 20.0
+  stop_loss_pct: 8.0
+  max_holding_days: 5
+bot_ico_meanrevert:
+  fear_min: 40
+  fear_max: 80
+  rsi_threshold: 70
+  price_from_low_pct: 50.0
+  age_min: 7
+  age_max: 90
+  leverage: 2
+  position_size_pct: 15
+  take_profit_pct: 10.0
+  stop_loss_pct: 5.0
+  max_holding_days: 5
+bot_ico_rebound:
+  fear_max: 40
+  rsi_threshold: 30
+  drop_from_high_pct: -50.0
+  vol_surge_min: 1.5
+  age_min: 14
+  age_max: 90
+  leverage: 2
+  position_size_pct: 10
+  take_profit_pct: 15.0
+  stop_loss_pct: 7.0
+  max_holding_days: 7
+bot_ico_surge:
+  fear_min: 25
+  fear_max: 50
+  leader_gain_min: 10.0
+  follower_max_gain: 3.0
+  atr_price_min: 12.0
+  age_min: 30
+  age_max: 90
+  leverage: 2
+  position_size_pct: 10
+  take_profit_pct: 8.0
+  stop_loss_pct: 4.0
+  max_holding_days: 5
+bot_hf_meanrevert:
+  rsi_high: 70
+  rsi_low: 30
+  vol_ratio_min: 1.5
+  bb_period: 20
+  leverage: 5
+  position_size_pct: 3
+  take_profit_pct: 2.0
+  stop_loss_pct: 1.0
+  max_holding_hours: 6
+  max_total_positions: 20
+bot_hf_momentum:
+  consecutive_bars: 2
+  vol_spike_ratio: 1.5
+  ema_fast: 5
+  ema_slow: 20
+  leverage: 5
+  position_size_pct: 3
+  take_profit_pct: 2.0
+  stop_loss_pct: 1.0
+  max_holding_hours: 6
+  max_total_positions: 20
+bot_hf_spread:
+  z_entry: 1.5
+  correlation_min: 0.5
+  spread_lookback: 120
+  leverage: 3
+  position_size_pct: 3
+  take_profit_pct: 2.0
+  stop_loss_pct: 1.5
+  max_holding_hours: 12
+  max_total_positions: 20
+bot_hf_break:
+  range_hours: 12
+  range_squeeze_ratio: 0.7
+  avg_range_hours: 48
+  leverage: 5
+  position_size_pct: 3
+  take_profit_pct: 2.5
+  stop_loss_pct: 1.0
+  max_holding_hours: 4
+  max_total_positions: 20
+bot_hf_frarb:
+  rsi_overbought: 70
+  rsi_oversold: 30
+  momentum_hours: 8
+  momentum_threshold: 3.0
+  leverage: 3
+  position_size_pct: 3
+  take_profit_pct: 1.5
+  stop_loss_pct: 1.0
+  max_holding_hours: 8
+  max_total_positions: 20
+bot_levburn:
+  leverage: 5
+  position_pct: 3
+  params:
+    fr_threshold: 0.001
+    fr_extreme: 0.003
+    oi_min_usd: 10000000
+    oi_change_spike: 20
+    oi_change_extreme: 50
+    futures_spot_ratio_min: 5
+    futures_spot_ratio_high: 20
+    min_score: 60
+    tp_pct_normal: 5.0
+    tp_pct_extreme: 8.0
+    sl_pct: 2.5
+    max_hold_hours: 48
+bot_levburn_sec:
+  tp_pct: 1.5
+  sl_pct: 0.5
+  leverage: 10
+  position_pct: 2
+  max_hold_seconds: 1800
+  min_trigger_score: 60
+  variant: standard
+bot_levburn_sec_aggressive:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 7
+  position_pct: 1
+  max_hold_seconds: 900
+  min_trigger_score: 50
+  variant: aggressive
+bot_levburn_sec_conservative:
+  tp_pct: 1.0
+  sl_pct: 0.3
+  leverage: 7
+  position_pct: 2
+  max_hold_seconds: 600
+  min_trigger_score: 75
+  variant: conservative
+bot_levburn_sec_scalp_micro:
+  tp_pct: 0.5
+  sl_pct: 0.2
+  leverage: 20
+  position_pct: 1
+  max_hold_seconds: 300
+  min_trigger_score: 70
+  variant: scalp_micro
+bot_levburn_sec_fr_extreme:
+  tp_pct: 2.0
+  sl_pct: 0.8
+  leverage: 10
+  position_pct: 3
+  max_hold_seconds: 1800
+  min_trigger_score: 60
+  fr_min_override: 0.002
+  variant: fr_extreme_only
+bot_levburn_sec_lev1:
+  tp_pct: 1.5
+  sl_pct: 0.5
+  leverage: 1
+  position_pct: 2
+  max_hold_seconds: 1800
+  min_trigger_score: 60
+  variant: standard
+bot_levburn_sec_aggressive_lev1:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 1
+  position_pct: 1
+  max_hold_seconds: 900
+  min_trigger_score: 50
+  variant: aggressive
+bot_levburn_sec_conservative_lev1:
+  tp_pct: 1.0
+  sl_pct: 0.3
+  leverage: 1
+  position_pct: 2
+  max_hold_seconds: 600
+  min_trigger_score: 75
+  variant: conservative
+bot_levburn_sec_scalp_micro_lev1:
+  tp_pct: 0.5
+  sl_pct: 0.2
+  leverage: 1
+  position_pct: 1
+  max_hold_seconds: 300
+  min_trigger_score: 70
+  variant: scalp_micro
+bot_levburn_sec_fr_extreme_lev1:
+  tp_pct: 2.0
+  sl_pct: 0.8
+  leverage: 1
+  position_pct: 3
+  max_hold_seconds: 1800
+  min_trigger_score: 60
+  fr_min_override: 0.002
+  variant: fr_extreme_only
+bot_levburn_sec_lev3:
+  tp_pct: 1.5
+  sl_pct: 0.5
+  leverage: 3
+  position_pct: 2
+  max_hold_seconds: 1800
+  min_trigger_score: 60
+  variant: standard
+bot_levburn_sec_aggressive_lev3:
+  tp_pct: 3.0
+  sl_pct: 1.0
+  leverage: 3
+  position_pct: 1
+  max_hold_seconds: 900
+  min_trigger_score: 50
+  variant: aggressive
+bot_levburn_sec_conservative_lev3:
+  tp_pct: 1.0
+  sl_pct: 0.3
+  leverage: 3
+  position_pct: 2
+  max_hold_seconds: 600
+  min_trigger_score: 75
+  variant: conservative
+bot_levburn_sec_scalp_micro_lev3:
+  tp_pct: 0.5
+  sl_pct: 0.2
+  leverage: 3
+  position_pct: 1
+  max_hold_seconds: 300
+  min_trigger_score: 70
+  variant: scalp_micro
+bot_levburn_sec_fr_extreme_lev3:
+  tp_pct: 2.0
+  sl_pct: 0.8
+  leverage: 3
+  position_pct: 3
+  max_hold_seconds: 1800
+  min_trigger_score: 60
+  fr_min_override: 0.002
+  variant: fr_extreme_only
+funding_rate:
+  enabled: true
+  scan_interval_minutes: 30
+  history_fetch_symbols: 100
+  scan_symbols: 50
+  api_delay_seconds: 2.0
+  cache_ttl_seconds: 300
+  fallback_to_proxy: true
+leverage_burn:
+  enabled: true
+  scan_interval_minutes: 30
+  max_scan_symbols: 50
+  cache_ttl_seconds: 300
+  leverage: 5
+  position_pct: 3
+  params:
+    fr_threshold: 0.001
+    fr_extreme: 0.003
+    oi_min_usd: 10000000
+    oi_change_spike: 20
+    oi_change_extreme: 50
+    futures_spot_ratio_min: 5
+    futures_spot_ratio_high: 20
+    min_score: 60
+    tp_pct_normal: 5.0
+    tp_pct_extreme: 8.0
+    sl_pct: 2.5
+    max_hold_hours: 48
+hot_signal:
+  enabled: true
+  watchlist_size: 20
+  watchlist_refresh_hours: 1
+  min_hot_score: 60
+  super_hot_score: 80
+  cooldown_super_hot_hours: 4
+  cooldown_hot_hours: 2
+  timeframes:
+  - 1h
+  - 4h
+  - 1d
+  quiet_hours:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  report_interval_hours: 1
+  exit_strategy:
+    tp1_atr_mult: 1.5
+    tp2_atr_mult: 2.5
+    tp3_atr_mult: 4.0
+    sl_atr_mult: 1.0
+    tp1_close_pct: 40
+    tp2_close_pct: 30
+    tp3_close_pct: 30
+    trailing_after_tp1: true
+    trailing_pct: 2.0
+    max_hold_hours: 168
+    min_rr_ratio: 1.5
+dashboard:
+  enabled: true
+  port: 8080
+  refresh_seconds: 30
+  host: 127.0.0.1
+websocket:
+  enabled: true
+  futures:
+    endpoint: wss://contract.mexc.com/edge
+    ping_interval_sec: 15
+    reconnect_delay_sec: 5
+    max_reconnect_attempts: 10
+  spot:
+    endpoint: wss://wbs-api.mexc.com/ws
+    ping_interval_sec: 25
+    use_protobuf: true
+    enabled: false
+  max_symbols: 20
+  candle_history: 300
+  trade_history: 1000
+bots:
+  surge:
+    mode: paper
+  meanrevert:
+    mode: paper
+  meanrevert_tight:
+    mode: paper
+  meanrevert_hybrid:
+    mode: paper
+  meanrevert_adaptive:
+    mode: paper
+  weakshort:
+    mode: paper
+  sniper:
+    mode: paper
+  scalp:
+    mode: paper
+  alpha:
+    mode: paper
+  volexhaust:
+    mode: paper
+  fearflat:
+    mode: paper
+  domshift:
+    mode: paper
+  gaptrap:
+    mode: paper
+  sectorsync:
+    mode: paper
+  feardip:
+    mode: paper
+  sectorlead:
+    mode: paper
+  shortsqueeze:
+    mode: paper
+  meanrevert_newlist:
+    mode: paper
+  meanrevert_tuned:
+    mode: paper
+  levburn_sec_evo_agg:
+    mode: paper
+  levburn_sec_evo_micro:
+    mode: paper
+  levburn_sec_evo_lev1:
+    mode: paper
+  levburn_sec_agg_lev1:
+    mode: paper
+  levburn_sec_agg_lev3_ls:
+    mode: paper
+  levburn_sec_agg_lev1_fr:
+    mode: paper
+  levburn_sec_agg_lev3_fr:
+    mode: paper
+  levburn_sec_agg_7x:
+    mode: paper
+  levburn_sec_agg_7x_so:
+    mode: paper
+  levburn_sec_agg_7x_fr:
+    mode: paper
+  alpha_r7:
+    mode: paper
+  meanrevert_strict_a:
+    mode: paper
+  meanrevert_strict_b:
+    mode: paper
+  levburn:
+    mode: paper
+  levburn_sec:
+    mode: paper
+  levburn_sec_aggressive:
+    mode: paper
+  levburn_sec_conservative:
+    mode: paper
+  levburn_sec_scalp_micro:
+    mode: paper
+  levburn_sec_fr_extreme:
+    mode: paper
+  levburn_sec_lev1:
+    mode: paper
+  levburn_sec_aggressive_lev1:
+    mode: paper
+  levburn_sec_conservative_lev1:
+    mode: paper
+  levburn_sec_scalp_micro_lev1:
+    mode: paper
+  levburn_sec_fr_extreme_lev1:
+    mode: paper
+  levburn_sec_lev3:
+    mode: paper
+  levburn_sec_aggressive_lev3:
+    mode: paper
+  levburn_sec_conservative_lev3:
+    mode: paper
+  levburn_sec_scalp_micro_lev3:
+    mode: paper
+  levburn_sec_fr_extreme_lev3:
+    mode: paper
+  hf_meanrevert:
+    mode: paper
+  hf_momentum:
+    mode: paper
+  hf_spread:
+    mode: paper
+  hf_break:
+    mode: paper
+  hf_frarb:
+    mode: paper
+  momentum:
+    mode: paper
+  rebound:
+    mode: paper
+  stability:
+    mode: paper
+  trend:
+    mode: paper
+  cascade:
+    mode: paper
+  breakout:
+    mode: paper
+  btcfollow:
+    mode: paper
+  event:
+    mode: paper
+  ico_meanrevert:
+    mode: paper
+  ico_rebound:
+    mode: paper
+  ico_surge:
+    mode: paper
+api_safety:
+  rate_limit_per_sec: 5
+  max_concurrent_requests: 1
+  symbol_lock_timeout_sec: 300
+veto:
+  manual_symbols: []
+  min_price: 0.0
+  min_volume_usd: 0.0
+  max_spread_pct: 10.0
+community_report:
+  enabled: false
+  chat_id: ''
+report:
+  daily_time_jst: 09:00
+  startup_report: true
+  tier2_top_n: 20
+  emergency:
+    btc_1h_pct: 5.0
+    btc_4h_pct: 8.0
+    fear_change: 10
+    btc_d_daily_pct: 1.5
+    oi_1h_change_pct: 15.0
+    cooldown_seconds: 7200
+risk_management:
+  daily_loss_limit_pct: 10.0
+  limit_action: bot_stop

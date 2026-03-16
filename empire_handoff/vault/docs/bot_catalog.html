@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Monitor - BOT カタログ</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --card: #111827;
+    --card-hover: #1a2332;
+    --border: #1e293b;
+    --accent: #3b82f6;
+    --accent2: #8b5cf6;
+    --green: #10b981;
+    --red: #ef4444;
+    --orange: #f59e0b;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --dim: #64748b;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 1.1rem;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 24px 20px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .stat-item { text-align: center; }
+  .stat-item .num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-item .label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Nav */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 14, 23, 0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .nav a:hover {
+    color: var(--text);
+    background: var(--card);
+    border-color: var(--border);
+  }
+
+  /* Container */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* Section */
+  .section {
+    margin: 40px 0;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-header .icon {
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 1.4rem;
+    color: var(--text);
+  }
+  .section-header .count {
+    background: var(--card);
+    color: var(--muted);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+  }
+
+  /* Bot card grid */
+  .bot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    .bot-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Bot card */
+  .bot-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+  }
+  .bot-card:hover {
+    background: var(--card-hover);
+    border-color: #334155;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  .bot-card .bot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .bot-card .bot-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .bot-card .bot-name-jp {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-active { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-inactive { background: rgba(100,116,139,0.15); color: var(--dim); border: 1px solid rgba(100,116,139,0.3); }
+  .badge-tier1 { background: rgba(59,130,246,0.15); color: var(--accent); border: 1px solid rgba(59,130,246,0.3); }
+  .badge-tier2 { background: rgba(139,92,246,0.15); color: var(--accent2); border: 1px solid rgba(139,92,246,0.3); }
+  .badge-extreme { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-hf { background: rgba(6,182,212,0.15); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .badge-config { background: rgba(245,158,11,0.15); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+
+  .bot-desc {
+    color: var(--muted);
+    font-size: 0.88rem;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  /* Params table */
+  .params {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .param {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.2);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+  }
+  .param .k { color: var(--dim); }
+  .param .v { color: var(--text); font-weight: 600; font-family: 'Consolas', monospace; }
+
+  /* Logic tags */
+  .logic-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 10px;
+  }
+  .logic-tag {
+    background: rgba(59,130,246,0.1);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+
+  /* Conditions */
+  .conditions {
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 0.82rem;
+  }
+  .conditions .cond-title {
+    color: var(--dim);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .conditions ul {
+    list-style: none;
+    padding: 0;
+  }
+  .conditions li {
+    color: var(--muted);
+    padding: 2px 0;
+  }
+  .conditions li::before {
+    content: '▸ ';
+    color: var(--accent);
+  }
+
+  /* Scoring */
+  .scoring {
+    font-family: 'Consolas', monospace;
+    font-size: 0.78rem;
+    color: var(--cyan);
+    background: rgba(6,182,212,0.08);
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-top: 8px;
+    border-left: 3px solid var(--cyan);
+  }
+
+  /* Direction badge */
+  .dir-long { color: var(--green); }
+  .dir-short { color: var(--red); }
+  .dir-both { color: var(--orange); }
+
+  /* Summary table */
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 0.85rem;
+  }
+  .summary-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: rgba(59,130,246,0.1);
+    color: var(--accent);
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .summary-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .summary-table tr:hover td {
+    background: var(--card-hover);
+    color: var(--text);
+  }
+
+  /* Funnel diagram */
+  .funnel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 30px auto;
+    max-width: 600px;
+  }
+  .funnel-step {
+    text-align: center;
+    padding: 18px 0;
+    border-radius: 8px;
+    font-weight: 600;
+    position: relative;
+  }
+  .funnel-step .funnel-label { font-size: 0.8rem; opacity: 0.7; }
+  .funnel-step .funnel-val { font-size: 1.3rem; }
+  .funnel-arrow {
+    color: var(--dim);
+    font-size: 1.2rem;
+    margin: 4px 0;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--dim);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>Empire Monitor BOT Catalog</h1>
+  <div class="subtitle">仮想通貨870銘柄 自動売買システム - 全BOT詳細一覧</div>
+</div>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="num">53</div><div class="label">Total Configs</div></div>
+  <div class="stat-item"><div class="num">28</div><div class="label">Unique Bots</div></div>
+  <div class="stat-item"><div class="num">21</div><div class="label">Implemented</div></div>
+  <div class="stat-item"><div class="num">8</div><div class="label">Categories</div></div>
+  <div class="stat-item"><div class="num" style="color:var(--green)">38</div><div class="label">Active (Paper)</div></div>
+</div>
+
+<!-- Nav -->
+<div class="nav">
+  <a href="#funnel">ファンネル構造</a>
+  <a href="#regime">Regime-Aware</a>
+  <a href="#precision">High-Precision</a>
+  <a href="#volatility">Volatility</a>
+  <a href="#sector">Sector</a>
+  <a href="#meanrevert">Mean Reversion</a>
+  <a href="#ico">ICO/NewList</a>
+  <a href="#hf">High-Frequency</a>
+  <a href="#levburn">LevBurn</a>
+  <a href="#configonly">Config-Only</a>
+  <a href="#summary">サマリー</a>
+</div>
+
+<div class="container">
+
+<!-- Funnel -->
+<div class="section" id="funnel">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(59,130,246,0.15);">&#x1F3AF;</div>
+    <h2>ファンネル構造 (Tier 1 → 2 → 3)</h2>
+  </div>
+  <div class="funnel">
+    <div class="funnel-step" style="width:100%;background:linear-gradient(90deg,rgba(59,130,246,0.2),rgba(59,130,246,0.05));">
+      <div class="funnel-label">TIER 1 — スクリーニング</div>
+      <div class="funnel-val">870銘柄 → Top 50</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">全銘柄をスキャン、基本条件でフィルタリング</div>
+    </div>
+    <div class="funnel-arrow">&#x25BC;</div>
+    <div class="funnel-step" style="width:75%;background:linear-gradient(90deg,rgba(139,92,246,0.2),rgba(139,92,246,0.05));">
+      <div class="funnel-label">TIER 2 — バリデーション</div>
+      <div class="funnel-val">Top 50 → Top 15</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">FR/OI、出来高、テクニカルで検証</div>
+    </div>
+    <div class="funnel-arrow">&#x25BC;</div>
+    <div class="funnel-step" style="width:50%;background:linear-gradient(90deg,rgba(6,182,212,0.2),rgba(6,182,212,0.05));">
+      <div class="funnel-label">TIER 3 — AIコメンタリー</div>
+      <div class="funnel-val">Top 15 → シグナル</div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;">AI解説のみ（価格判定にAI不使用）</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== REGIME-AWARE BOTS ===================== -->
+<div class="section" id="regime">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(139,92,246,0.15);">&#x1F30A;</div>
+    <h2>Regime-Aware Bots（市場レジーム連動）</h2>
+    <span class="count">7 bots</span>
+  </div>
+  <div class="bot-grid">
+
+    <!-- Alpha -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-Alpha</div>
+          <div class="bot-name-jp">極限一撃 — 最高選抜度</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier1">Tier 1</span></div>
+      </div>
+      <div class="bot-desc">極度のパニック時にBTCと無相関で独自に動くアルファ銘柄を狙う。年数回の超厳選シグナル。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear &amp; Greed Index &lt; 10（極限恐怖）</li>
+          <li>BTC 日次リターン ≤ -1.0%</li>
+          <li>BTC Dominance 変化 ≤ -0.5%</li>
+        </ul>
+      </div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>BTC相関 &lt; 0.5（低相関銘柄）</li>
+          <li>Alpha値 ≥ 3.0（独自の上昇力）</li>
+          <li>Direction: <span class="dir-long">LONG</span></li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">30%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">8%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+      </div>
+      <div class="logic-tags">
+        <span class="logic-tag">L02 Alpha Sanctuary</span>
+        <span class="logic-tag">L17 Correlation Shift</span>
+        <span class="logic-tag">L04 Leading Indicator</span>
+      </div>
+    </div>
+
+    <!-- Surge -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-Surge</div>
+          <div class="bot-name-jp">日常循環 — セクター追従</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-tier1">Tier 1</span></div>
+      </div>
+      <div class="bot-desc">BTC下落時にセクターリーダーから遅れて追従する銘柄を検出。セクターカスケード効果を利用。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear: 25〜45（中程度の恐怖）</li>
+          <li>BTC 日次リターン ≤ 0%</li>
+        </ul>
+      </div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>BTC乖離 &gt; 3%（リーダー検出）</li>
+          <li>セクターカスケードラグ: 80-120%</li>
+          <li>RSI &gt; 50 フィルター</li>
+          <li>Direction: <span class="dir-long">LONG</span></li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">20%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">5%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">2%</span></div>
+      </div>
+      <div class="scoring">score = btc_divergence * cascade_lag_ratio</div>
+      <div class="logic-tags">
+        <span class="logic-tag">L03 Inflow</span>
+        <span class="logic-tag">L04 Leading</span>
+        <span class="logic-tag">L21 Sector Rotation</span>
+      </div>
+    </div>
+
+    <!-- FearDip -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-FearDip</div>
+          <div class="bot-name-jp">恐怖押し目 — 底値検出</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+      </div>
+      <div class="bot-desc">極度の恐怖でBTC急落時、Sanctuary(聖域)の底値付近で出来高急増する銘柄を狙う。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear &lt; 25</li>
+          <li>BTC 下落 ≤ -3%</li>
+          <li>Sanctuary乖離: -15%〜-5%（底値圏接近）</li>
+          <li>出来高比率 ≥ 2.0x（急増）</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">25%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">12%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">5%</span></div>
+      </div>
+      <div class="scoring">score = (1 / max(|sanc_dev|, 1)) * vol_ratio</div>
+      <div class="logic-tags">
+        <span class="logic-tag">L02 Sanctuary</span>
+        <span class="logic-tag">L03 Volume</span>
+        <span class="logic-tag">L08 FR/OI</span>
+      </div>
+    </div>
+
+    <!-- SectorLead -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-SectorLead</div>
+          <div class="bot-name-jp">セクターリード — リーダー追従</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+      </div>
+      <div class="bot-desc">ETH/SOL/BNBなどのリーダーが上昇開始後、まだ下落中のフォロワー銘柄をロング。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear &lt; 25</li>
+          <li>リーダー 1日上昇 ≥ 2%</li>
+          <li>フォロワーがまだマイナス</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">25%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">10%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">4%</span></div>
+      </div>
+      <div class="scoring">score = leader_ret - follower_ret (ラグ最大を選択)</div>
+      <div class="logic-tags">
+        <span class="logic-tag">L04 Leading Indicator</span>
+        <span class="logic-tag">L21 Sector Rotation</span>
+      </div>
+    </div>
+
+    <!-- ShortSqueeze -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-ShortSqueeze</div>
+          <div class="bot-name-jp">ショートスクイーズ — 踏み上げ</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+      </div>
+      <div class="bot-desc">3日以上の連続下落後、下ヒゲの長いローソク足と出来高急増で清算リバーサルを検出。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear &lt; 25</li>
+          <li>3日以上連続下落</li>
+          <li>下ヒゲ ≥ 2.0x 本体（清算反転サイン）</li>
+          <li>出来高サージ</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">25%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">10%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">4%</span></div>
+      </div>
+      <div class="scoring">score = wick_ratio * vol_ratio</div>
+      <div class="logic-tags">
+        <span class="logic-tag">L08 FR/OI</span>
+        <span class="logic-tag">L03 Volume</span>
+      </div>
+    </div>
+
+    <!-- Momentum (config-only but grouped here) -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-Momentum</div>
+          <div class="bot-name-jp">モメンタム — トレンドフォロー</div>
+        </div>
+        <div><span class="badge badge-config">Config Only</span></div>
+      </div>
+      <div class="bot-desc">Fear 20-60の中間レジームでトレンドに乗るモメンタム戦略。実装待ち。</div>
+      <div class="conditions">
+        <div class="cond-title">予定 Conditions</div>
+        <ul>
+          <li>Fear: 20〜60</li>
+          <li>トレンドフォロー型</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Status</span><span class="v" style="color:var(--orange)">未実装</span></div>
+        <div class="param"><span class="k">Config</span><span class="v">settings.yaml</span></div>
+      </div>
+    </div>
+
+    <!-- Rebound (config-only) -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-Rebound</div>
+          <div class="bot-name-jp">リバウンド — BTC回復連動</div>
+        </div>
+        <div><span class="badge badge-config">Config Only</span></div>
+      </div>
+      <div class="bot-desc">Fear &lt; 25の恐怖局面でBTC回復に連動するリバウンドプレイ。実装待ち。</div>
+      <div class="conditions">
+        <div class="cond-title">予定 Conditions</div>
+        <ul>
+          <li>Fear &lt; 25</li>
+          <li>BTC回復局面</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Status</span><span class="v" style="color:var(--orange)">未実装</span></div>
+        <div class="param"><span class="k">Config</span><span class="v">settings.yaml</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== HIGH-PRECISION ===================== -->
+<div class="section" id="precision">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(239,68,68,0.15);">&#x1F3AF;</div>
+    <h2>High-Precision Bots（精密狙撃）</h2>
+    <span class="count">3 bots</span>
+  </div>
+  <div class="bot-grid">
+
+    <!-- Sniper -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-Sniper</div>
+          <div class="bot-name-jp">スナイパー — 精密一撃</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-extreme">10x Lev</span></div>
+      </div>
+      <div class="bot-desc">BTC急落時に出来高5倍以上スパイクし、BTC相関が極めて低い独立銘柄を狙い撃ち。月0〜2回の超厳選。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear &lt; 30</li>
+          <li>BTC 下落 ≤ -3%</li>
+          <li>出来高スパイク ≥ 5.0x（24h平均比）</li>
+          <li>BTC相関 &lt; 0.3</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v" style="color:var(--red)">10x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">5%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">15%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">5%</span></div>
+      </div>
+      <div class="scoring">score = vol_ratio * (1 - btc_corr)</div>
+      <div class="logic-tags">
+        <span class="logic-tag">L09 Immediate Entry</span>
+        <span class="logic-tag">L03 Volume</span>
+      </div>
+    </div>
+
+    <!-- Scalp -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-Scalp</div>
+          <div class="bot-name-jp">スキャルピング — BB+RSI</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-extreme">10x Lev</span></div>
+      </div>
+      <div class="bot-desc">Fear制限なし・24/7稼働。ボリンジャーバンド±2σ + RSI極値で反転エントリー。高頻度。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>RSI &lt; 30 + 価格 ≤ BB下限 → <span class="dir-long">LONG</span></li>
+          <li>RSI &gt; 70 + 価格 ≥ BB上限 → <span class="dir-short">SHORT</span></li>
+          <li>Fear制限: なし（常時稼働）</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v" style="color:var(--red)">10x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">5%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">8%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+      </div>
+      <div class="scoring">score = |deviation| * (rsi_extreme - rsi + 1)</div>
+      <div class="logic-tags">
+        <span class="logic-tag">L09 Volatility Extremes</span>
+        <span class="logic-tag">Bollinger Bands</span>
+        <span class="logic-tag">RSI</span>
+      </div>
+    </div>
+
+    <!-- Event -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-Event</div>
+          <div class="bot-name-jp">イベント駆動 — ブラックスワン</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-extreme">10x Lev</span></div>
+      </div>
+      <div class="bot-desc">BTC ±8%の異常日変動（ブラックスワン）発生時のみ発動。年に数回の超レアシグナル。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>BTC ±8% 日次変動（ブラックスワン）</li>
+          <li>出来高スパイク ≥ 3.0x（10日平均）</li>
+          <li>BTC下落 → <span class="dir-long">LONG</span>（リバウンド）</li>
+          <li>BTC上昇 → <span class="dir-short">SHORT</span>（過伸び）</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v" style="color:var(--red)">10x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">5%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">20%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">8%</span></div>
+      </div>
+      <div class="logic-tags">
+        <span class="logic-tag">L09 Immediate Entry</span>
+        <span class="logic-tag">Black Swan</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== VOLATILITY ===================== -->
+<div class="section" id="volatility">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(245,158,11,0.15);">&#x1F4C8;</div>
+    <h2>Volatility-Based Bots（ボラティリティ系）</h2>
+    <span class="count">4 bots</span>
+  </div>
+  <div class="bot-grid">
+
+    <!-- VolExhaust -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-VolExhaust</div>
+          <div class="bot-name-jp">出来高枯渇反転</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+      </div>
+      <div class="bot-desc">MA20を大幅に下回りつつ出来高が枯渇→回復し始めた銘柄を検出。売り圧力の消耗=底値サイン。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear: 25〜55</li>
+          <li>MA20乖離 &lt; -10%</li>
+          <li>出来高枯渇: 5日平均 ≤ 0.6x 20日平均</li>
+          <li>出来高回復: 当日 &gt; 前日 × 1.1</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">20%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">8%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">4%</span></div>
+      </div>
+      <div class="scoring">score = |ma20_dev| * (1 / vol_dry) * vol_recovery</div>
+      <div class="logic-tags">
+        <span class="logic-tag">L03 Volume</span>
+        <span class="logic-tag">MA20 Deviation</span>
+      </div>
+    </div>
+
+    <!-- FearFlat -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-FearFlat</div>
+          <div class="bot-name-jp">恐怖×低ボラ — パニック終了</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+      </div>
+      <div class="bot-desc">恐怖指数が低い中でボラティリティが極端に縮小=パニック終了・底値形成のサイン。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear &lt; 30</li>
+          <li>ATR14/Close &lt; 3%（低ボラ）</li>
+          <li>5日平均レンジ &lt; 4%（横ばい）</li>
+          <li>BTC日次 &gt; -1%（パニック終了確認）</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">20%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">10%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+      </div>
+      <div class="scoring">score = (1 / atr_ratio) * |ma20_dev| * (1 / avg_range)</div>
+      <div class="logic-tags">
+        <span class="logic-tag">ATR</span>
+        <span class="logic-tag">Fear Index</span>
+        <span class="logic-tag">Range Analysis</span>
+      </div>
+    </div>
+
+    <!-- DomShift -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-DomShift</div>
+          <div class="bot-name-jp">ドミナンスシフト — Alt Season予兆</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+      </div>
+      <div class="bot-desc">BTCが7日で5%以上上昇し、アルトがまだ追従していない＝Alt Season前夜。遅れているアルトをロング。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear: 40〜75</li>
+          <li>BTC 7日上昇 ≥ 5%</li>
+          <li>アルト中央値ラグ &lt; BTC 7日リターンの25%</li>
+          <li>遅行アルトに出来高回復</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">20%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">12%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">5%</span></div>
+      </div>
+      <div class="scoring">score = lag * vol_change</div>
+      <div class="logic-tags">
+        <span class="logic-tag">L01 Dominance Matrix</span>
+        <span class="logic-tag">Alt Season</span>
+      </div>
+    </div>
+
+    <!-- GapTrap -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-GapTrap</div>
+          <div class="bot-name-jp">ギャップトラップ — 窓埋め</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span></div>
+      </div>
+      <div class="bot-desc">始値と前日終値の乖離3%以上かつ出来高が低い（低確信度）ギャップを逆張りで埋める。最大3日保持。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>Gap: |Open - Prev Close| &gt; 3%</li>
+          <li>出来高 &lt; 0.8x 20日平均（低確信度）</li>
+          <li>Gap Up → <span class="dir-short">SHORT</span>, Gap Down → <span class="dir-long">LONG</span></li>
+          <li>Fear制限: なし</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">15%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">5%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+      </div>
+      <div class="scoring">score = |gap_pct| * (1 / vol_ratio)</div>
+      <div class="logic-tags">
+        <span class="logic-tag">Gap Analysis</span>
+        <span class="logic-tag">Mean Reversion</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== SECTOR ===================== -->
+<div class="section" id="sector">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(236,72,153,0.15);">&#x1F504;</div>
+    <h2>Sector Rotation Bot（セクターローテーション）</h2>
+    <span class="count">1 bot</span>
+  </div>
+  <div class="bot-grid">
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-SectorSync</div>
+          <div class="bot-name-jp">クロスセクター同期異常</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+      </div>
+      <div class="bot-desc">DeFi, AI, Gaming, Meme, L1L2の5セクター中、2+が上昇中に1+が遅れている＝マクロ資金流入。遅行セクターの最高出来高銘柄をロング。</div>
+      <div class="conditions">
+        <div class="cond-title">Activation Conditions</div>
+        <ul>
+          <li>Fear: 30〜70</li>
+          <li>2+セクターが3日間で ≥ 3%上昇</li>
+          <li>1+セクターが3日間で &lt; 1%（遅行）</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">20%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">10%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">4%</span></div>
+      </div>
+      <div class="logic-tags">
+        <span class="logic-tag">L21 Sector Rotation</span>
+        <span class="logic-tag">DeFi / AI / Gaming / Meme / L1L2</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== MEAN REVERSION ===================== -->
+<div class="section" id="meanrevert">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(16,185,129,0.15);">&#x1F4CA;</div>
+    <h2>Mean Reversion Family（平均回帰ファミリー）</h2>
+    <span class="count">6 variants</span>
+  </div>
+  <div class="bot-grid">
+
+    <!-- Standard -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-MeanRevert</div>
+          <div class="bot-name-jp">平均回帰 — スタンダード</div>
+        </div>
+        <div><span class="badge badge-active">Active</span></div>
+      </div>
+      <div class="bot-desc">Fear 50-80（欲張り局面）でMA20から15%以上乖離した過熱銘柄をショート。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>Fear: 50〜80（欲張り）</li>
+          <li>MA20乖離 ≥ 15%（過熱）</li>
+          <li>Direction: <span class="dir-short">SHORT</span></li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">15%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">6%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+      </div>
+      <div class="scoring">score = ma20_dev * vol_bonus</div>
+    </div>
+
+    <!-- Adaptive -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-MeanRevert-Adaptive</div>
+          <div class="bot-name-jp">アダプティブ — レバレッジ可変</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span></div>
+      </div>
+      <div class="bot-desc">Standard版と同条件だが、Fear指数に応じてレバレッジを動的に調整。高恐怖=高レバ。</div>
+      <div class="conditions">
+        <div class="cond-title">Leverage Scaling</div>
+        <ul>
+          <li>Fear 50-60 → 1.5x</li>
+          <li>Fear 60-70 → 2.5x</li>
+          <li>Fear 70-80 → 3.5x</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">1.5-3.5x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">15%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">6%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+      </div>
+    </div>
+
+    <!-- Tight -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-MeanRevert-Tight</div>
+          <div class="bot-name-jp">タイト — 厳格エントリー</div>
+        </div>
+        <div><span class="badge badge-active">Active</span></div>
+      </div>
+      <div class="bot-desc">Standard版の1.5倍厳しい条件。MA20乖離22.5%以上、RSI&gt;70必須、出来高確認。少ないが高品質なシグナル。</div>
+      <div class="conditions">
+        <div class="cond-title">Stricter Parameters</div>
+        <ul>
+          <li>MA20乖離 ≥ 22.5%（1.5x厳格化）</li>
+          <li>RSI &gt; 70（必須・過熱確認）</li>
+          <li>出来高比率 ≥ 1.5x</li>
+          <li>SL: 2.1%（Standardの70%）</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">15%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">6%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">2.1%</span></div>
+      </div>
+    </div>
+
+    <!-- Hybrid -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-MeanRevert-Hybrid</div>
+          <div class="bot-name-jp">ハイブリッド — ロング/ショート両面</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span></div>
+      </div>
+      <div class="bot-desc">ショート（Standard同等）に加え、MA20から-15%以下に売られすぎた銘柄をBTC回復時にロング。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li><span class="dir-short">SHORT</span>: MA20乖離 ≥ 15%</li>
+          <li><span class="dir-long">LONG</span>: MA20乖離 ≤ -15% AND BTC 24h &gt; 1%</li>
+          <li>Direction: <span class="dir-both">BOTH</span></li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">15%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">6%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+      </div>
+    </div>
+
+    <!-- NewList -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-MeanRevert-NewList</div>
+          <div class="bot-name-jp">新規上場ハイプ崩壊</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span></div>
+      </div>
+      <div class="bot-desc">新規上場銘柄の初期ハイプで安値から50%以上上昇、RSI75超の過熱銘柄をショート。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>is_new_listing = 1</li>
+          <li>安値から ≥ 50%上昇</li>
+          <li>RSI &gt; 75（極端な過熱）</li>
+          <li>出来高減少（買い圧力消耗）</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">15%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">6%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">3%</span></div>
+      </div>
+    </div>
+
+    <!-- Tuned -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-MeanRevert-Tuned</div>
+          <div class="bot-name-jp">チューニング済 — パラメータ最適化</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span></div>
+      </div>
+      <div class="bot-desc">バックテスト結果に基づきパラメータを微調整。Fear範囲拡大、MA20閾値緩和、TP/SL比率改善。</div>
+      <div class="conditions">
+        <div class="cond-title">Optimized Parameters</div>
+        <ul>
+          <li>Fear: 45〜75（Standard比で拡大）</li>
+          <li>MA20乖離 ≥ 12%（Standardの80%）</li>
+          <li>TP: 7.2%（Standardの120%）</li>
+          <li>SL: 2.7%（Standardの90%）</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">15%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">7.2%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">2.7%</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== ICO ===================== -->
+<div class="section" id="ico">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(245,158,11,0.15);">&#x1F195;</div>
+    <h2>ICO / New Listing Bots（新規上場専門）</h2>
+    <span class="count">3 bots</span>
+  </div>
+  <div class="bot-grid">
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-ICO-MeanRevert</div>
+          <div class="bot-name-jp">新規上場ハイプ崩壊ショート</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span></div>
+      </div>
+      <div class="bot-desc">上場7〜90日以内。安値から50%上昇+RSI70超+弱気転換キャンドル+出来高減少でショート。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>上場後 7〜90日</li>
+          <li>Fear: 40〜80</li>
+          <li>安値から ≥ 50%上昇 + RSI &gt; 70</li>
+          <li>直近3本中2本以上が陰線</li>
+          <li>出来高減少トレンド</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">15%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">10%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">5%</span></div>
+      </div>
+      <div class="scoring">score = price_from_low * (rsi / 70) * (vol_prev / vol_recent)</div>
+    </div>
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-ICO-Rebound</div>
+          <div class="bot-name-jp">新規上場暴落リバウンド</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span></div>
+      </div>
+      <div class="bot-desc">上場14〜90日以内。高値から-50%以上暴落+RSI30未満+出来高回復で反発ロング。AI/Meme/Gaming等にボーナス。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>上場後 14〜90日</li>
+          <li>Fear &lt; 40</li>
+          <li>高値から ≤ -50%暴落 + RSI &lt; 30</li>
+          <li>出来高サージ ≥ 1.5x</li>
+          <li>AI/Meme/Gaming/DePIN/RWA → ×1.3ボーナス</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">10%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">15%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">7%</span></div>
+      </div>
+      <div class="scoring">score = |drop| * (1 / rsi) * vol_ratio * sector_bonus</div>
+    </div>
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-ICO-Surge</div>
+          <div class="bot-name-jp">新規上場セクターキャッチアップ</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span></div>
+      </div>
+      <div class="bot-desc">上場30〜90日以内。セクターリーダーが7日で10%上昇中に遅れている新規銘柄をロング。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>上場後 30〜90日</li>
+          <li>Fear: 25〜50</li>
+          <li>セクターリーダー 7日 ≥ 10%上昇</li>
+          <li>ターゲット 7日 &lt; 3%（遅行）</li>
+          <li>ATR/Price ≥ 12% + 出来高$5M+</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">2x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">10%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">8%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">4%</span></div>
+      </div>
+      <div class="scoring">score = lag * atr_ratio</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== HIGH FREQUENCY ===================== -->
+<div class="section" id="hf">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(6,182,212,0.15);">&#x26A1;</div>
+    <h2>High-Frequency Bots（1時間足・高頻度）</h2>
+    <span class="count">5 bots</span>
+  </div>
+  <div class="bot-grid">
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-HF-MeanRevert</div>
+          <div class="bot-name-jp">1h足 平均回帰</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-hf">1h</span></div>
+      </div>
+      <div class="bot-desc">1時間足でRSI75超+BB上限 or RSI30未満+BB下限で反転エントリー。最大6時間保持。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>RSI &gt; 75 + BB上限 → <span class="dir-short">SHORT</span></li>
+          <li>RSI &lt; 30 + BB下限 → <span class="dir-long">LONG</span></li>
+          <li>出来高: 4h平均 / 24h平均 ≥ 1.5x</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">5x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">3%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">2%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">1%</span></div>
+        <div class="param"><span class="k">Max Hold</span><span class="v">6h</span></div>
+        <div class="param"><span class="k">Max Pos</span><span class="v">20</span></div>
+      </div>
+    </div>
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-HF-Momentum</div>
+          <div class="bot-name-jp">1h足 モメンタム</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-hf">1h</span></div>
+      </div>
+      <div class="bot-desc">3本連続の同方向キャンドル+出来高2倍以上+EMAギャップ拡大でモメンタムエントリー。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>3連続 陽線/陰線</li>
+          <li>当足出来高 ≥ 2.0x 前足</li>
+          <li>EMA(5)/EMA(20) ギャップ拡大中</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">5x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">3%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">2%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">1%</span></div>
+      </div>
+      <div class="scoring">score = gap_change * 10 + vol_ratio</div>
+    </div>
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-HF-Spread</div>
+          <div class="bot-name-jp">1h足 ペアトレード</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-hf">1h</span></div>
+      </div>
+      <div class="bot-desc">相関0.6以上のペアでスプレッドのZ-score &gt; 2.0の異常乖離を検出。弱い方をロング。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>ペア相関 &gt; 0.6（7日）</li>
+          <li>スプレッド Z-score &gt; 2.0</li>
+          <li>弱い方を <span class="dir-long">LONG</span></li>
+          <li>Exit: Z-score &lt; 0.5</li>
+        </ul>
+      </div>
+      <div class="conditions">
+        <div class="cond-title">Pairs</div>
+        <ul>
+          <li>SOL/JUP, ETH/ARB, ETH/OP</li>
+          <li>BNB/CAKE, AVAX/JOE 等</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">3%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">2%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">1.5%</span></div>
+        <div class="param"><span class="k">Max Hold</span><span class="v">12h</span></div>
+        <div class="param"><span class="k">Max Pos</span><span class="v">20</span></div>
+      </div>
+    </div>
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-HF-Break</div>
+          <div class="bot-name-jp">1h足 レンジブレイク</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-hf">1h</span></div>
+      </div>
+      <div class="bot-desc">12時間レンジが48h平均の50%以下に圧縮後、1h足でブレイクアウト。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic</div>
+        <ul>
+          <li>12hレンジ &lt; 48h平均レンジの50%（スクイーズ）</li>
+          <li>1h終値がレンジ外にブレイク</li>
+          <li>上ブレイク → <span class="dir-long">LONG</span>, 下ブレイク → <span class="dir-short">SHORT</span></li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">5x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">3%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">2.5%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">1%</span></div>
+        <div class="param"><span class="k">Max Hold</span><span class="v">4h</span></div>
+        <div class="param"><span class="k">Max Pos</span><span class="v">20</span></div>
+      </div>
+      <div class="scoring">score = (1 / squeeze_ratio) * breakout_pct * 10</div>
+    </div>
+
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-HF-FRArb</div>
+          <div class="bot-name-jp">1h足 FR裁定（プロキシ）</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-hf">1h</span></div>
+      </div>
+      <div class="bot-desc">FRデータ非対応のため、8hモメンタム+RSI極値でFR偏りを推定。過密ポジションの逆をとる。</div>
+      <div class="conditions">
+        <div class="cond-title">Entry Logic (Proxy)</div>
+        <ul>
+          <li>8hモメンタム ≥ 3% + RSI &gt; 70 → <span class="dir-short">SHORT</span></li>
+          <li>8hモメンタム ≤ -3% + RSI &lt; 30 → <span class="dir-long">LONG</span></li>
+          <li>流動性: $100K+</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">3x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">3%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">1.5%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">1%</span></div>
+        <div class="param"><span class="k">Max Hold</span><span class="v">8h</span></div>
+        <div class="param"><span class="k">Max Pos</span><span class="v">20</span></div>
+      </div>
+      <div class="logic-tags">
+        <span class="logic-tag">L08 FR/OI Proxy</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== LEVBURN ===================== -->
+<div class="section" id="levburn">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(239,68,68,0.15);">&#x1F525;</div>
+    <h2>Leverage Burn Bots（レバレッジ焼き）</h2>
+    <span class="count">2 core + 15 variants</span>
+  </div>
+
+  <div class="bot-grid">
+
+    <!-- LevBurn 30min -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-LevBurn</div>
+          <div class="bot-name-jp">レバ焼き 30分足 — FR/OI分析</div>
+        </div>
+        <div><span class="badge badge-inactive">Disabled</span> <span class="badge badge-tier2">Tier 2</span></div>
+      </div>
+      <div class="bot-desc">30分間隔でFunding Rate、Open Interest、先物/現物比率を分析。過密レバポジションの清算を狙う。スコア60以上でシグナル発火。</div>
+      <div class="conditions">
+        <div class="cond-title">Scoring Components (100pt満点)</div>
+        <ul>
+          <li>FR extreme (±0.3%): +30pt / FR normal (±0.1%): +20pt</li>
+          <li>OI ≥ $10M: +10pt</li>
+          <li>OI spike (±20%): +15pt / OI extreme (±50%): +25pt</li>
+          <li>先物/現物比率 5-20x: +10〜20pt</li>
+          <li>レジーム一致: +10pt</li>
+          <li>FR &gt; 0 → <span class="dir-short">SHORT</span>, FR &lt; 0 → <span class="dir-long">LONG</span></li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v">5x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">3%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">5-8%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">2.5-3%</span></div>
+        <div class="param"><span class="k">Interval</span><span class="v">30min</span></div>
+        <div class="param"><span class="k">Max Hold</span><span class="v">48h</span></div>
+      </div>
+      <div class="logic-tags">
+        <span class="logic-tag">L08 FR/OI</span>
+        <span class="logic-tag">L10 Liquidity</span>
+        <span class="logic-tag">L13 LCEF</span>
+      </div>
+    </div>
+
+    <!-- LevBurn-Sec -->
+    <div class="bot-card">
+      <div class="bot-header">
+        <div>
+          <div class="bot-name">Bot-LevBurn-Sec</div>
+          <div class="bot-name-jp">レバ焼き秒スキャ — リアルタイム</div>
+        </div>
+        <div><span class="badge badge-active">Active</span> <span class="badge badge-extreme">10x Lev</span></div>
+      </div>
+      <div class="bot-desc">2段階評価: FR分析(0-50pt) → リアルタイムトリガー(0-70pt)。1秒足・約定・板情報でミリ秒単位のエントリー。</div>
+      <div class="conditions">
+        <div class="cond-title">Stage 1: FR Scoring (0-50pt)</div>
+        <ul>
+          <li>FR偏り検出</li>
+        </ul>
+      </div>
+      <div class="conditions">
+        <div class="cond-title">Stage 2: Real-time Trigger (0-70pt)</div>
+        <ul>
+          <li>1s価格変動 ±0.3%, 5s ±0.8%, 10s ±1.5%</li>
+          <li>出来高スパイク: 3.0-5.0x（10sローリング）</li>
+          <li>約定偏り: Buy比率 70%+ or 30%-</li>
+          <li>板偏り: Bid/Ask ≥ 3.0x</li>
+        </ul>
+      </div>
+      <div class="params">
+        <div class="param"><span class="k">Leverage</span><span class="v" style="color:var(--red)">10x</span></div>
+        <div class="param"><span class="k">Position</span><span class="v">2%</span></div>
+        <div class="param"><span class="k">TP</span><span class="v" style="color:var(--green)">1.5%</span></div>
+        <div class="param"><span class="k">SL</span><span class="v" style="color:var(--red)">0.5%</span></div>
+        <div class="param"><span class="k">Max Hold</span><span class="v">30min</span></div>
+        <div class="param"><span class="k">Cooldown</span><span class="v">60s</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LevBurn-Sec Variants Table -->
+  <h3 style="margin:24px 0 12px;color:var(--muted);font-size:1rem;">LevBurn-Sec バリアント一覧</h3>
+  <div style="overflow-x:auto;">
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Variant</th>
+        <th>TP</th>
+        <th>SL</th>
+        <th>Lev</th>
+        <th>Pos%</th>
+        <th>Max Hold</th>
+        <th>Min Trigger</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:var(--text)">Standard</td><td>1.5%</td><td>0.5%</td><td>10x</td><td>2%</td><td>30min</td><td>60</td>
+        <td><span class="badge badge-active">Active</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">Aggressive</td><td>3%</td><td>1%</td><td>7x</td><td>1%</td><td>15min</td><td>50</td>
+        <td><span class="badge badge-active">Active</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">Conservative</td><td>1%</td><td>0.3%</td><td>7x</td><td>2%</td><td>10min</td><td>75</td>
+        <td><span class="badge badge-inactive">Disabled</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">Scalp Micro</td><td>0.5%</td><td>0.2%</td><td>20x</td><td>1%</td><td>5min</td><td>70</td>
+        <td><span class="badge badge-active">Active</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--text)">FR Extreme Only</td><td>2%</td><td>0.8%</td><td>10x</td><td>3%</td><td>30min</td><td>60</td>
+        <td><span class="badge badge-inactive">Disabled</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="margin:24px 0 12px;color:var(--muted);font-size:1rem;">レバレッジ固定バリアント (Lev1 / Lev3)</h3>
+  <div class="bot-desc" style="margin-bottom:16px;">
+    上記5バリアントそれぞれに <strong>Lev1</strong>（1x = スポット相当）と <strong>Lev3</strong>（3x = 中程度レバ）の固定レバレッジ版が存在。<br>
+    合計: 5バリアント × 3レバレッジ = <strong>15コンフィグ</strong>
+  </div>
+  <div style="overflow-x:auto;">
+  <table class="summary-table">
+    <thead>
+      <tr><th>Base Variant</th><th>Default Lev</th><th>Lev1 Status</th><th>Lev3 Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color:var(--text)">Standard</td><td>10x</td><td><span class="badge badge-active">Active</span></td><td><span class="badge badge-active">Active</span></td></tr>
+      <tr><td style="color:var(--text)">Aggressive</td><td>7x</td><td><span class="badge badge-active">Active</span></td><td><span class="badge badge-active">Active</span></td></tr>
+      <tr><td style="color:var(--text)">Conservative</td><td>7x</td><td><span class="badge badge-active">Active</span></td><td><span class="badge badge-active">Active</span></td></tr>
+      <tr><td style="color:var(--text)">Scalp Micro</td><td>20x</td><td><span class="badge badge-active">Active</span></td><td><span class="badge badge-active">Active</span></td></tr>
+      <tr><td style="color:var(--text)">FR Extreme</td><td>10x</td><td><span class="badge badge-active">Active</span></td><td><span class="badge badge-active">Active</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ===================== CONFIG-ONLY ===================== -->
+<div class="section" id="configonly">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(245,158,11,0.15);">&#x1F6A7;</div>
+    <h2>Config-Only Bots（設定のみ・未実装）</h2>
+    <span class="count">8 bots</span>
+  </div>
+  <div class="bot-grid">
+    <div class="bot-card">
+      <div class="bot-header">
+        <div><div class="bot-name">未実装Bot一覧</div></div>
+        <div><span class="badge badge-config">Config Only</span></div>
+      </div>
+      <div class="bot-desc">settings.yamlにコンフィグが存在するが、src/signals/に対応する実装ファイルがないBot。BOT_REGISTRYには登録済み。</div>
+      <div style="overflow-x:auto;">
+      <table class="summary-table" style="margin:0;">
+        <thead><tr><th>Bot ID</th><th>名前</th><th>Fear Range</th><th>概要</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--text)">momentum</td><td>モメンタム</td><td>20-60</td><td>トレンドフォロー</td></tr>
+          <tr><td style="color:var(--text)">rebound</td><td>リバウンド</td><td>&lt;25</td><td>BTC回復連動</td></tr>
+          <tr><td style="color:var(--text)">stability</td><td>安定型</td><td>15-55</td><td>低ATR銘柄</td></tr>
+          <tr><td style="color:var(--text)">trend</td><td>トレンド</td><td>45-75</td><td>移動平均線ベース</td></tr>
+          <tr><td style="color:var(--text)">cascade</td><td>カスケード</td><td>20-65</td><td>リーダー→フォロワー</td></tr>
+          <tr><td style="color:var(--text)">breakout</td><td>ブレイクアウト</td><td>20-55</td><td>出来高スパイク突破</td></tr>
+          <tr><td style="color:var(--text)">btcfollow</td><td>BTC追従</td><td>&lt;30</td><td>BTC相関&gt;1.2</td></tr>
+          <tr><td style="color:var(--text)">weakshort</td><td>弱者空売り</td><td>50-75</td><td>弱いアルトをショート</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SUMMARY TABLE ===================== -->
+<div class="section" id="summary">
+  <div class="section-header">
+    <div class="icon" style="background:rgba(59,130,246,0.15);">&#x1F4CB;</div>
+    <h2>全BOTサマリー</h2>
+  </div>
+  <div style="overflow-x:auto;">
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Bot数</th>
+        <th>Timeframe</th>
+        <th>Lev範囲</th>
+        <th>Active</th>
+        <th>使用ロジック</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:var(--accent2)">Regime-Aware</td>
+        <td>7</td><td>Daily</td><td>2-3x</td>
+        <td>2 / 7</td>
+        <td>L01, L02, L03, L04, L08, L17, L21</td>
+      </tr>
+      <tr>
+        <td style="color:var(--red)">High-Precision</td>
+        <td>3</td><td>Daily</td><td>10x</td>
+        <td>2 / 3</td>
+        <td>L03, L09, BB, RSI</td>
+      </tr>
+      <tr>
+        <td style="color:var(--orange)">Volatility</td>
+        <td>4</td><td>Daily</td><td>2-3x</td>
+        <td>0 / 4</td>
+        <td>L03, ATR, MA20, Gap</td>
+      </tr>
+      <tr>
+        <td style="color:var(--pink)">Sector</td>
+        <td>1</td><td>Daily</td><td>2x</td>
+        <td>0 / 1</td>
+        <td>L21 Sector Rotation</td>
+      </tr>
+      <tr>
+        <td style="color:var(--green)">Mean Reversion</td>
+        <td>6</td><td>Daily</td><td>1.5-3.5x</td>
+        <td>2 / 6</td>
+        <td>L09, MA20, RSI, Volume</td>
+      </tr>
+      <tr>
+        <td style="color:var(--orange)">ICO/NewList</td>
+        <td>3</td><td>Daily</td><td>2x</td>
+        <td>0 / 3</td>
+        <td>L03, Age Filter, RSI</td>
+      </tr>
+      <tr>
+        <td style="color:var(--cyan)">High-Frequency</td>
+        <td>5</td><td>1h</td><td>3-5x</td>
+        <td>5 / 5</td>
+        <td>L08, BB, RSI, EMA, Z-score</td>
+      </tr>
+      <tr>
+        <td style="color:var(--red)">LevBurn</td>
+        <td>17</td><td>30min / 1s</td><td>1-20x</td>
+        <td>11 / 17</td>
+        <td>L08, L10, L13, FR/OI</td>
+      </tr>
+      <tr>
+        <td style="color:var(--dim)">Config-Only</td>
+        <td>8</td><td>Daily</td><td>—</td>
+        <td>0 / 8</td>
+        <td>未実装</td>
+      </tr>
+      <tr style="border-top:2px solid var(--accent);">
+        <td style="color:var(--text);font-weight:700">TOTAL</td>
+        <td style="color:var(--text);font-weight:700">54</td>
+        <td></td><td></td>
+        <td style="color:var(--green);font-weight:700">22 / 54</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <!-- Logic Reference -->
+  <h3 style="margin:32px 0 12px;color:var(--text);font-size:1.1rem;">ロジック参照一覧 (Knowledge Base)</h3>
+  <div style="overflow-x:auto;">
+  <table class="summary-table">
+    <thead>
+      <tr><th>ID</th><th>ロジック名</th><th>Tier</th><th>使用Bot</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color:var(--accent)">L01</td><td>Dominance Matrix</td><td>Meta</td><td>DomShift</td></tr>
+      <tr><td style="color:var(--accent)">L02</td><td>Alpha Sanctuary</td><td>Tier 1</td><td>Alpha, FearDip</td></tr>
+      <tr><td style="color:var(--accent)">L03</td><td>Inflow / Volume</td><td>Tier 1</td><td>Surge, FearDip, Sniper, VolExhaust, ICO系</td></tr>
+      <tr><td style="color:var(--accent)">L04</td><td>Leading Indicator</td><td>Tier 1</td><td>Alpha, Surge, SectorLead</td></tr>
+      <tr><td style="color:var(--accent)">L08</td><td>FR / OI Analysis</td><td>Tier 2</td><td>LevBurn全般, FearDip, ShortSqueeze, HF-FRArb</td></tr>
+      <tr><td style="color:var(--accent)">L09</td><td>Immediate Entry / Volatility</td><td>Tier 1</td><td>Sniper, Scalp, Event, MeanRevert系</td></tr>
+      <tr><td style="color:var(--accent)">L10</td><td>Liquidity Analysis</td><td>Tier 2</td><td>LevBurn</td></tr>
+      <tr><td style="color:var(--accent)">L13</td><td>LCEF</td><td>Tier 2</td><td>LevBurn</td></tr>
+      <tr><td style="color:var(--accent)">L17</td><td>Correlation Shift</td><td>Tier 1</td><td>Alpha</td></tr>
+      <tr><td style="color:var(--accent)">L18</td><td>Global Liquidity</td><td>Meta</td><td>全体レジーム判定</td></tr>
+      <tr><td style="color:var(--accent)">L21</td><td>Sector Rotation</td><td>Tier 3</td><td>Surge, SectorLead, SectorSync</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  Empire Monitor BOT Catalog | Generated: 2026-03-14 | 仮想通貨870銘柄 × 54 BOT Configs | MEXC Perpetual Futures
+</div>
+
+</body>
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bot-MeanRevert 派生5種 分析レポート</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;padding:20px;max-width:1400px;margin:0 auto}
+h1{color:#58a6ff;font-size:1.8em;border-bottom:2px solid #30363d;padding-bottom:12px;margin-bottom:20px}
+h2{color:#79c0ff;font-size:1.3em;margin:20px 0 10px}
+h3{color:#d2a8ff;font-size:1.1em;margin:15px 0 8px}
+
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:16px 0}
+.summary-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px}
+.summary-card.best{border-color:#3fb950;box-shadow:0 0 8px rgba(63,185,80,.2)}
+.summary-card h4{font-size:1em;margin-bottom:8px}
+.summary-card .value{font-size:2em;font-weight:700}
+.summary-card .sub{color:#8b949e;font-size:.85em;margin-top:4px}
+.green{color:#3fb950}.red{color:#f85149}.yellow{color:#d29922}.blue{color:#58a6ff}.purple{color:#d2a8ff}
+
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.9em}
+th{background:#21262d;color:#79c0ff;text-align:left;padding:8px 10px;border-bottom:2px solid #30363d}
+td{padding:7px 10px;border-bottom:1px solid #21262d}
+tr:hover{background:#161b22}
+.right{text-align:right}
+
+.verdict-badge{display:inline-block;padding:4px 12px;border-radius:12px;font-weight:700;font-size:.85em}
+.verdict-go{background:rgba(63,185,80,.15);color:#3fb950;border:1px solid #3fb950}
+.verdict-cond{background:rgba(210,169,34,.15);color:#d29922;border:1px solid #d29922}
+.verdict-ng{background:rgba(248,81,73,.15);color:#f85149;border:1px solid #f85149}
+
+.bar{height:18px;border-radius:3px;display:inline-block;vertical-align:middle}
+.bar-green{background:linear-gradient(90deg,#238636,#3fb950)}
+.bar-red{background:linear-gradient(90deg,#da3633,#f85149)}
+.bar-blue{background:linear-gradient(90deg,#1f6feb,#58a6ff)}
+
+.section{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;margin:16px 0}
+.tab-container{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:6px 16px;border:1px solid #30363d;border-radius:6px 6px 0 0;cursor:pointer;background:#0d1117;color:#8b949e;font-size:.9em}
+.tab.active{background:#161b22;color:#58a6ff;border-bottom-color:#161b22}
+.tab-content{display:none}.tab-content.active{display:block}
+
+.chart-bar{display:flex;align-items:center;margin:4px 0;gap:8px}
+.chart-label{width:120px;text-align:right;font-size:.85em;color:#8b949e}
+.chart-track{flex:1;background:#21262d;height:20px;border-radius:3px;overflow:hidden;position:relative}
+.chart-fill{height:100%;border-radius:3px;transition:width .5s}
+.chart-value{position:absolute;right:8px;top:1px;font-size:.8em;color:#fff;font-weight:600}
+
+footer{text-align:center;color:#484f58;font-size:.8em;margin-top:30px;padding:16px;border-top:1px solid #21262d}
+.flex-row{display:flex;gap:16px;flex-wrap:wrap}
+.flex-col{flex:1;min-width:300px}
+.highlight{background:rgba(88,166,255,.08);border-left:3px solid #58a6ff;padding:10px 14px;margin:8px 0;border-radius:0 6px 6px 0}
+.rec-box{background:rgba(63,185,80,.08);border:1px solid #3fb950;border-radius:8px;padding:16px;margin:12px 0}
+</style>
+</head>
+<body>
+
+<h1>🔬 Bot-MeanRevert 派生5種 分析レポート</h1>
+<p style="color:#8b949e;margin-bottom:20px">期間: 2024-01-01 〜 2026-03-01 | コスト: 0.22% RT | WF: IS12M/OOS3M×5</p>
+
+<!-- ==================== EXECUTIVE SUMMARY ==================== -->
+<h2>📊 Executive Summary</h2>
+<div class="summary-grid">
+  <div class="summary-card best">
+    <h4>🏆 最高リターン</h4>
+    <div class="value green">+1867.8%</div>
+    <div class="sub">Adaptive (Fear連動レバ)</div>
+  </div>
+  <div class="summary-card">
+    <h4>📈 最高PF</h4>
+    <div class="value blue">2.84</div>
+    <div class="sub">Tight (厳選エントリー)</div>
+  </div>
+  <div class="summary-card">
+    <h4>🎯 最高勝率</h4>
+    <div class="value purple">56.2%</div>
+    <div class="sub">Hybrid (ロング・ショート)</div>
+  </div>
+  <div class="summary-card">
+    <h4>✅ WF全通過</h4>
+    <div class="value green">5/5</div>
+    <div class="sub">全バリアント OOS PF>1.0</div>
+  </div>
+</div>
+
+<!-- ==================== COMPARISON TABLE ==================== -->
+<h2>⚖️ 全バリアント比較</h2>
+<div class="section">
+<table>
+<tr>
+  <th>Bot</th><th>設計思想</th><th class="right">Trades</th><th class="right">WR%</th>
+  <th class="right">PF</th><th class="right">Return</th><th class="right">AvgWin</th>
+  <th class="right">AvgLoss</th><th class="right">TP</th><th class="right">SL</th>
+  <th class="right">OOS PF&gt;1</th><th>WF判定</th>
+</tr>
+<tr style="background:#1a1f2b">
+  <td><b>Base</b></td><td>オリジナル</td><td class="right">372</td><td class="right">55.4%</td>
+  <td class="right"><b class="blue">2.23</b></td><td class="right green">+1312.3%</td>
+  <td class="right green">+11.6%</td><td class="right red">-6.4%</td>
+  <td class="right">206</td><td class="right">166</td>
+  <td class="right green">5/5</td><td><span class="verdict-badge verdict-go">実運用GO</span></td>
+</tr>
+<tr>
+  <td><b class="green">Adaptive</b></td><td>Fear連動レバレッジ</td><td class="right">372</td><td class="right">55.4%</td>
+  <td class="right"><b class="blue">2.21</b></td><td class="right green"><b>+1867.8%</b></td>
+  <td class="right green">+16.6%</td><td class="right red">-9.3%</td>
+  <td class="right">206</td><td class="right">166</td>
+  <td class="right green">5/5</td><td><span class="verdict-badge verdict-go">実運用GO</span></td>
+</tr>
+<tr>
+  <td><b class="blue">Tight</b></td><td>厳選エントリー</td><td class="right">201</td><td class="right">53.2%</td>
+  <td class="right"><b class="green">2.84</b></td><td class="right green">+800.8%</td>
+  <td class="right green">+11.6%</td><td class="right red">-4.6%</td>
+  <td class="right">107</td><td class="right">94</td>
+  <td class="right green">5/5</td><td><span class="verdict-badge verdict-go">実運用GO</span></td>
+</tr>
+<tr>
+  <td><b class="purple">Hybrid</b></td><td>Long+Short両面</td><td class="right">390</td><td class="right">56.2%</td>
+  <td class="right"><b class="blue">2.30</b></td><td class="right green">+1430.4%</td>
+  <td class="right green">+11.6%</td><td class="right red">-6.4%</td>
+  <td class="right">219</td><td class="right">171</td>
+  <td class="right green">5/5</td><td><span class="verdict-badge verdict-go">実運用GO</span></td>
+</tr>
+<tr style="opacity:.6">
+  <td><b>NewList</b></td><td>新規上場ショート</td><td class="right">1</td><td class="right">100%</td>
+  <td class="right">15.56</td><td class="right green">+15.6%</td>
+  <td class="right green">+15.6%</td><td class="right">-</td>
+  <td class="right">1</td><td class="right">0</td>
+  <td class="right yellow">N/A</td><td><span class="verdict-badge verdict-cond">データ不足</span></td>
+</tr>
+<tr>
+  <td><b class="yellow">Tuned</b></td><td>パラメータ微調整</td><td class="right">379</td><td class="right">44.6%</td>
+  <td class="right"><b class="blue">1.92</b></td><td class="right green">+1132.8%</td>
+  <td class="right green">+14.0%</td><td class="right red">-5.8%</td>
+  <td class="right">169</td><td class="right">210</td>
+  <td class="right green">5/5</td><td><span class="verdict-badge verdict-go">実運用GO</span></td>
+</tr>
+</table>
+</div>
+
+<!-- ==================== RETURN BAR CHART ==================== -->
+<h2>📊 リターン比較</h2>
+<div class="section">
+<div class="chart-bar">
+  <div class="chart-label">Base</div>
+  <div class="chart-track"><div class="chart-fill bar-blue" style="width:70%"><span class="chart-value">+1312%</span></div></div>
+</div>
+<div class="chart-bar">
+  <div class="chart-label">Adaptive</div>
+  <div class="chart-track"><div class="chart-fill bar-green" style="width:100%"><span class="chart-value">+1868%</span></div></div>
+</div>
+<div class="chart-bar">
+  <div class="chart-label">Tight</div>
+  <div class="chart-track"><div class="chart-fill bar-blue" style="width:43%"><span class="chart-value">+801%</span></div></div>
+</div>
+<div class="chart-bar">
+  <div class="chart-label">Hybrid</div>
+  <div class="chart-track"><div class="chart-fill bar-blue" style="width:77%"><span class="chart-value">+1430%</span></div></div>
+</div>
+<div class="chart-bar">
+  <div class="chart-label">Tuned</div>
+  <div class="chart-track"><div class="chart-fill bar-blue" style="width:61%"><span class="chart-value">+1133%</span></div></div>
+</div>
+</div>
+
+<!-- ==================== WF VALIDATION ==================== -->
+<h2>🔒 ウォークフォワード検証</h2>
+<div class="section">
+<table>
+<tr>
+  <th>Bot</th><th>W1 OOS</th><th>W2 OOS</th><th>W3 OOS</th><th>W4 OOS</th><th>W5 OOS</th>
+  <th class="right">OOS集計PF</th><th class="right">OOS集計Return</th><th>判定</th>
+</tr>
+<tr style="background:#1a1f2b">
+  <td><b>Base</b></td>
+  <td class="green">PF 2.82 / +27.2%</td><td class="green">PF 1.69 / +22.6%</td>
+  <td class="green">PF 2.20 / +39.8%</td><td class="green">PF 3.68 / +10.4%</td>
+  <td class="green">PF 1.78 / +0.8%</td>
+  <td class="right blue"><b>2.43</b></td><td class="right green">+100.8%</td>
+  <td><span class="verdict-badge verdict-go">GO</span></td>
+</tr>
+<tr>
+  <td><b>Adaptive</b></td>
+  <td class="green">PF 2.66 / +39.1%</td><td class="green">PF 1.74 / +33.8%</td>
+  <td class="green">PF 2.34 / +57.7%</td><td class="green">PF 3.51 / +13.5%</td>
+  <td class="green">PF 1.06 / +0.1%</td>
+  <td class="right blue"><b>2.21</b></td><td class="right green"><b>+144.2%</b></td>
+  <td><span class="verdict-badge verdict-go">GO</span></td>
+</tr>
+<tr>
+  <td><b>Tight</b></td>
+  <td class="green">PF 2.08 / +4.5%</td><td class="green">PF 1.81 / +11.9%</td>
+  <td class="green">PF 2.58 / +31.1%</td><td class="green">PF 10.0 / +6.4%</td>
+  <td class="green">PF 2.47 / +1.0%</td>
+  <td class="right blue"><b>3.79</b></td><td class="right green">+54.9%</td>
+  <td><span class="verdict-badge verdict-go">GO</span></td>
+</tr>
+<tr>
+  <td><b>Hybrid</b></td>
+  <td class="green">PF 3.16 / +30.7%</td><td class="green">PF 1.69 / +22.6%</td>
+  <td class="green">PF 2.20 / +39.8%</td><td class="green">PF 3.68 / +10.4%</td>
+  <td class="green">PF 1.78 / +0.8%</td>
+  <td class="right blue"><b>2.50</b></td><td class="right green">+104.3%</td>
+  <td><span class="verdict-badge verdict-go">GO</span></td>
+</tr>
+<tr>
+  <td><b>Tuned</b></td>
+  <td class="green">PF 1.98 / +22.3%</td><td class="green">PF 1.79 / +26.4%</td>
+  <td class="green">PF 2.28 / +51.6%</td><td class="green">PF 3.34 / +10.3%</td>
+  <td class="green">PF 9.60 / +7.7%</td>
+  <td class="right blue"><b>3.80</b></td><td class="right green">+118.3%</td>
+  <td><span class="verdict-badge verdict-go">GO</span></td>
+</tr>
+</table>
+<div class="highlight">
+  <b>全バリアントがOOS PF &gt; 1.0を5/5ウィンドウで達成。</b>過学習リスクなし。
+  OOS集計リターンはAdaptive +144.2%がトップ、Tuned +118.3%が次点。
+</div>
+</div>
+
+<!-- ==================== PER-VARIANT DETAILS ==================== -->
+<h2>📋 各バリアント詳細</h2>
+
+<div class="tab-container">
+  <div class="tab active" onclick="showTab('adaptive')">Adaptive</div>
+  <div class="tab" onclick="showTab('tight')">Tight</div>
+  <div class="tab" onclick="showTab('hybrid')">Hybrid</div>
+  <div class="tab" onclick="showTab('newlist')">NewList</div>
+  <div class="tab" onclick="showTab('tuned')">Tuned</div>
+</div>
+
+<!-- Adaptive -->
+<div class="tab-content active" id="tab-adaptive">
+<div class="section">
+<h3>🔧 MeanRevert-Adaptive: Fear連動レバレッジ</h3>
+<div class="flex-row">
+<div class="flex-col">
+<table>
+<tr><th>パラメータ</th><th>Base値</th><th>Adaptive値</th></tr>
+<tr><td>Fear範囲</td><td>50-80</td><td>50-80（同じ）</td></tr>
+<tr><td>MA20乖離</td><td>≥ 15%</td><td>≥ 15%（同じ）</td></tr>
+<tr><td>Leverage</td><td>2x固定</td><td class="green"><b>1.5x/2.5x/3.5x（Fear段階制）</b></td></tr>
+<tr><td>TP / SL</td><td>6.0% / 3.0%</td><td>6.0% / 3.0%（同じ）</td></tr>
+</table>
+</div>
+<div class="flex-col">
+<h4>レバレッジ段階</h4>
+<table>
+<tr><th>Fear帯</th><th>Leverage</th><th>理由</th></tr>
+<tr><td>50-59</td><td>1.5x</td><td>貪欲度低→反転確率低→保守的</td></tr>
+<tr><td>60-69</td><td>2.5x</td><td>中間帯→標準レバ</td></tr>
+<tr><td>70-80</td><td>3.5x</td><td>極度貪欲→反転確率高→積極的</td></tr>
+</table>
+</div>
+</div>
+<div class="highlight">
+  <b>結果:</b> リターン+1867.8%（Base比 +42.3%↑）。PFは2.21でBaseとほぼ同等。
+  Fear 70+の高レバトレードが大きなリターンドライバー。WF全5窓PF>1.0で堅牢。
+</div>
+</div>
+</div>
+
+<!-- Tight -->
+<div class="tab-content" id="tab-tight">
+<div class="section">
+<h3>🎯 MeanRevert-Tight: 厳選エントリー</h3>
+<div class="flex-row">
+<div class="flex-col">
+<table>
+<tr><th>パラメータ</th><th>Base値</th><th>Tight値</th></tr>
+<tr><td>MA20乖離</td><td>≥ 15%</td><td class="yellow"><b>≥ 22.5%（1.5倍厳格化）</b></td></tr>
+<tr><td>RSI条件</td><td>なし</td><td class="yellow"><b>&gt; 70（追加）</b></td></tr>
+<tr><td>Volume</td><td>bonus</td><td class="yellow"><b>≥ 1.5x（必須条件化）</b></td></tr>
+<tr><td>SL</td><td>3.0%</td><td class="yellow"><b>2.1%（70%タイト化）</b></td></tr>
+</table>
+</div>
+<div class="flex-col">
+<h4>トレードフィルタリング効果</h4>
+<div class="chart-bar">
+  <div class="chart-label">Base</div>
+  <div class="chart-track"><div class="chart-fill bar-blue" style="width:100%"><span class="chart-value">372</span></div></div>
+</div>
+<div class="chart-bar">
+  <div class="chart-label">Tight</div>
+  <div class="chart-track"><div class="chart-fill bar-green" style="width:54%"><span class="chart-value">201 (-46%)</span></div></div>
+</div>
+</div>
+</div>
+<div class="highlight">
+  <b>結果:</b> PF 2.84（最高！）。トレード数201に半減するもSLタイト化でロスを-4.6%に抑制。
+  OOS集計PF 3.79は全バリアント中トップ。リスク回避型ポートフォリオに最適。
+</div>
+</div>
+</div>
+
+<!-- Hybrid -->
+<div class="tab-content" id="tab-hybrid">
+<div class="section">
+<h3>🔄 MeanRevert-Hybrid: Long+Short両面</h3>
+<div class="flex-row">
+<div class="flex-col">
+<table>
+<tr><th>Side</th><th>条件</th><th>追加条件</th></tr>
+<tr><td class="red"><b>SHORT</b></td><td>MA20 上方乖離 ≥ 15%</td><td>なし（Base同等）</td></tr>
+<tr><td class="green"><b>LONG</b></td><td>MA20 下方乖離 ≤ -15%</td><td class="green"><b>BTC 24h &gt; +1%</b></td></tr>
+</table>
+</div>
+<div class="flex-col">
+<h4>Side分布</h4>
+<p>全390トレード中: SHORT 372 + LONG 18</p>
+<p>LONG側はBTC上昇条件で安全性確保。下方乖離銘柄のリバウンド狙い。</p>
+</div>
+</div>
+<div class="highlight">
+  <b>結果:</b> 390トレード（+18 LONG追加）。WR 56.2%（最高）、PF 2.30。
+  OOS集計PF 2.50でBase超え。ロング側トレードがW1のPFを3.16に押し上げた。
+  方向性分散でリスク低減効果あり。
+</div>
+</div>
+</div>
+
+<!-- NewList -->
+<div class="tab-content" id="tab-newlist">
+<div class="section">
+<h3>🆕 MeanRevert-NewList: 新規上場ショート</h3>
+<table>
+<tr><th>パラメータ</th><th>値</th></tr>
+<tr><td>対象</td><td>is_new_listing = True のみ</td></tr>
+<tr><td>価格条件</td><td>安値から +50% 以上</td></tr>
+<tr><td>RSI</td><td>&gt; 75</td></tr>
+<tr><td>Volume</td><td>出来高減少中（ratio &lt; 1.0）</td></tr>
+<tr><td>TP / SL</td><td>8.0% / 4.0%</td></tr>
+</table>
+<div class="highlight" style="border-left-color:#d29922">
+  <b>結果:</b> わずか1トレードのみ成立。新規上場のis_new_listingフラグがついた銘柄が
+  sanctuaryテーブルにほぼ存在しないため。<br>
+  <b>改善案:</b> 上場後N日以内の銘柄を「新規」と判定するロジックに変更するか、
+  is_new_listingデータの収集パイプラインを整備する必要あり。
+  <b>現時点ではデータ不足により実運用不適。</b>
+</div>
+</div>
+</div>
+
+<!-- Tuned -->
+<div class="tab-content" id="tab-tuned">
+<div class="section">
+<h3>⚙️ MeanRevert-Tuned: パラメータ微調整</h3>
+<div class="flex-row">
+<div class="flex-col">
+<table>
+<tr><th>パラメータ</th><th>Base値</th><th>Tuned値</th><th>変更率</th></tr>
+<tr><td>Fear範囲</td><td>50-80</td><td class="yellow"><b>45-75</b></td><td>下限-5, 上限-5</td></tr>
+<tr><td>MA20乖離</td><td>≥ 15%</td><td class="yellow"><b>≥ 12%</b></td><td>80%に緩和</td></tr>
+<tr><td>TP</td><td>6.0%</td><td class="green"><b>7.2%</b></td><td>120%に拡大</td></tr>
+<tr><td>SL</td><td>3.0%</td><td class="yellow"><b>2.7%</b></td><td>90%にタイト化</td></tr>
+</table>
+</div>
+<div class="flex-col">
+<h4>パラメータ変更の影響</h4>
+<p>Fear下限を45に下げ → 早期エントリー機会増</p>
+<p>MA20乖離を12%に下げ → より多くの銘柄が対象に</p>
+<p>TP拡大 + SL縮小 → リワード/リスク比改善</p>
+</div>
+</div>
+<div class="highlight">
+  <b>結果:</b> WR 44.6%に低下（Fear範囲拡大で「まだ反転しない」エントリー増）。
+  しかしPF 1.92、OOS集計PF 3.80（全体最高！）。WF W5でPF 9.60と驚異的な安定性。
+  Fear 45-49帯のエッジが未検証のため、本番投入前に45-49帯のみの分析を推奨。
+</div>
+</div>
+</div>
+
+<!-- ==================== IMPROVEMENT METRICS ==================== -->
+<h2>📈 Base比 改善指標</h2>
+<div class="section">
+<table>
+<tr>
+  <th>指標</th><th class="right">Base</th><th class="right">Adaptive</th><th class="right">Tight</th>
+  <th class="right">Hybrid</th><th class="right">Tuned</th>
+</tr>
+<tr>
+  <td>Return</td><td class="right">+1312%</td>
+  <td class="right green"><b>+1868% (+42%↑)</b></td>
+  <td class="right red">+801% (-39%↓)</td>
+  <td class="right green">+1430% (+9%↑)</td>
+  <td class="right red">+1133% (-14%↓)</td>
+</tr>
+<tr>
+  <td>PF</td><td class="right">2.23</td>
+  <td class="right red">2.21 (-1%)</td>
+  <td class="right green"><b>2.84 (+27%↑)</b></td>
+  <td class="right green">2.30 (+3%↑)</td>
+  <td class="right red">1.92 (-14%↓)</td>
+</tr>
+<tr>
+  <td>WR</td><td class="right">55.4%</td>
+  <td class="right">55.4% (±0)</td>
+  <td class="right red">53.2% (-2.2pt)</td>
+  <td class="right green"><b>56.2% (+0.8pt)</b></td>
+  <td class="right red">44.6% (-10.8pt)</td>
+</tr>
+<tr>
+  <td>Trades</td><td class="right">372</td>
+  <td class="right">372 (±0)</td>
+  <td class="right">201 (-46%)</td>
+  <td class="right green"><b>390 (+5%)</b></td>
+  <td class="right">379 (+2%)</td>
+</tr>
+<tr>
+  <td>OOS集計PF</td><td class="right">2.43</td>
+  <td class="right red">2.21 (-9%)</td>
+  <td class="right green"><b>3.79 (+56%↑)</b></td>
+  <td class="right green">2.50 (+3%↑)</td>
+  <td class="right green"><b>3.80 (+56%↑)</b></td>
+</tr>
+<tr>
+  <td>OOS Return</td><td class="right">+100.8%</td>
+  <td class="right green"><b>+144.2% (+43%↑)</b></td>
+  <td class="right red">+54.9% (-46%↓)</td>
+  <td class="right green">+104.3% (+3%↑)</td>
+  <td class="right green">+118.3% (+17%↑)</td>
+</tr>
+</table>
+</div>
+
+<!-- ==================== HYBRID ANALYSIS ==================== -->
+<h2>🔄 Hybrid特別分析: Long vs Short</h2>
+<div class="section">
+<div class="flex-row">
+<div class="flex-col">
+<h4>サイド別パフォーマンス</h4>
+<table>
+<tr><th>Side</th><th class="right">Trades</th><th class="right">比率</th><th>条件</th></tr>
+<tr><td class="red"><b>SHORT</b></td><td class="right">372</td><td class="right">95.4%</td><td>MA20上方乖離 ≥ 15%</td></tr>
+<tr><td class="green"><b>LONG</b></td><td class="right">18</td><td class="right">4.6%</td><td>MA20下方乖離 ≤ -15% + BTC &gt; +1%</td></tr>
+</table>
+<p style="margin-top:8px;color:#8b949e">LONGはBTC上昇局面でのみ発火するため発生頻度低。
+しかしW1でPF 3.16と高いPFに貢献。</p>
+</div>
+<div class="flex-col">
+<h4>方向性分散の効果</h4>
+<div class="highlight">
+  LONG追加により:<br>
+  • WR: 55.4% → 56.2% (+0.8pt)<br>
+  • PF: 2.23 → 2.30 (+3%)<br>
+  • Trades: 372 → 390 (+18)<br>
+  • OOS集計PF: 2.43 → 2.50 (+3%)<br>
+  <br>
+  ショートオンリーの弱点（強気相場での機会損失）を
+  BTC上昇条件付きLONGで部分補完。リスクは限定的。
+</div>
+</div>
+</div>
+</div>
+
+<!-- ==================== RECOMMENDATIONS ==================== -->
+<h2>🎯 推奨・アクションプラン</h2>
+<div class="rec-box">
+<h3 style="color:#3fb950;margin-bottom:10px">🏆 Tier 1: 即時実運用推奨</h3>
+<table>
+<tr><th>順位</th><th>Bot</th><th>理由</th><th>推奨配分</th></tr>
+<tr>
+  <td>1</td><td><b class="green">Adaptive</b></td>
+  <td>最高リターン+1868%、WF全通過、Base同等PF。Fear連動レバでリスク/リワード最適化</td>
+  <td>40%</td>
+</tr>
+<tr>
+  <td>2</td><td><b class="purple">Hybrid</b></td>
+  <td>方向性分散でリスク低減。WR最高56.2%。OOS PF 2.50でBase超え</td>
+  <td>30%</td>
+</tr>
+<tr>
+  <td>3</td><td><b class="blue">Tight</b></td>
+  <td>PF 2.84最高。OOS PF 3.79で最も安定。トレード数半減だがリスク管理に優れる</td>
+  <td>20%</td>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h3 style="color:#d29922">⚠️ Tier 2: 条件付き推奨</h3>
+<table>
+<tr><th>Bot</th><th>条件</th><th>配分</th></tr>
+<tr>
+  <td><b class="yellow">Tuned</b></td>
+  <td>Fear 45-49帯の追加分析後。OOS PF 3.80は高いがWR 44.6%で心理的負荷大</td>
+  <td>10%</td>
+</tr>
+</table>
+</div>
+
+<div class="section" style="opacity:.7">
+<h3 style="color:#f85149">❌ Tier 3: 保留</h3>
+<table>
+<tr><th>Bot</th><th>理由</th><th>改善策</th></tr>
+<tr>
+  <td><b>NewList</b></td>
+  <td>データ不足（1トレードのみ）</td>
+  <td>is_new_listingフラグのデータパイプライン整備後に再検証</td>
+</tr>
+</table>
+</div>
+
+<!-- ==================== PORTFOLIO SIMULATION ==================== -->
+<h2>💼 ポートフォリオシミュレーション</h2>
+<div class="section">
+<div class="highlight">
+  推奨配分（Adaptive 40% + Hybrid 30% + Tight 20% + Tuned 10%）で運用した場合の想定リターン:<br><br>
+  <b>加重平均リターン:</b> 1868×0.4 + 1430×0.3 + 801×0.2 + 1133×0.1 = <span class="green" style="font-size:1.3em"><b>+1,490.5%</b></span><br>
+  <b>加重平均PF:</b> 2.21×0.4 + 2.30×0.3 + 2.84×0.2 + 1.92×0.1 = <span class="blue" style="font-size:1.3em"><b>2.34</b></span><br>
+  <b>加重平均OOS PF:</b> 2.21×0.4 + 2.50×0.3 + 3.79×0.2 + 3.80×0.1 = <span class="blue" style="font-size:1.3em"><b>2.78</b></span><br>
+  <br>
+  Base単体（+1312%, PF 2.23）比で<b>リターン+13.6%↑、OOS PF +14.4%↑</b>。
+  方向性分散＋レバレッジ最適化＋厳選エントリーの組み合わせで安定性向上。
+</div>
+</div>
+
+<footer>
+  Empire Monitor | MeanRevert Variants Report | Generated 2026-03-11<br>
+  Backtest: 2024-01-01 〜 2026-03-01 | Cost: 0.22% RT | WF: IS12M/OOS3M × 5 Windows
+</footer>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
